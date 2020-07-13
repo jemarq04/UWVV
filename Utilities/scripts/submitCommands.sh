@@ -1,5 +1,5 @@
 source /cvmfs/cms.cern.ch/crab3/crab.sh
-
+source /cvmfs/cms.cern.ch/common/crab-setup.sh
 ##Advised not to run them all at once. Test locally with a sample file from one dataset in each .dat file before submitting all the datasets
 
 ##2016 ZZ Ntuples

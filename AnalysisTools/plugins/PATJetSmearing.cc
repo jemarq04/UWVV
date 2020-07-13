@@ -93,25 +93,28 @@ void PATJetSmearing::produce(edm::Event& iEvent,
   for(size_t i = 0; i < in->size(); ++i)
     {
       const Jet& jet = in->at(i);
-
+      
       float pt = jet.pt();
       float eta = jet.eta();
       float phi = jet.phi();
-
+      //std::cout<<"jet.pt: "<<jet.pt()<<' '<<systematics<<std::endl;
+      //std::cout<<"===============================================before setting parameters===================="<<std::endl;
       JME::JetParameters params;
       params.setJetPt(pt).setJetEta(eta).setRho(*rho);
-
+      //std::cout<<"===============================================after setting parameters===================="<<std::endl;
       float relPtErr = resPt.getResolution(params);
 
       JME::JetParameters paramsSF;
-      paramsSF.setJetEta(eta).setRho(*rho);
-
+      paramsSF.setJetPt(pt).setJetEta(eta).setRho(*rho);
+      
       float sf = resSF.getScaleFactor(paramsSF);
+      //std::cout<<"===============================================after something===================="<<std::endl;            
       float sfUp = systematics ? resSF.getScaleFactor(paramsSF, Variation::UP) : 0.;
       float sfDn = systematics ? resSF.getScaleFactor(paramsSF, Variation::DOWN) : 0.;
 
       double ptJER, ptJERUp, ptJERDn;
       const reco::GenJet* gen = jet.genJet();
+
       if(gen && reco::deltaR(eta, phi, gen->eta(), gen->phi()) < 0.2 &&
          (std::abs(pt - gen->pt()) < 3. * relPtErr * pt))
         {

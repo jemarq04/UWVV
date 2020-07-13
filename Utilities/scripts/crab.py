@@ -1,5 +1,5 @@
 # Modified from N. Smith, U. Wisconsin
-from CRABClient.UserUtilities import config, getUsernameFromSiteDB
+from CRABClient.UserUtilities import config #, getUsernameFromSiteDB
 import ConfigParser
 import os
 import re
@@ -34,7 +34,7 @@ if dataset == 'dummy':
 (_, primaryDS, conditions, dataTier) = dataset.split('/')
 if dataTier == 'MINIAOD':
     isMC = 0
-    if "Prompt" in conditions:
+    if "Prompt" in conditions or "22Jan2019" in conditions: #latter correspond to process string for 2018D in some cases
         isPrompt = 1
     else:
         isPrompt = 0
@@ -165,7 +165,7 @@ config.Data.inputDBS = 'global' if 'USER' not in dataset else 'phys03'
 config.Data.useParent = False
 config.Data.publication = False
 outdir = localSettings.get("local", "outLFNDirBase").replace(
-    "$USER", getUsernameFromSiteDB()).replace("$DATE", today)
+    "$USER", 'hehe').replace("$DATE", today)
 #outdir = localSettings.get("local", "outLFNDirBase").replace(
 #    "$USER", getUsernameFromSiteDB()).replace("$DATE", "25Jan2019")
 # Useful for VBFNLO samples

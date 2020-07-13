@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import FWCore.PythonUtilities.LumiList as LumiList
 import FWCore.ParameterSet.Types as CfgTypes
+import pdb
 
 from UWVV.AnalysisTools.analysisFlowMaker import createFlow
 
@@ -11,6 +12,7 @@ from UWVV.Ntuplizer.eventParams import makeEventParams, makeGenEventParams
 
 import os
 
+#pdb.set_trace()
 process = cms.Process("Ntuple")
 
 options = VarParsing.VarParsing('analysis')
@@ -142,14 +144,15 @@ if options.year == "2016":
     options.inputFiles='/store/data/Run2016H/DoubleMuon/MINIAOD/17Jul2018-v1/00000/02359251-628E-E811-BA72-0242AC1C0500.root'
     options.outputFile = 'ntuple2016.root'
 if options.year == "2017":
-    options.inputFiles = '/store/mc/RunIIFall17MiniAODv2/VBF_HToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/60000/3450B123-E8BF-E811-B895-FA163E9604CF.root'
+   # options.inputFiles = '/store/mc/RunIIFall17MiniAODv2/VBF_HToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/60000/3450B123-E8BF-E811-B895-FA163E9604CF.root'
     #options.inputFiles = '/store/mc/RunIIFall17MiniAODv2/ZZTo4L_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14_ext2-v1/280000/E6CABE1D-2D78-E911-90C6-008CFA1C6458.root'
     #options.inputFiles='/store/mc/RunIIFall17MiniAODv2/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/280000/FE202169-8B1C-E911-8DF5-0CC47A13CB02.root'
-    options.outputFile = 'ntuple2017.root'
+    options.inputFiles ='file:TestFile.root'
+    options.outputFile = 'ntuple2017.root' #'TestOutput_mediumPUidan50.root'
 if options.year == "2018":
     #options.inputFiles = '/store/mc/RunIIAutumn18MiniAOD/ttH_HToZZ_4LFilter_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v2/60000/DCB7927B-269F-3B4B-9DA3-EFE07A37FC9E.root'
     #options.inputFiles='/store/mc/RunIIAutumn18MiniAOD/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15_ext2-v2/90000/F9BD3565-7BA4-604B-B7ED-994931E803B4.root'
-    options.inputFiles='file:ZZPowheg2018MiniAOD.root'
+    options.inputFiles='file:/afs/cern.ch/work/h/hehe/rootfiles/MC_WWZ_2018.root' #'/store/data/Run2018A/SingleMuon/MINIAOD/17Sep2018-v2/00000/11697BCC-C4AB-204B-91A9-87F952F9F2C6.root'
     options.outputFile = 'ntuple2018.root'
 
 genLepChoices =  {"hardProcess" : "isHardProcess()",
@@ -210,21 +213,21 @@ elif options.isMC:
     if options.year == "2017":
         gt = '94X_mc2017_realistic_v17'
     if options.year == "2018" or options.year == "2018Prompt":
-        gt = '102X_upgrade2018_realistic_v19'
+        gt = '102X_upgrade2018_realistic_v20'
 else:
     if options.year == "2016":
         gt = '94X_dataRun2_v10'
     if options.year == "2017":
         gt = '94X_dataRun2_v11'
     if options.year == "2018":
-        gt = '102X_dataRun2_v11'
+        gt = '102X_dataRun2_v12'
     if options.year == "2018Prompt":
-        gt = '102X_dataRun2_Prompt_v14'
+        gt = '102X_dataRun2_Prompt_v15'
         
 
 print "globalTag: ",gt
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
-
+#pdb.set_trace()
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.schedule = cms.Schedule()
 
@@ -468,6 +471,7 @@ flowOpts = {
     }
 
 # Turn all these into a single flow class
+#pdb.set_trace()
 FlowClass = createFlow(*FlowSteps)
 flow = FlowClass('flow', process, initialstate_chans=channels, **flowOpts)
 
@@ -603,3 +607,4 @@ if zz and options.isMC and options.genInfo:
 
 p = flow.getPath()
 p += process.treeSequence
+#pdb.set_trace()

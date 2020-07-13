@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 from UWVV.AnalysisTools.AnalysisStep import AnalysisStep
 
 from collections import OrderedDict
-
+import pdb
 
 
 class AnalysisFlowBase(object):
@@ -39,7 +39,7 @@ class AnalysisFlowBase(object):
             self.steps[step] = self.makeAnalysisStep(step, **nextInputs)
 
             self.outputs.append(self.steps[step].outputs.copy())
-
+        #pdb.set_trace()
         self.path = self.setupPath()
 
 

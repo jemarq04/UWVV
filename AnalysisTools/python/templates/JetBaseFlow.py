@@ -4,6 +4,7 @@ from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from UWVV.Utilities.helpers import UWVV_BASE_PATH
 import os
 from os import path
+import pdb
 
 class JetBaseFlow(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
@@ -36,13 +37,14 @@ class JetBaseFlow(AnalysisFlowBase):
                            self.process.pileupJetIdUpdated,
                            'puID', puID='fullId')
             
-            if LeptonSetup=="2018":
-                sqlitePath = '{0}.db'.format('Autumn18_V16_MC' if self.isMC else 'Autumn18_RunABCD_V16_DATA')
+            '''if LeptonSetup=="2018":
+                sqlitePath = '{0}.db'.format('Autumn18_V16_MC' if self.isMC else 'Autumn18_RunABCD_V19_DATA')
+                pdb.set_trace()
                 #dbPath = 'sqlite_file:' + path.join(UWVV_BASE_PATH, 'data',  
                 #                                    sqlitePath)
                 #sqlitePath = '{0}/src/UWVV/data/{1}.db'.format(cmsswversion,'Autumn18_V16_MC' if self.isMC else 'Autumn18_RunABCD_V16_DATA' )
                 if self.runningLocal:
-                    sqPath = '{0}.db'.format('Autumn18_V16_MC' if self.isMC else 'Autumn18_RunABCD_V16_DATA')
+                    sqPath = '{0}.db'.format('Autumn18_V16_MC' if self.isMC else 'Autumn18_RunABCD_V19_DATA')
                     sqlitePath =  path.join(UWVV_BASE_PATH, 'data',  
                                                     sqPath)
                     print "Running Locally"
@@ -76,7 +78,7 @@ class JetBaseFlow(AnalysisFlowBase):
 
                 step.addModule('JECDBESSource', JECDBESSource)
                 
-                self.process.es_prefer_jec = cms.ESPrefer('PoolDBESSource', 'JECDBESSource')
+                self.process.es_prefer_jec = cms.ESPrefer('PoolDBESSource', 'JECDBESSource')'''
 
 
             # Jet energy corrections
@@ -189,7 +191,7 @@ class JetBaseFlow(AnalysisFlowBase):
             # For now, we're not using the PU ID, but we'll store it in the
             # ntuples later
             selectionString = ('pt > 30. && abs(eta) < 4.7 && '
-                               'userFloat("idTight") > 0.5')
+                               'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
 
             # # use medium PU ID
             # # PU IDs are stored as a userInt where the first three digits are
