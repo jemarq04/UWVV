@@ -81,6 +81,7 @@ eventGenBranches = cms.PSet(
     floats = cms.PSet(
         genWeight = cms.string('genWeight'),
         nTruePU = cms.string('nTruePU'),
+        #originalXWGTUP=cms.string('originalXWGTUP'),
         ),
     )
 

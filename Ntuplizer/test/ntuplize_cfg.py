@@ -147,7 +147,7 @@ if options.year == "2017":
    # options.inputFiles = '/store/mc/RunIIFall17MiniAODv2/VBF_HToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/60000/3450B123-E8BF-E811-B895-FA163E9604CF.root'
     #options.inputFiles = '/store/mc/RunIIFall17MiniAODv2/ZZTo4L_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14_ext2-v1/280000/E6CABE1D-2D78-E911-90C6-008CFA1C6458.root'
     #options.inputFiles='/store/mc/RunIIFall17MiniAODv2/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/280000/FE202169-8B1C-E911-8DF5-0CC47A13CB02.root'
-    options.inputFiles ='file:TestFile.root'
+    options.inputFiles ='file:/afs/cern.ch/work/h/hehe/ggZZ_new_files/crab_AllMid_ggZZ012j_MiniAODv2_v3/SMP-RunIIFall17MiniAODv2-99999_1.root'
     options.outputFile = 'ntuple2017.root' #'TestOutput_mediumPUidan50.root'
 if options.year == "2018":
     #options.inputFiles = '/store/mc/RunIIAutumn18MiniAOD/ttH_HToZZ_4LFilter_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v2/60000/DCB7927B-269F-3B4B-9DA3-EFE07A37FC9E.root'

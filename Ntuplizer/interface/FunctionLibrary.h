@@ -214,6 +214,12 @@ namespace
                                  return (evt.genEventInfo().isValid() ? evt.genEventInfo()->weight() : 0.);
                                });
 
+        addTo["originalXWGTUP"] =
+          std::function<FType>([](const edm::Ptr<T>& obj, uwvv::EventInfo& evt, const std::string& option)
+                               {
+                                 return (evt.lheEventInfo()->originalXWGTUP());
+                               });
+
         addTo["mtToMET"] =
           std::function<FType>([](const edm::Ptr<T>& obj, uwvv::EventInfo& evt, const std::string& option)
                                {
