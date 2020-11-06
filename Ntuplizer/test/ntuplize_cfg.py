@@ -527,6 +527,7 @@ else:
 
 process.treeSequence = cms.Sequence()
 # then the ntuples
+#pdb.set_trace()
 for chan in channels:
     mod = cms.EDAnalyzer(
         'TreeGenerator{}'.format(expandChannelName(chan)),
@@ -578,7 +579,7 @@ if zz and options.isMC and options.genInfo:
         from UWVV.Ntuplizer.templates.eventBranches import dressedGenCompositeStateBranches
         extraInitialStateBranchesGen.append(dressedGenCompositeStateBranches)
         extraIntermediateStateBranchesGen.append(dressedGenCompositeStateBranches)
-
+    #pdb.set_trace()
     for chan in channels:
         if 'dressed' in options.genLeptonType.lower():
             genBranches = makeGenBranchSet(chan,

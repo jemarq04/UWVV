@@ -7,7 +7,7 @@ import subprocess
 import sys
 import datetime
 import glob
-import hashlib
+import hashlib,pdb
 
 settingsFile = "local.txt"
 if not os.path.exists(settingsFile):
@@ -85,6 +85,8 @@ configParams = [
     "year=%s" % localSettings.get("local", "year"),
     "channels=%s" % localSettings.get("local", "channels"),
     "lheWeights=%s" % lheWeight,
+    "genInfo=%s" % localSettings.get("local", "genInfo"),
+    "genLeptonType=%s" % localSettings.get("local", "genLeptonType"),
     "eCalib=%s" % localSettings.get("local", "eCalib"),
     "muCalib=%s" % localSettings.get("local", "muCalib"),
     "globalTag=%s" % globalTag,

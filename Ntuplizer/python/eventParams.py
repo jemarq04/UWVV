@@ -85,6 +85,9 @@ def makeGenEventParams(flowOutputs, **newParams):
 
     params.update(newParams)
 
+    #l1ECALPrefiring Params, not used in gen but seem to be required in EvnetInfo
+    params.update(_l1ECALPrefiringParams)
+
     for p in params:
         if not isinstance(params[p], _ParameterTypeBase):
             params[p] = cms.InputTag(params[p])
