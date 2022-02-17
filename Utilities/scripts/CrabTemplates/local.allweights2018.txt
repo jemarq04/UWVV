@@ -1,7 +1,7 @@
 # Copy to local.txt and change
 [local]
-campaign: UWVVNtuples18_16Aug2019
-outLFNDirBase: /store/user/$USER/UWVVNtuples18_16Aug2019/
+campaign: UWVVNtuples18_$DATE
+outLFNDirBase: /store/user/$USER/UWVVNtuples18_$DATE/
 storageSite: T2_US_Wisconsin
 channels: zz
 year: 2018

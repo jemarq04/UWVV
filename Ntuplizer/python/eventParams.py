@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Mixins import _ParameterTypeBase
 
-
+#'externalLHEProducer',
 _defaultEventParams = {
     'vtxSrc'             : 'offlineSlimmedPrimaryVertices',
     'eSrc'               : 'slimmedElectrons',
@@ -13,7 +13,7 @@ _defaultEventParams = {
     'metSrc'             : 'slimmedMETs',
     'puSrc'              : 'slimmedAddPileupInfo',
     'genEventInfoSrc'    : 'generator',
-    'lheEventInfoSrc'    : 'externalLHEProducer',
+    'lheEventInfoSrc'    : 'source',
     'genParticleSrc'     : 'prunedGenParticles',
     'genJetSrc'          : 'slimmedGenJets',
     'initialStateSrc'    : '',

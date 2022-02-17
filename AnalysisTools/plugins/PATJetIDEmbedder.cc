@@ -93,7 +93,11 @@ bool PATJetIDEmbedder::passTight(const Jet& jet) const
     JetID = ((NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absEta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absEta>2.4) && absEta<=2.7) ||
             ( NHF<0.98 && NEMF>0.01 && NumNeutralParticles>2 && absEta>2.7 && absEta<=3.0 ) ||
             ( NEMF<0.90 && NumNeutralParticles>10 && absEta >3.0 );
-  }
+    //JetID = ((NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absEta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absEta>2.4) && absEta<=2.7) ||
+    //        ( NHF<0.98 && NEMF>0.01 && NumNeutralParticles>2 && absEta>2.7 && absEta<=3.0 ) ||
+    //        ( NEMF<0.90 && NumNeutralParticles>10 && absEta >3.0 );
+  
+}
   else if ( setup_ == 2017 )
   {// Tight jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2017 without JetIDLepVeto
    JetID  = ((NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absEta<=2.4 && CHF>0 && CHM>0) || absEta>2.4) && absEta<=2.7) ||

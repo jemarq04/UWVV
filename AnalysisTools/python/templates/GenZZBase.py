@@ -2,7 +2,7 @@ from UWVV.AnalysisTools.templates.ZPlusXBaseFlow import ZPlusXBaseFlowGen
 from UWVV.Utilities.helpers import mapObjects, parseChannels
 
 import FWCore.ParameterSet.Config as cms
-
+import pdb
 
 class GenZZBase(ZPlusXBaseFlowGen):
     def __init__(self, *args, **kwargs):
@@ -12,7 +12,7 @@ class GenZZBase(ZPlusXBaseFlowGen):
         step = super(GenZZBase, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == 'initialStateCreation':
-
+            #pdb.set_trace()
             for chan in parseChannels('zz'):
                 z1Name = 'z{}1'.format(chan[0])
                 z2Name = 'z{}{}'.format(chan[2], 2 if chan[0] == chan[2] else 1)
