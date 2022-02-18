@@ -83,7 +83,7 @@ if isMC:
 else:
     lheWeight=0
 print("lheWeights: ",lheWeight)
-pdb.set_trace()
+#pdb.set_trace()
 configParams = [
     'isSync=0',
     #'isSync=%i' % (1 if "WZ" in dataset or "DYJets" in dataset else 0),
