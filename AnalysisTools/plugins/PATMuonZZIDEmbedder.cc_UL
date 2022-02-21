@@ -143,10 +143,14 @@ void PATMuonZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       out->back().addUserFloat(idLabel_+"PASID", float(idResult && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
       out->back().addUserFloat(idLabel_+"HighPtNoVtx", float(idResultNoVtx && trackerHighPtID));
       out->back().addUserFloat(idLabel_+"PASIDNoVtx", float(idResultNoVtx && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
+
+      //replace tight id BDT with PAS2019 id for UL sample for now
+      out->back().addUserFloat(idLabel_+"Tight", float(idResult && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
+      out->back().addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
       
       //Now both electrons and muons have BDT for ZZTightID and thats how its stored in "leptonBranches"
-      out->back().addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && (passBDT(mptr) || trackerHighPtID))); // 1 for true, 0 for false
-      out->back().addUserFloat(idLabel_+"Tight", float(idResult && (passBDT(mptr) || trackerHighPtID))); // 1 for true, 0 for false
+      //out->back().addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && (passBDT(mptr) || trackerHighPtID))); // 1 for true, 0 for false
+      //out->back().addUserFloat(idLabel_+"Tight", float(idResult && (passBDT(mptr) || trackerHighPtID))); // 1 for true, 0 for false
       //Some cut-based IDs for validation with other frameworks if needed 
       out->back().addUserInt("isTightMuon",mi->isTightMuon(pv));
       out->back().addUserInt("CutBasedIdLoose",mi->passed(reco::Muon::CutBasedIdLoose));
