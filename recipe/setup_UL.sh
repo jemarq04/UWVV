@@ -39,13 +39,19 @@ if [ ! "$UWVVNTHREADS" ]; then
 fi
 
 #replace files with UL version
-mv AnalysisTools/plugins/PATMuonZZIDEmbedder.cc AnalysisTools/plugins/PATMuonZZIDEmbedder.cc_backup
-mv AnalysisTools/python/templates/ElectronCalibration.py AnalysisTools/python/templates/ElectronCalibration.py_backup
-mv AnalysisTools/python/templates/ZZID.py AnalysisTools/python/templates/ZZID.py_backup
+mv AnalysisTools/plugins/PATMuonZZIDEmbedder.cc AnalysisTools/plugins/PATMuonZZIDEmbedder.cc_backup_old
+mv AnalysisTools/python/templates/ElectronCalibration.py AnalysisTools/python/templates/ElectronCalibration.py_backup_old
+mv AnalysisTools/python/templates/ZZID.py AnalysisTools/python/templates/ZZID.py_backup_old
 
-cp AnalysisTools/plugins/PATMuonZZIDEmbedderUL.cc AnalysisTools/plugins/PATMuonZZIDEmbedder.cc
+mv AnalysisTools/plugins/PATObjectValueEmbedder.cc AnalysisTools/plugins/PATObjectValueEmbedder.cc_backup_old
+mv AnalysisTools/python/templates/BadMuonFilters.py AnalysisTools/python/templates/BadMuonFilters.py_backup_old
+
+cp AnalysisTools/plugins/PATMuonZZIDEmbedder.cc_UL AnalysisTools/plugins/PATMuonZZIDEmbedder.cc
 cp AnalysisTools/python/templates/ElectronCalibrationUL.py AnalysisTools/python/templates/ElectronCalibration.py
 cp AnalysisTools/python/templates/ZZID_UL.py AnalysisTools/python/templates/ZZID.py
+
+cp AnalysisTools/plugins/PATObjectValueEmbedder.cc_UL AnalysisTools/plugins/PATObjectValueEmbedder.cc
+cp AnalysisTools/python/templates/BadMuonFilters.py_UL AnalysisTools/python/templates/BadMuonFilters.py
 
 pushd $CMSSW_BASE/src
 
