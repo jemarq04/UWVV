@@ -73,7 +73,7 @@ private:
 
 template<class T>
 PATObjectValueEmbedder<T>::PATObjectValueEmbedder(const edm::ParameterSet& iConfig) :
-  replaceFlag_(iConfig.getParameter<bool>("replaceFlag")),
+  replaceFlag_(iConfig.exists("replaceFlag") ? iConfig.getParameter<bool>("replaceFlag") : false),
   srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
   intTokens_(edm::vector_transform(iConfig.exists("intSrc") ?
                                    iConfig.getParameter<std::vector<edm::InputTag> >("intSrc") :
@@ -117,7 +117,7 @@ PATObjectValueEmbedder<T>::PATObjectValueEmbedder(const edm::ParameterSet& iConf
       << "; intTokens_.size() == " << intTokens_.size()
       << std::endl;
 
-  if(boolTokens_.size() != boolLabels_.size())
+  if(boolTokens_.size() != boolLabels_.size() && !replaceFlag_)
     throw cms::Exception("InvalidParams")
       << "You must supply exactly one label for each bool you want to embed" 
       << "Given: boolLabels_.size() == " << boolLabels_.size()

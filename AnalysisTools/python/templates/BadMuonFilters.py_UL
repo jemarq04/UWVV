@@ -28,7 +28,7 @@ class BadMuonFilters(AnalysisFlowBase):
                     'PATCompositeCandidateValueEmbedder',
                     src = step.getObjTag(chan),
                     boolLabels = cms.vstring("Flag_BadPFMuonFilterPass", "Flag_BadChargedCandidateFilterPass"),
-                    replaceFlag = cms.untracked.bool(True),
+                    replaceFlag = cms.bool(True),
                     #boolSrc = cms.VInputTag("BadPFMuonFilter", "BadChargedCandidateFilter"),
                     )
                 step.addModule(chan+'filterEmbedding', filterEmbedding, chan)
