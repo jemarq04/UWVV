@@ -70,6 +70,7 @@ private:
 
    // ----------member data ---------------------------
    edm::EDGetTokenT<JetView> srcToken_; // used to select what jet to read from configuration file
+   edm::EDGetTokenT<MatchMap> matchToken_;
    int PUid;
    int evtcount = 0;
    int jetcount = 0;
@@ -89,6 +90,7 @@ private:
 //
 JetMatchViewerMy::JetMatchViewerMy(const edm::ParameterSet &iConfig)
     : srcToken_(consumes<JetView>(iConfig.getParameter<edm::InputTag>("src"))),
+    matchToken_(consumes<MatchMap>(iConfig.getParameter<edm::InputTag>("match"))),
       jetTag_(iConfig.getParameter<std::string>("tag"))
 
 {
@@ -114,7 +116,7 @@ void JetMatchViewerMy::analyze(const edm::Event &iEvent, const edm::EventSetup &
    Handle<JetView> jets;
    iEvent.getByToken(srcToken_, jets);
    Handle<MatchMap> match;
-   iEvent.getByLabel("patJetGenJetMatch", match);
+   iEvent.getByToken(matchToken_, match);
    
    printf("====================RECO vs Gen jet Information=========================================\n");
    printf("evt#   pt     eta    phi    pt     eta    phi    PUid0 PUidnew jet#\n");

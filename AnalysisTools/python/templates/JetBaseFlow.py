@@ -133,7 +133,8 @@ class JetBaseFlow(AnalysisFlowBase):
                 )
                 
                 step.addModule("patJetGenJetMatch",patJetGenJetMatch) #store RECO/gen jet association in the event
-                jetMatchViewerMy = cms.EDAnalyzer('JetMatchViewerMy',src=step.getObjTag('j'),tag=cms.string(step.getObjTagString('j')+'/after PUJetIDUpdated')
+                jetMatchViewerMy = cms.EDAnalyzer('JetMatchViewerMy',src=step.getObjTag('j'),match=cms.InputTag("patJetGenJetMatch"),
+                tag=cms.string(step.getObjTagString('j')+'/after PUJetIDUpdated')
                               )
                 step.addModule('jetMatchViewerMy',jetMatchViewerMy)
 
