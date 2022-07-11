@@ -1061,7 +1061,22 @@ namespace
 
                                  return out;
                                });
+        addTo["isGenJetMatched"] =
+          std::function<FType>([](const edm::Ptr<T>& obj, uwvv::EventInfo& evt, const std::string& option)
+                               {
+                                 std::vector<int> out;
 
+                                 for(auto& jet : *uwvv::helpers::getCleanedJetCollection(*obj, option))
+                                   {
+                                     int isMatch = -999;
+                                     if(jet->hasUserFloat("genjetMatched")){
+                                       isMatch = (int) jet->userFloat("genjetMatched");}
+
+                                     out.push_back(isMatch);
+                                   }
+
+                                 return out;
+                               });
         addTo["jetPUID"] =
           std::function<FType>([](const edm::Ptr<T>& obj, uwvv::EventInfo& evt, const std::string& option)
                                {

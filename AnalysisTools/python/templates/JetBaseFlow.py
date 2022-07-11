@@ -112,13 +112,6 @@ class JetBaseFlow(AnalysisFlowBase):
                 step.addModule('jesShifts', jesShifts, 'j_jesUp', 'j_jesDown',
                                j_jesUp='jesUp', j_jesDown='jesDown')
 
-            jetIDEmbedding = cms.EDProducer(
-                "PATJetIDEmbedder",
-                src = step.getObjTag('j'),
-                setup = cms.int32(int(self.year)),
-                )
-            step.addModule('jetIDEmbedding', jetIDEmbedding, 'j')
-
             if self.isMC:
                 patJetGenJetMatch = cms.EDProducer("GenJetMatcher",  # cut on deltaR; pick best by deltaR
                 src         = step.getObjTag('j'),      # RECO jets (any View<Jet> is ok)
@@ -133,11 +126,23 @@ class JetBaseFlow(AnalysisFlowBase):
                 )
                 
                 step.addModule("patJetGenJetMatch",patJetGenJetMatch) #store RECO/gen jet association in the event
-                jetMatchViewerMy = cms.EDAnalyzer('JetMatchViewerMy',src=step.getObjTag('j'),match=cms.InputTag("patJetGenJetMatch"),
-                tag=cms.string(step.getObjTagString('j')+'/after PUJetIDUpdated')
-                              )
-                step.addModule('jetMatchViewerMy',jetMatchViewerMy)
 
+                #Print jet information
+                #jetMatchViewerMy = cms.EDAnalyzer('JetMatchViewerMy',src=step.getObjTag('j'),match=cms.InputTag("patJetGenJetMatch"),
+                #tag=cms.string(step.getObjTagString('j')+'/after PUJetIDUpdated')
+                #              )
+                #step.addModule('jetMatchViewerMy',jetMatchViewerMy)
+
+            jetIDEmbedding = cms.EDProducer(
+                "PATJetIDEmbedder",
+                src = step.getObjTag('j'),
+                setup = cms.int32(int(self.year)),
+                domatch = cms.bool(self.isMC),
+                )
+            step.addModule('jetIDEmbedding', jetIDEmbedding, 'j')
+
+            if self.isMC:
+            
 
                 jetIDEmbedding_jesUp = cms.EDProducer(
                     "PATJetIDEmbedder",
@@ -210,7 +215,7 @@ class JetBaseFlow(AnalysisFlowBase):
             # For now, we're not using the PU ID, but we'll store it in the
             # ntuples later
             selectionString = ('pt > 30. && abs(eta) < 4.7 && '
-                               'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
+                               'userFloat("idTight") > 0.5 && (userInt("{}") >= 0||pt>50.)').format(step.getObjTagString('puID'))
 
             # # use medium PU ID
             # # PU IDs are stored as a userInt where the first three digits are

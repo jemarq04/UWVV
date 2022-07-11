@@ -21,6 +21,7 @@ eventBranches = cms.PSet(
         ),
     vInts = cms.PSet(
         jetPUID = cms.vstring('jetPUID'),
+        isGenJetMatched = cms.vstring('isGenJetMatched'),
         jetHadronFlavor = cms.vstring('jetHadronFlavor'),
         ),
     bools = cms.PSet(

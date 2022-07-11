@@ -19,6 +19,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 
 typedef pat::Jet Jet;
@@ -36,14 +38,24 @@ class PATJetIDEmbedder : public edm::stream::EDProducer<>
 
   bool passTight(const Jet& jet) const;
   bool passPUID(const Jet& jet) const;
-
+  typedef edm::Association<reco::GenJetCollection> MatchMap;
   edm::EDGetTokenT<JetView> srcToken;
+  edm::EDGetTokenT<MatchMap> matchToken_;
+  bool domatch_;
   const int  setup_;
+  int PUid;
+  int evtcount = 0;
+  int jetcount = 0;
+  
 };
 
 
 PATJetIDEmbedder::PATJetIDEmbedder(const edm::ParameterSet& pset) :
   srcToken(consumes<JetView>(pset.getParameter<edm::InputTag>("src"))),
+  matchToken_(consumes<MatchMap>(edm::InputTag("patJetGenJetMatch"))),
+  domatch_(pset.exists("domatch") ?
+	   pset.getParameter<bool>("domatch") :
+	   false),
   //Which year JET ID we need
   setup_(pset.exists("setup") ?
 	   pset.getParameter<int>("setup") :
@@ -56,8 +68,15 @@ PATJetIDEmbedder::PATJetIDEmbedder(const edm::ParameterSet& pset) :
 void PATJetIDEmbedder::produce(edm::Event& iEvent,
                                const edm::EventSetup& iSetup)
 {
+  evtcount++;
+  printf("====================RECO vs Gen jet Information=========================================\n");
+  printf("evt#   pt     eta    phi    pt     eta    phi    PUid0 PUidnew jet#\n");
+  jetcount = 0;
   edm::Handle<JetView> in;
   iEvent.getByToken(srcToken, in);
+  edm::Handle<MatchMap> match;
+  if (domatch_){
+  iEvent.getByToken(matchToken_, match);}
 
   std::unique_ptr<VJet> out(new VJet());
 
@@ -69,6 +88,23 @@ void PATJetIDEmbedder::produce(edm::Event& iEvent,
 
       jet.addUserFloat("idTight", float(passTight(jet)));
       jet.addUserFloat("idPU", float(passPUID(jet)));
+
+      if (domatch_){
+        jetcount++;
+        edm::Ref<JetView> jetRef(in, i);
+        const auto genMatched = (*match)[jetRef];
+        PUid = jetRef->userInt("pileupJetIdUpdated:fullId");
+        if (genMatched.isNonnull()){
+          printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n", 
+         evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), genMatched->pt(), genMatched->eta(), genMatched->phi(),jetRef->userInt("pileupJetId:fullId"), PUid, jetcount);
+          jet.addUserFloat("genjetMatched", 1.);
+        }
+        else{
+          printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n", 
+         evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), -1.,-1.,-1.,jetRef->userInt("pileupJetId:fullId"), PUid, jetcount);
+          jet.addUserFloat("genjetMatched", 0.);
+        }
+      }
     }
 
   iEvent.put(std::move(out));
