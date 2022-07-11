@@ -68,10 +68,10 @@ PATJetIDEmbedder::PATJetIDEmbedder(const edm::ParameterSet& pset) :
 void PATJetIDEmbedder::produce(edm::Event& iEvent,
                                const edm::EventSetup& iSetup)
 {
-  evtcount++;
-  printf("====================RECO vs Gen jet Information=========================================\n");
-  printf("evt#   pt     eta    phi    pt     eta    phi    PUid0 PUidnew jet#\n");
-  jetcount = 0;
+  //evtcount++;
+  //printf("====================RECO vs Gen jet Information=========================================\n");
+  //printf("evt#   pt     eta    phi    pt     eta    phi    PUid0 PUidnew jet#\n");
+  //jetcount = 0;
   edm::Handle<JetView> in;
   iEvent.getByToken(srcToken, in);
   edm::Handle<MatchMap> match;
@@ -90,18 +90,18 @@ void PATJetIDEmbedder::produce(edm::Event& iEvent,
       jet.addUserFloat("idPU", float(passPUID(jet)));
 
       if (domatch_){
-        jetcount++;
+        //jetcount++;
         edm::Ref<JetView> jetRef(in, i);
         const auto genMatched = (*match)[jetRef];
         PUid = jetRef->userInt("pileupJetIdUpdated:fullId");
         if (genMatched.isNonnull()){
-          printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n", 
-         evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), genMatched->pt(), genMatched->eta(), genMatched->phi(),jetRef->userInt("pileupJetId:fullId"), PUid, jetcount);
+          //printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n", 
+         //evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), genMatched->pt(), genMatched->eta(), genMatched->phi(),jetRef->userInt("pileupJetId:fullId"), PUid, jetcount);
           jet.addUserFloat("genjetMatched", 1.);
         }
         else{
-          printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n", 
-         evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), -1.,-1.,-1.,jetRef->userInt("pileupJetId:fullId"), PUid, jetcount);
+          //printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n", 
+         //evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), -1.,-1.,-1.,jetRef->userInt("pileupJetId:fullId"), PUid, jetcount);
           jet.addUserFloat("genjetMatched", 0.);
         }
       }
