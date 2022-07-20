@@ -112,12 +112,16 @@ else:
         print "Golden JSON: Cert_271036-284044_13TeV_ReReco_07Aug2017_Collisions16_JSON.txt",
     elif "Run2017" in conditions:
         #2017 JSON
-        config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
-        print "Golden JSON: Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt",
+        config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt'
+        print "Golden JSON: Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt",
+        #config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
+        #print "Golden JSON: Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt",
     elif "Run2018" in conditions:
         #2018 JSON
-        config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt' 
-        print "Golden JSON: Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt",
+        config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt' 
+        print "Golden JSON: Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt",
+        #config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt' 
+        #print "Golden JSON: Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt",
     else:
         print "What kind of JSON are you running for?"
         exit()

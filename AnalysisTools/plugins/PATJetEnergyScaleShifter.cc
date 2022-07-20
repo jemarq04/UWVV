@@ -59,7 +59,7 @@ void PATJetEnergyScaleShifter::produce(edm::Event& iEvent,
   iEvent.getByToken(srcToken, in);
 
   edm::ESHandle<JetCorrectorParametersCollection> jecParams;
-  iSetup.get<JetCorrectionsRecord>().get("AK4PF", jecParams);
+  iSetup.get<JetCorrectionsRecord>().get("AK4PFchs", jecParams);
   const JetCorrectorParameters & param = (*jecParams)["Uncertainty"];
   JetCorrectionUncertainty jecUnc(param);
 
