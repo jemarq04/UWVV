@@ -133,13 +133,26 @@ class JetBaseFlow(AnalysisFlowBase):
                 #              )
                 #step.addModule('jetMatchViewerMy',jetMatchViewerMy)
 
+            jsfFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
+                               'scalefactorsPUID_81Xtraining.root')
+
+            jeffFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
+                               'effcyPUID_81Xtraining.root')
+                            
+            jsfhist = "h2_eff_sf%s_T"%(int(self.year))
+            jeffhist = "h2_eff_mc%s_T"%(int(self.year))
+
             jetIDEmbedding = cms.EDProducer(
                 "PATJetIDEmbedder",
                 src = step.getObjTag('j'),
                 setup = cms.int32(int(self.year)),
                 domatch = cms.bool(self.isMC),
+                jsfFile = cms.string(jsfFileP),
+                jeffFile = cms.string(jeffFileP),
+                SFhistName = cms.string(jsfhist),
+                effhistName = cms.string(jeffhist),
                 )
-            step.addModule('jetIDEmbedding', jetIDEmbedding, 'j')
+            step.addModule('jetIDEmbedding', jetIDEmbedding, 'j',j="normaljet") #produce jet and SF mulfac, distinguish jet with extra tag
 
             if self.isMC:
             

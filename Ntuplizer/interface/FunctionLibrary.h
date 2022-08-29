@@ -895,6 +895,16 @@ namespace
                                     
                                  return ((*cleanedJets)[0]->p4() + (*cleanedJets)[1]->p4()).mass();
                                });
+        addTo["jetPUSFmulfac"] =
+          std::function<FType>([](const edm::Ptr<T>& obj, uwvv::EventInfo& evt, const std::string& option)
+                               {
+                                 if ( ! obj->hasUserData("jetPUSFmulfac") ){
+                                    throw cms::Exception("ProductNotFound")
+                                    << "jet PUSF mulfac not found"
+                                    << "for variation " << option;}
+                                    
+                                 return *(obj->userData<float>("jetPUSFmulfac"));
+                               });
         addTo["ptjj"] =
           std::function<FType>([](const edm::Ptr<T>& obj, uwvv::EventInfo& evt, const std::string& option)
                                {

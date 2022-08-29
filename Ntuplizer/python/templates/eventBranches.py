@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 eventBranches = cms.PSet(
     floats = cms.PSet(
         pvndof = cms.string('pvndof'),
+        jetPUSFmulfac = cms.string('jetPUSFmulfac'),
         pvZ = cms.string('pvZ'),
         pvRho = cms.string('pvRho'),
         type1_pfMETEt = cms.string('type1_pfMETEt'),
