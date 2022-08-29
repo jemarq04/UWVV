@@ -898,12 +898,12 @@ namespace
         addTo["jetPUSFmulfac"] =
           std::function<FType>([](const edm::Ptr<T>& obj, uwvv::EventInfo& evt, const std::string& option)
                                {
-                                 if ( ! obj->hasUserData("jetPUSFmulfac") ){
+                                 if ( ! obj->hasUserFloat("jetPUSFmulfac") ){
                                     throw cms::Exception("ProductNotFound")
                                     << "jet PUSF mulfac not found"
                                     << "for variation " << option;}
                                     
-                                 return *(obj->userData<float>("jetPUSFmulfac"));
+                                 return (obj->userFloat("jetPUSFmulfac"));
                                });
         addTo["ptjj"] =
           std::function<FType>([](const edm::Ptr<T>& obj, uwvv::EventInfo& evt, const std::string& option)

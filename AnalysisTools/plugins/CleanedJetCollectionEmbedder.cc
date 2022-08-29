@@ -107,7 +107,8 @@ void CleanedJetCollectionEmbedder::produce(edm::Event& iEvent,
       out->push_back(*cand);
       edm::PtrVector<pat::Jet> cleanedJets = getCleanedJetCollection(iEvent, jetSrcToken, *cand);
       out->back().addUserData<edm::PtrVector<pat::Jet>>(collectionName, cleanedJets);
-      out->back().addUserData<float>("jetPUSFmulfac", *PUSFhandle);
+      //out->back().addUserData<float>("jetPUSFmulfac", *PUSFhandle);
+      out->back().addUserFloat("jetPUSFmulfac", *PUSFhandle);
       
       if(jesUpTagExists) 
         { 
