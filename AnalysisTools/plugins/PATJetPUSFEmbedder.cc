@@ -60,7 +60,7 @@ private:
 };
 
 PATJetPUSFEmbedder::PATJetPUSFEmbedder(const edm::ParameterSet &pset) : srcToken(consumes<JetView>(pset.getParameter<edm::InputTag>("src"))),
-                                                                    matchToken_(consumes<MatchMap>(edm::InputTag("patJetGenJetMatch"))),
+                                                                    matchToken_(consumes<MatchMap>(edm::InputTag("patJetGenJetMatch2"))),
                                                                     domatch_(pset.exists("domatch") ? pset.getParameter<bool>("domatch") : false),
                                                                     sfFileN_(pset.exists("jsfFile") ? pset.getParameter<std::string>("jsfFile") : "sfFileNone"),
                                                                     effFileN_(pset.exists("jeffFile") ? pset.getParameter<std::string>("jeffFile") : "sfFileNone"),
