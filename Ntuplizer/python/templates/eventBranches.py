@@ -107,8 +107,10 @@ genNtupleEventBranches = cms.PSet(
     )
 
 jetSystematicBranches = cms.PSet(
-    vFloats = cms.PSet(
+    floats = cms.PSet(
         jetPUSFmulfac = cms.string('jetPUSFmulfac'),
+        ),
+    vFloats = cms.PSet(
         jetPt_jesUp = cms.vstring('jetPt::jesUp'),
         jetPt_jesDown = cms.vstring('jetPt::jesDown'),
         jetPt_jerUp = cms.vstring('jetPt::jerUp'),
