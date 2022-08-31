@@ -82,8 +82,9 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   if (jerDownTagExists) 
       jerDownJetSrcToken = consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jerDownJetSrc"));
 
-  edm::InputTag PUSFtag("jetIDEmbedding","jetPUSFmulfac") ;
-  PUSFtoken = consumes<float>(PUSFtag);
+  if(jesUpTagExists) { //if MC
+  edm::InputTag PUSFtag("jetPUSFEmbedding","jetPUSFmulfac") ;
+  PUSFtoken = consumes<float>(PUSFtag);}
   produces<std::vector<CCand> >();
 }
 
@@ -97,7 +98,8 @@ void CleanedJetCollectionEmbedder::produce(edm::Event& iEvent,
   iEvent.getByToken(srcToken, in);
 
   edm::Handle<float> PUSFhandle;
-  iEvent.getByToken(PUSFtoken,PUSFhandle);
+  if(jesUpTagExists){
+  iEvent.getByToken(PUSFtoken,PUSFhandle);}
 
   for(size_t i = 0; i < in->size(); ++i)
     {
@@ -108,7 +110,8 @@ void CleanedJetCollectionEmbedder::produce(edm::Event& iEvent,
       edm::PtrVector<pat::Jet> cleanedJets = getCleanedJetCollection(iEvent, jetSrcToken, *cand);
       out->back().addUserData<edm::PtrVector<pat::Jet>>(collectionName, cleanedJets);
       //out->back().addUserData<float>("jetPUSFmulfac", *PUSFhandle);
-      out->back().addUserFloat("jetPUSFmulfac", *PUSFhandle);
+      if(jesUpTagExists){
+      out->back().addUserFloat("jetPUSFmulfac", *PUSFhandle);}
       
       if(jesUpTagExists) 
         { 

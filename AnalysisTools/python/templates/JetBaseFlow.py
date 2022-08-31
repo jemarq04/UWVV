@@ -147,12 +147,12 @@ class JetBaseFlow(AnalysisFlowBase):
                 src = step.getObjTag('j'),
                 setup = cms.int32(int(self.year)),
                 domatch = cms.bool(self.isMC),
-                jsfFile = cms.string(jsfFileP),
-                jeffFile = cms.string(jeffFileP),
-                SFhistName = cms.string(jsfhist),
-                effhistName = cms.string(jeffhist),
+                #jsfFile = cms.string(jsfFileP),
+                #jeffFile = cms.string(jeffFileP),
+                #SFhistName = cms.string(jsfhist),
+                #effhistName = cms.string(jeffhist),
                 )
-            step.addModule('jetIDEmbedding', jetIDEmbedding, 'j',j="normaljet") #produce jet and SF mulfac, distinguish jet with extra tag
+            step.addModule('jetIDEmbedding', jetIDEmbedding, 'j') #,j="normaljet") #produce jet and SF mulfac, distinguish jet with extra tag
 
             if self.isMC:
             
@@ -229,6 +229,9 @@ class JetBaseFlow(AnalysisFlowBase):
             # ntuples later
             selectionString = ('pt > 30. && abs(eta) < 4.7 && '
                                'userFloat("idTight") > 0.5 && (userInt("{}") >= 0||pt>50.)').format(step.getObjTagString('puID'))
+            
+            selectionString2 = ('pt > 30. && abs(eta) < 4.7 && '
+                               'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
 
             # # use medium PU ID
             # # PU IDs are stored as a userInt where the first three digits are
@@ -236,13 +239,15 @@ class JetBaseFlow(AnalysisFlowBase):
             # selectionString = ('pt>30. && abs(eta) < 4.7 && '
             #                    'userFloat("idLoose") > 0.5 && '
             #                    'userInt("{}") >= 6').format(step.getObjTagString('puID'))
-
-            step.addBasicSelector('j', selectionString)
             if self.isMC:
-                step.addBasicSelector('j_jesUp', selectionString)
-                step.addBasicSelector('j_jesDown', selectionString)
-                step.addBasicSelector('j_jerUp', selectionString)
-                step.addBasicSelector('j_jerDown', selectionString)
+                step.addBasicSelector('j', selectionString) #not apply PU id here in order to calculate PU SF multiplication factor
+            else:
+                step.addBasicSelector('j', selectionString2)
+            if self.isMC:
+                step.addBasicSelector('j_jesUp', selectionString2)
+                step.addBasicSelector('j_jesDown', selectionString2)
+                step.addBasicSelector('j_jerUp', selectionString2)
+                step.addBasicSelector('j_jerDown', selectionString2)
 
         return step
 

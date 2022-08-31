@@ -4,7 +4,6 @@ import FWCore.ParameterSet.Config as cms
 eventBranches = cms.PSet(
     floats = cms.PSet(
         pvndof = cms.string('pvndof'),
-        jetPUSFmulfac = cms.string('jetPUSFmulfac'),
         pvZ = cms.string('pvZ'),
         pvRho = cms.string('pvRho'),
         type1_pfMETEt = cms.string('type1_pfMETEt'),
@@ -109,6 +108,7 @@ genNtupleEventBranches = cms.PSet(
 
 jetSystematicBranches = cms.PSet(
     vFloats = cms.PSet(
+        jetPUSFmulfac = cms.string('jetPUSFmulfac'),
         jetPt_jesUp = cms.vstring('jetPt::jesUp'),
         jetPt_jesDown = cms.vstring('jetPt::jesDown'),
         jetPt_jerUp = cms.vstring('jetPt::jerUp'),

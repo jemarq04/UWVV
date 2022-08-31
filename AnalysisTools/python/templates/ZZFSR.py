@@ -4,6 +4,10 @@ from UWVV.AnalysisTools.templates.ZZInitialStateBaseFlow import ZZInitialStateBa
 
 import FWCore.ParameterSet.Config as cms
 
+from UWVV.Utilities.helpers import UWVV_BASE_PATH
+import os
+from os import path
+
 
 class ZZFSR(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
@@ -47,6 +51,34 @@ class ZZFSR(AnalysisFlowBase):
                 fsrMuonSelection = cms.string('userFloat("%sTight") > 0.5 && userFloat("%s") > 0.5'%(self.getZZIDLabel(), self.getZZIsoLabel())),
                 )
             step.addModule('jetFSRCleaner', jetFSRCleaner, 'j')
+
+
+            jsfFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
+                               'scalefactorsPUID_81Xtraining.root')
+
+            jeffFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
+                               'effcyPUID_81Xtraining.root')
+
+            jsfhist = "h2_eff_sf%s_T"%(int(self.year))
+            jeffhist = "h2_eff_mc%s_T"%(int(self.year))
+
+            if self.isMC:
+                jetPUSFEmbedding = cms.EDProducer(
+                    "PATJetPUSFEmbedder",
+                    src = step.getObjTag('j'),
+                    setup = cms.int32(int(self.year)),
+                    domatch = cms.bool(self.isMC),
+                    jsfFile = cms.string(jsfFileP),
+                    jeffFile = cms.string(jeffFileP),
+                    SFhistName = cms.string(jsfhist),
+                    effhistName = cms.string(jeffhist),
+                    )
+                step.addModule('jetPUSFEmbedding', jetPUSFEmbedding)
+
+            if self.isMC: #apply PU id here after calculating PU id SF multiplication factor
+                selectionString2 = ('pt > 30. && abs(eta) < 4.7 && '
+                               'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
+                step.addBasicSelector('j', selectionString2)
             
             if self.isMC:
                 jetFSRCleaner_jesUp = jetFSRCleaner.clone(src = step.getObjTag('j_jesUp'))
