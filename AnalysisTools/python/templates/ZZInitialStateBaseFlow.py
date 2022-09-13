@@ -3,6 +3,9 @@ from UWVV.Utilities.helpers import mapObjects, parseChannels
 
 import FWCore.ParameterSet.Config as cms
 
+from UWVV.Utilities.helpers import UWVV_BASE_PATH
+import os
+from os import path
 
 class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
     def __init__(self, *args, **kwargs):
@@ -60,6 +63,15 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
         Add modules to embed jet collection cleaned leptons 
         selected in the initial state object
         '''
+        jsfFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
+                               'scalefactorsPUID_81Xtraining.root')
+
+        jeffFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
+                               'effcyPUID_81Xtraining.root')
+
+        jsfhist = "h2_eff_sf%s_T"%(int(self.year))
+        jeffhist = "h2_eff_mc%s_T"%(int(self.year))
+
         for chan in parseChannels('zz'):
             try:
                 mod = cms.EDProducer(
@@ -70,6 +82,12 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
                     jesDownJetSrc = step.getObjTag('j_jesDown'),
                     jerUpJetSrc = step.getObjTag('j_jerUp'),
                     jerDownJetSrc = step.getObjTag('j_jerDown'),
+                    setup = cms.int32(int(self.year)),
+                    domatch = cms.bool(self.isMC),
+                    jsfFile = cms.string(jsfFileP),
+                    jeffFile = cms.string(jeffFileP),
+                    SFhistName = cms.string(jsfhist),
+                    effhistName = cms.string(jeffhist),
                 )
             except KeyError:
                 mod = cms.EDProducer(

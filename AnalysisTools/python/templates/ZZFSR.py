@@ -87,12 +87,12 @@ class ZZFSR(AnalysisFlowBase):
                     SFhistName = cms.string(jsfhist),
                     effhistName = cms.string(jeffhist),
                     )
-                step.addModule('jetPUSFEmbedding', jetPUSFEmbedding)
+                #step.addModule('jetPUSFEmbedding', jetPUSFEmbedding)
 
             if self.isMC: #apply PU id here after calculating PU id SF multiplication factor
                 selectionString2 = ('pt > 30. && abs(eta) < 4.7 && '
                                'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
-                step.addBasicSelector('j', selectionString2)
+                #step.addBasicSelector('j', selectionString2)
             
             if self.isMC:
                 jetFSRCleaner_jesUp = jetFSRCleaner.clone(src = step.getObjTag('j_jesUp'))
