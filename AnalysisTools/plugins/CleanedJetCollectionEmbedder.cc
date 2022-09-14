@@ -171,8 +171,16 @@ void CleanedJetCollectionEmbedder::produce(edm::Event &iEvent,
     edm::Ptr<CCand> cand = in->ptrAt(i);
 
     out->push_back(*cand);
+
+    if (jesUpTagExists){
     edm::PtrVector<pat::Jet> cleanedJets = getCleanedJetCollection2(iEvent, jetSrcToken, *cand);
+    out->back().addUserData<edm::PtrVector<pat::Jet>>(collectionName, cleanedJets);}
+    else{
+    edm::PtrVector<pat::Jet> cleanedJets = getCleanedJetCollection(iEvent, jetSrcToken, *cand); 
     out->back().addUserData<edm::PtrVector<pat::Jet>>(collectionName, cleanedJets);
+    }
+
+    
     // out->back().addUserData<float>("jetPUSFmulfac", *PUSFhandle);
     if (jesUpTagExists)
     {
