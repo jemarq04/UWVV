@@ -293,22 +293,42 @@ if options.isMC and (options.year == "2016" or options.year == "2017"):
     from UWVV.Ntuplizer.templates.eventBranches import L1ECALPrefiringBranches  
     extraInitialStateBranches.append(L1ECALPrefiringBranches)
     
-    from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
+    #from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
+    from PhysicsTools.PatUtils.l1PrefiringWeightProducer_cfi import l1PrefiringWeightProducer
 
     if options.year == "2016":
-        process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
+        
+        process.prefiringweight = l1PrefiringWeightProducer.clone(
+        TheJets = cms.InputTag("updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs 
+        DataEraECAL = cms.string("2016BtoH"), #Use 2016BtoH for 2016
+        DataEraMuon = cms.string("2017"), #Use 2016 for 2016
+        UseJetEMPt = cms.bool(False),
+        PrefiringRateSystematicUnctyECAL = cms.double(0.2),
+        PrefiringRateSystematicUnctyMuon = cms.double(0.2)
+        )
+
+        '''process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
                 DataEra = cms.string("2016BtoH"), #Use 2016BtoH for 2016
                 UseJetEMPt = cms.bool(False),
                 PrefiringRateSystematicUncty = cms.double(0.2),
-                SkipWarnings = False)
+                SkipWarnings = False)'''
 
     if options.year == "2017":
         print "2017 L1Prefiring"
-        process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
+        process.prefiringweight = l1PrefiringWeightProducer.clone(
+        TheJets = cms.InputTag("updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs 
+        DataEraECAL = cms.string("2017BtoF"), #Use 2016BtoH for 2016
+        DataEraMuon = cms.string("20172018"), #Use 2016 for 2016
+        UseJetEMPt = cms.bool(False),
+        PrefiringRateSystematicUnctyECAL = cms.double(0.2),
+        PrefiringRateSystematicUnctyMuon = cms.double(0.2)
+        )
+
+        '''process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
                 DataEra = cms.string("2017BtoF"), #Use 2016BtoH for 2016
                 UseJetEMPt = cms.bool(False),
                 PrefiringRateSystematicUncty = cms.double(0.2),
-                SkipWarnings = False)
+                SkipWarnings = False)'''
     process.prefiring = cms.Path(process.prefiringweight)
     process.schedule.append(process.prefiring)
 
