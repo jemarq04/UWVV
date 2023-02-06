@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Mixins import _ParameterTypeBase
 
 #'externalLHEProducer','source'
+#'prefiringweight:nonPrefiringProbECAL' to only look at ECAL prefiring in UL
 _defaultEventParams = {
     'vtxSrc'             : 'offlineSlimmedPrimaryVertices',
     'eSrc'               : 'slimmedElectrons',

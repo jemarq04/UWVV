@@ -22,13 +22,13 @@ class ZZID(AnalysisFlowBase):
                     idLabel = cms.string(self.getZZIDLabel()),
                     vtxSrc = step.getObjTag('v'),
                     #Cuts and IDs differ by year: https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsZZ4lRunIILegacy#Electrons
-                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer16IdIsoValues"),#2016 version of the ID
-                    idCutLowPtLowEta = cms.double(0.95034841889),
-                    idCutLowPtMedEta = cms.double(0.94606270058),
-                    idCutLowPtHighEta = cms.double(0.93872558098),
-                    idCutHighPtLowEta = cms.double(0.3782357877),
-                    idCutHighPtMedEta = cms.double(0.35871320305),
-                    idCutHighPtHighEta = cms.double(-0.57451499543),
+                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Fall17IsoV2Values"),#use fall17v2 instead of custom https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#ID_information
+                    idCutLowPtLowEta = cms.double(0.85216885148), #copy settings from 2017 since same id, but need to look at the id details later
+                    idCutLowPtMedEta = cms.double(0.82684550976),
+                    idCutLowPtHighEta = cms.double(0.86937630022),
+                    idCutHighPtLowEta = cms.double(0.98248928759),
+                    idCutHighPtMedEta = cms.double(0.96919224579),
+                    idCutHighPtHighEta = cms.double(0.79349796445),
                     missingHitsCut = cms.int32(999),
                     ptCut = cms.double(5.), 
                 )

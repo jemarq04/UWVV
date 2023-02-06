@@ -141,7 +141,7 @@ if options.year == "2016":
     #options.inputFiles='file:ZZPowheg2016MiniAOD.root'
     #options.inputFiles='/store/mc/RunIISummer16MiniAODv3/ZZTo4L_13TeV_powheg_pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3-v1/270000/E8AB22C0-D7C6-E811-8EF9-001A649D4925.root'
     #options.inputFiles='/store/mc/RunIISummer16MiniAODv3/GluGluHToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3-v1/40000/90B61523-A720-E911-A35B-1866DA890B10.root'
-    options.inputFiles='/store/data/Run2016H/DoubleMuon/MINIAOD/17Jul2018-v1/00000/02359251-628E-E811-BA72-0242AC1C0500.root'
+    options.inputFiles='file:qqZZ16phUL_C79571E3-F3DF-3A4C-8B4F-5837AAD31C95.root' #'/store/data/Run2016H/DoubleMuon/MINIAOD/17Jul2018-v1/00000/02359251-628E-E811-BA72-0242AC1C0500.root'
     options.outputFile = 'ntuple2016.root'
 if options.year == "2017":
    # options.inputFiles = '/store/mc/RunIIFall17MiniAODv2/VBF_HToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/60000/3450B123-E8BF-E811-B895-FA163E9604CF.root'
@@ -301,7 +301,7 @@ if options.isMC and (options.year == "2016" or options.year == "2017"):
         process.prefiringweight = l1PrefiringWeightProducer.clone(
         TheJets = cms.InputTag("updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs 
         DataEraECAL = cms.string("2016BtoH"), #Use 2016BtoH for 2016
-        DataEraMuon = cms.string("2017"), #Use 2016 for 2016
+        DataEraMuon = cms.string("2016"), #Use 2016 for 2016
         UseJetEMPt = cms.bool(False),
         PrefiringRateSystematicUnctyECAL = cms.double(0.2),
         PrefiringRateSystematicUnctyMuon = cms.double(0.2)

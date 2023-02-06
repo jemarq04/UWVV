@@ -39,10 +39,9 @@ class ElectronCalibration(AnalysisFlowBase):
             from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
             if LeptonSetup=="2016":
                 setupEgammaPostRecoSeq(self.process,
-                        runEnergyCorrections=True,
+                        runEnergyCorrections=False,
                         runVID=True,
-                        eleIDModules=['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer16_ID_ISO_cff','RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff'],
-                        era='2016-Legacy')
+                        era='2016postVFP-UL')
 
             if LeptonSetup=="2017":
                 setupEgammaPostRecoSeq(self.process,
