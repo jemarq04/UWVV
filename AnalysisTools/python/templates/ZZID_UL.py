@@ -22,13 +22,14 @@ class ZZID(AnalysisFlowBase):
                     idLabel = cms.string(self.getZZIDLabel()),
                     vtxSrc = step.getObjTag('v'),
                     #Cuts and IDs differ by year: https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsZZ4lRunIILegacy#Electrons
-                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Fall17IsoV2Values"),#use fall17v2 instead of custom https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#ID_information
-                    idCutLowPtLowEta = cms.double(0.85216885148), #copy settings from 2017 since same id, but need to look at the id details later
-                    idCutLowPtMedEta = cms.double(0.82684550976),
-                    idCutLowPtHighEta = cms.double(0.86937630022),
-                    idCutHighPtLowEta = cms.double(0.98248928759),
-                    idCutHighPtMedEta = cms.double(0.96919224579),
-                    idCutHighPtHighEta = cms.double(0.79349796445),
+                    #New: Current cuts use https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#HZZ_MVA_training_details_and_wor
+                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer16ULIdIsoValues"),#Old comments:use fall17v2 instead of custom https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#ID_information
+                    idCutLowPtLowEta = cms.double(1.8949071018), 
+                    idCutLowPtMedEta = cms.double(1.80714210202),
+                    idCutLowPtHighEta = cms.double(1.64751528517),
+                    idCutHighPtLowEta = cms.double(0.339697782473),
+                    idCutHighPtMedEta = cms.double(0.252039219555),
+                    idCutHighPtHighEta = cms.double(-0.686263559006),
                     missingHitsCut = cms.int32(999),
                     ptCut = cms.double(5.), 
                 )
@@ -38,13 +39,13 @@ class ZZID(AnalysisFlowBase):
                     src = step.getObjTag('e'),
                     idLabel = cms.string(self.getZZIDLabel()),
                     vtxSrc = step.getObjTag('v'),
-                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Fall17IsoV2Values"),#2017 version of the ID
-                    idCutLowPtLowEta = cms.double(0.85216885148),
-                    idCutLowPtMedEta = cms.double(0.82684550976),
-                    idCutLowPtHighEta = cms.double(0.86937630022),
-                    idCutHighPtLowEta = cms.double(0.98248928759),
-                    idCutHighPtMedEta = cms.double(0.96919224579),
-                    idCutHighPtHighEta = cms.double(0.79349796445),
+                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer17ULIdIsoValues"),#2017 version of the ID
+                    idCutLowPtLowEta = cms.double(1.54440585808),
+                    idCutLowPtMedEta = cms.double(1.50294621563),
+                    idCutLowPtHighEta = cms.double(1.77306202112),
+                    idCutHighPtLowEta = cms.double(0.157262554087),
+                    idCutHighPtMedEta = cms.double(0.0273932225081),
+                    idCutHighPtHighEta = cms.double(-0.623050463489),
                     missingHitsCut = cms.int32(999),
                     ptCut = cms.double(5.), 
                 )
@@ -55,13 +56,12 @@ class ZZID(AnalysisFlowBase):
                     src = step.getObjTag('e'),
                     idLabel = cms.string(self.getZZIDLabel()),
                     vtxSrc = step.getObjTag('v'),
-                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Fall17IsoV2Values"),#use fall17v2 instead of custom https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#ID_information
-                    idCutLowPtLowEta = cms.double(0.85216885148), #copy settings from 2017 since same id, but need to look at the id details later
-                    idCutLowPtMedEta = cms.double(0.82684550976),
-                    idCutLowPtHighEta = cms.double(0.86937630022),
-                    idCutHighPtLowEta = cms.double(0.98248928759),
-                    idCutHighPtMedEta = cms.double(0.96919224579),
-                    idCutHighPtHighEta = cms.double(0.79349796445),
+                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer18ULIdIsoValues"),#use fall17v2 instead of custom https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#ID_information
+                    idCutLowPtLowEta = cms.double(1.49603193295), 
+                    idCutLowPtHighEta = cms.double(1.77694249574),
+                    idCutHighPtLowEta = cms.double(0.199463934736),
+                    idCutHighPtMedEta = cms.double(0.076063564084),
+                    idCutHighPtHighEta = cms.double(-0.572118857519),
                     missingHitsCut = cms.int32(999),
                     ptCut = cms.double(5.), 
                 )

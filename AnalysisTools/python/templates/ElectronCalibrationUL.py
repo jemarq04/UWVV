@@ -39,15 +39,15 @@ class ElectronCalibration(AnalysisFlowBase):
             from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
             if LeptonSetup=="2016":
                 setupEgammaPostRecoSeq(self.process,
-                        runEnergyCorrections=False,
+                        runEnergyCorrections=True,
                         runVID=True,
-                        era='2016postVFP-UL')
+                        era='2016postVFP-UL') #2016preVFP-UL
 
             if LeptonSetup=="2017":
                 setupEgammaPostRecoSeq(self.process,
                         runEnergyCorrections=True,
                         runVID=True,
-                        era='2017-Nov17ReReco',
+                        era='2017-UL',
                         )
 
             if LeptonSetup=="2018": #change to use official id instead of custom for 2018 UL
