@@ -22,7 +22,7 @@ class ZZID(AnalysisFlowBase):
                     idLabel = cms.string(self.getZZIDLabel()),
                     vtxSrc = step.getObjTag('v'),
                     #Cuts and IDs differ by year: https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsZZ4lRunIILegacy#Electrons
-                    #New: Current cuts use https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#HZZ_MVA_training_details_and_wor
+                    #New: Current UL 3 years cuts use https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#HZZ_MVA_training_details_and_wor
                     bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer16ULIdIsoValues"),#Old comments:use fall17v2 instead of custom https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#ID_information
                     idCutLowPtLowEta = cms.double(1.8949071018), 
                     idCutLowPtMedEta = cms.double(1.80714210202),
@@ -39,7 +39,7 @@ class ZZID(AnalysisFlowBase):
                     src = step.getObjTag('e'),
                     idLabel = cms.string(self.getZZIDLabel()),
                     vtxSrc = step.getObjTag('v'),
-                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer17ULIdIsoValues"),#2017 version of the ID
+                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer17ULIdIsoValues"),
                     idCutLowPtLowEta = cms.double(1.54440585808),
                     idCutLowPtMedEta = cms.double(1.50294621563),
                     idCutLowPtHighEta = cms.double(1.77306202112),
@@ -56,7 +56,7 @@ class ZZID(AnalysisFlowBase):
                     src = step.getObjTag('e'),
                     idLabel = cms.string(self.getZZIDLabel()),
                     vtxSrc = step.getObjTag('v'),
-                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer18ULIdIsoValues"),#use fall17v2 instead of custom https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#ID_information
+                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer18ULIdIsoValues"),
                     idCutLowPtLowEta = cms.double(1.49603193295), 
                     idCutLowPtHighEta = cms.double(1.77694249574),
                     idCutHighPtLowEta = cms.double(0.199463934736),
