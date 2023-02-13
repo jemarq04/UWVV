@@ -16,6 +16,12 @@ elif [[ $2 == "2017" ]]; then
   config=$config_path/local.allweights2017.txt 
 elif [[ $2 == "2018" ]]; then
   config=$config_path/local.allweights2018.txt
+elif [[ $2 == "2016UL" ]]; then
+  config=$config_path/local.allweights2016UL.txt
+elif [[ $2 == "2017UL" ]]; then
+  config=$config_path/local.allweights2017UL.txt
+elif [[ $2 == "2018UL" ]]; then
+  config=$config_path/local.allweights2018UL.txt
 elif [[ $2 == "ZL2016" ]]; then
   config=$config_path/local.ZL2016.txt
 elif [[ $2 == "ZL2017" ]]; then

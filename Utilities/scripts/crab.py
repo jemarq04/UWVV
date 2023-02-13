@@ -43,6 +43,20 @@ elif dataTier == 'MINIAODSIM':
 else:
     raise Exception("Dataset malformed? Couldn't deduce isMC parameter")
 
+isUL = 0
+isAPV = 0
+if "Summer20UL" in conditions:
+    isUL = 1
+else:
+    isUL = 0
+print("isUL:%s"%isUL)
+
+if "preVFP" in conditions:
+    isAPV = 1
+else:
+    isAPV = 0
+print("isAPV:%s"%isUL)
+
 def getUnitsPerJob(ds):
     if isMC == 0:
         # Data is split by lumisection
@@ -62,7 +76,10 @@ config = config()
 config.Data.inputDataset = dataset
 config.Data.outputDatasetTag = conditions
 if (isMC):
-    globalTag=(localSettings.get("local", "mcGlobalTag"))
+    if not isAPV:
+        globalTag=(localSettings.get("local", "mcGlobalTag"))
+    else:
+        globalTag=(localSettings.get("local", "APVGlobalTag"))
 elif (isPrompt):
     globalTag=(localSettings.get("local", "PromptdataGlobalTag"))
 else: 
@@ -162,7 +179,10 @@ config.General.transferLogs = True
 
 config.JobType.pluginName = 'ANALYSIS'
 config.JobType.allowUndistributedCMSSW = True 
-config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg.py' % os.environ["CMSSW_BASE"]
+if not isUL:
+    config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg.py' % os.environ["CMSSW_BASE"]
+else:
+    config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg_UL.py' % os.environ["CMSSW_BASE"]
 config.JobType.numCores = 1
 config.JobType.inputFiles = ["%s/src/UWVV/data" % os.environ["CMSSW_BASE"]]
 
