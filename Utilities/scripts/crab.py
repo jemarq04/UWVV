@@ -55,7 +55,7 @@ if "preVFP" in conditions:
     isAPV = 1
 else:
     isAPV = 0
-print("isAPV:%s"%isUL)
+print("isAPV:%s"%isAPV)
 
 def getUnitsPerJob(ds):
     if isMC == 0:
@@ -119,6 +119,12 @@ if isMC:
         config.General.requestName += m.groups()[0]
     #config.Data.splitting = 'FileBased'
     #config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
+    if isUL and isAPV:
+        config.General.requestName += "preVFP"
+    
+    if isUL and (not isAPV) and "RunIISummer20UL16MiniAOD" in conditions:
+        config.General.requestName += "postVFP"
+        
 else:
     # Since a PD will have several eras, add conditions to name to differentiate
     config.General.requestName = '_'.join([campaign_name, primaryDS, conditions])
