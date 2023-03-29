@@ -1,0 +1,14 @@
+# Copy to local.txt and change
+[local]
+campaign: UWVVNtuples18_$DATE
+outLFNDirBase: /store/user/$USER/UWVVNtuples18UL_$DATE/
+storageSite: T2_US_Wisconsin
+channels: zz
+year: 2018
+eCalib: 1
+muCalib: 1
+lheWeights: 3
+genInfo: 1
+genLeptonType: dressedHPFS  
+mcGlobalTag: 106X_upgrade2018_realistic_v16_L1v1
+dataGlobalTag: 106X_dataRun2_v37
