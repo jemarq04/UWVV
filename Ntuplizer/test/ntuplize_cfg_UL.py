@@ -297,15 +297,25 @@ if options.isMC and (options.year == "2016" or options.year == "2017"):
     from PhysicsTools.PatUtils.l1PrefiringWeightProducer_cfi import l1PrefiringWeightProducer
 
     if options.year == "2016":
-        
-        process.prefiringweight = l1PrefiringWeightProducer.clone(
-        TheJets = cms.InputTag("updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs 
-        DataEraECAL = cms.string("2016BtoH"), #Use 2016BtoH for 2016
-        DataEraMuon = cms.string("2016"), #Use 2016 for 2016
-        UseJetEMPt = cms.bool(False),
-        PrefiringRateSystematicUnctyECAL = cms.double(0.2),
-        PrefiringRateSystematicUnctyMuon = cms.double(0.2)
-        )
+        if "preVFP" in gt:
+            process.prefiringweight = l1PrefiringWeightProducer.clone(
+            TheJets = cms.InputTag("updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs !
+            DataEraECAL = cms.string("UL2016preVFP"),
+            DataEraMuon = cms.string("2016preVFP"),
+            UseJetEMPt = cms.bool(False),
+            PrefiringRateSystematicUnctyECAL = cms.double(0.2),
+            PrefiringRateSystematicUnctyMuon = cms.double(0.2)
+            )
+
+        else:
+            process.prefiringweight = l1PrefiringWeightProducer.clone(
+            TheJets = cms.InputTag("updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs !
+            DataEraECAL = cms.string("UL2016postVFP"),
+            DataEraMuon = cms.string("2016postVFP"),
+            UseJetEMPt = cms.bool(False),
+            PrefiringRateSystematicUnctyECAL = cms.double(0.2),
+            PrefiringRateSystematicUnctyMuon = cms.double(0.2)
+            )
 
         '''process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
                 DataEra = cms.string("2016BtoH"), #Use 2016BtoH for 2016
@@ -316,9 +326,9 @@ if options.isMC and (options.year == "2016" or options.year == "2017"):
     if options.year == "2017":
         print "2017 L1Prefiring"
         process.prefiringweight = l1PrefiringWeightProducer.clone(
-        TheJets = cms.InputTag("updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs 
-        DataEraECAL = cms.string("2017BtoF"), #Use 2016BtoH for 2016
-        DataEraMuon = cms.string("20172018"), #Use 2016 for 2016
+        TheJets = cms.InputTag("updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs !
+        DataEraECAL = cms.string("UL2017BtoF"),
+        DataEraMuon = cms.string("20172018"),
         UseJetEMPt = cms.bool(False),
         PrefiringRateSystematicUnctyECAL = cms.double(0.2),
         PrefiringRateSystematicUnctyMuon = cms.double(0.2)
@@ -480,6 +490,12 @@ if zz or wz:
             from UWVV.Ntuplizer.templates.vbsBranches import vbsDerivedSystematicBranches
             extraInitialStateBranches.append(vbsDerivedSystematicBranches)
 
+#Determining 2016 era for use in setupEgammaPostRecoSeq, currently this gt-determined method only works for MC
+if "preVFP" in gt:
+    electronULera16 = "2016preVFP-UL"
+else:
+    electronULera16 = '2016postVFP-UL'
+
 flowOpts = {
     'isMC' : bool(options.isMC),
     'isSync' : bool(options.isMC) and bool(options.isSync),
@@ -488,6 +504,7 @@ flowOpts = {
     'electronRhoResShift' : options.eRhoResShift,
     'electronPhiResShift' : options.ePhiResShift,
     'muonClosureShift' : options.mClosureShift,
+    'electronULera16' : electronULera16,
     }
 
 # Turn all these into a single flow class
