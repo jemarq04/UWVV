@@ -12,8 +12,8 @@ class ElectronCalibration(AnalysisFlowBase):
         if not hasattr(self, 'year'):
             self.year = kwargs.pop('year', '2016')
 
-        if not hasattr(self, 'electronULera16'):
-            self.electronULera16 = kwargs.pop('electronULera16', '2016postVFP-UL')
+        if not hasattr(self, 'CalibULera16'):
+            self.CalibULera16 = kwargs.pop('CalibULera16', '2016postVFP-UL')
 
         eesShift = kwargs.pop('electronScaleShift', 0) if self.isMC else 0
         eerRhoShift = kwargs.pop('electronRhoResShift', 0) if self.isMC else 0
@@ -46,7 +46,7 @@ class ElectronCalibration(AnalysisFlowBase):
                 setupEgammaPostRecoSeq(self.process,
                         runEnergyCorrections=True,
                         runVID=True,
-                        era=self.electronULera16) #'2016preVFP-UL' '2016postVFP-UL'
+                        era=self.CalibULera16) #'2016preVFP-UL' '2016postVFP-UL'
 
             if LeptonSetup=="2017":
                 setupEgammaPostRecoSeq(self.process,

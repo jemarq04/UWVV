@@ -41,6 +41,7 @@ fi
 #replace files with UL version
 mv AnalysisTools/plugins/PATMuonZZIDEmbedder.cc AnalysisTools/plugins/PATMuonZZIDEmbedder.cc_backup_old
 mv AnalysisTools/python/templates/ElectronCalibration.py AnalysisTools/python/templates/ElectronCalibration.py_backup_old
+mv AnalysisTools/python/templates/MuonCalibration.py AnalysisTools/python/templates/MuonCalibration.py_backup_old
 mv AnalysisTools/python/templates/ZZID.py AnalysisTools/python/templates/ZZID.py_backup_old
 
 mv AnalysisTools/plugins/PATObjectValueEmbedder.cc AnalysisTools/plugins/PATObjectValueEmbedder.cc_backup_old
@@ -48,6 +49,7 @@ mv AnalysisTools/python/templates/BadMuonFilters.py AnalysisTools/python/templat
 
 cp AnalysisTools/plugins/PATMuonZZIDEmbedder.cc_UL AnalysisTools/plugins/PATMuonZZIDEmbedder.cc
 cp AnalysisTools/python/templates/ElectronCalibrationUL.py AnalysisTools/python/templates/ElectronCalibration.py
+cp AnalysisTools/python/templates/MuonCalibrationUL.py AnalysisTools/python/templates/MuonCalibration.py
 cp AnalysisTools/python/templates/ZZID_UL.py AnalysisTools/python/templates/ZZID.py
 
 cp AnalysisTools/plugins/PATObjectValueEmbedder.cc_UL AnalysisTools/plugins/PATObjectValueEmbedder.cc

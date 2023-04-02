@@ -492,9 +492,9 @@ if zz or wz:
 
 #Determining 2016 era for use in setupEgammaPostRecoSeq, currently this gt-determined method only works for MC
 if "preVFP" in gt:
-    electronULera16 = "2016preVFP-UL"
+    CalibULera16 = "2016preVFP-UL"
 else:
-    electronULera16 = '2016postVFP-UL'
+    CalibULera16 = '2016postVFP-UL'
 
 flowOpts = {
     'isMC' : bool(options.isMC),
@@ -504,7 +504,7 @@ flowOpts = {
     'electronRhoResShift' : options.eRhoResShift,
     'electronPhiResShift' : options.ePhiResShift,
     'muonClosureShift' : options.mClosureShift,
-    'electronULera16' : electronULera16,
+    'CalibULera16' : CalibULera16,
     }
 
 # Turn all these into a single flow class
