@@ -42,16 +42,20 @@ class ElectronCalibration(AnalysisFlowBase):
 
             #For UL now use twiki: https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaUL2016To2018
             from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+            from RecoEgamma.EgammaTools.EgammaPostRecoTools import _defaultEleIDModules
+
             if LeptonSetup=="2016":
                 setupEgammaPostRecoSeq(self.process,
                         runEnergyCorrections=True,
                         runVID=True,
+                        eleIDModules=(_defaultEleIDModules+['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer16UL_ID_ISO_cff']),
                         era=self.CalibULera16) #'2016preVFP-UL' '2016postVFP-UL'
 
             if LeptonSetup=="2017":
                 setupEgammaPostRecoSeq(self.process,
                         runEnergyCorrections=True,
                         runVID=True,
+                        eleIDModules=(_defaultEleIDModules+['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer17UL_ID_ISO_cff']),
                         era='2017-UL',
                         )
 
@@ -59,6 +63,7 @@ class ElectronCalibration(AnalysisFlowBase):
                 setupEgammaPostRecoSeq(self.process,
                         runEnergyCorrections=True,
                         runVID=True,
+                        eleIDModules=(_defaultEleIDModules+['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer18UL_ID_ISO_cff']),
                         era='2018-UL'
                         )
             
