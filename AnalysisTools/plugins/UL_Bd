@@ -1,0 +1,21 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="DataFormats/RecoCandidate"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="CommonTools/Utils"/>
+<use name="CommonTools/CandAlgos"/>
+<use name="CommonTools/CandUtils"/>
+<use name="RecoEgamma/EgammaTools"/>
+<use name="KaMuCa/Calibration"/>
+<use name="JetMETCorrections/Modules"/>
+<use name="CondFormats/JetMETObjects"/>
+<use name="DataFormats/Math"/>
+<use name="PhysicsTools/PatAlgos"/>
+<use name="JetMETCorrections/Objects"/>
+<use name="UWVV/DataFormats"/>
+<use name="EgammaAnalysis/ElectronTools"/>
+<use name="UWVV/Utilities"/>
+
+<library file="*.cc" name="UWVVAnalysisToolsPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

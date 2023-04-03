@@ -55,6 +55,9 @@ cp AnalysisTools/python/templates/ZZID_UL.py AnalysisTools/python/templates/ZZID
 cp AnalysisTools/plugins/PATObjectValueEmbedder.cc_UL AnalysisTools/plugins/PATObjectValueEmbedder.cc
 cp AnalysisTools/python/templates/BadMuonFilters.py_UL AnalysisTools/python/templates/BadMuonFilters.py
 
+mv AnalysisTools/UL_Bd AnalysisTools/BuildFile.xml
+mv AnalysisTools/plugins/UL_Bd AnalysisTools/plugins/BuildFile.xml
+
 pushd $CMSSW_BASE/src
 
 #https://twiki.cern.ch/twiki/bin/view/CMS/EgammaUL2016To2018#Recipe_for_running_scales_and_sm
