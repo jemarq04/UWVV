@@ -72,14 +72,31 @@ with open(listname) as flist:
                     wrong=False
                     fout.write(fname+':\n')
                 if record and linecount<3:
-                    fout.write(linec)
+                    if not "No publication information (publication has been disabled in the CRAB configuration file)" in line:
+                        fout.write(linec)
                     linecount +=1
                 if linecount >=3:
                     record = False
                     linecount = 0
+                    fout.write("\n")
                 
             if wrong:
                 fout.write('\nSomething wrong with %s\n\n'%fname)
 
 fout.close()
 print("Info output saved as %s"%outname)    
+
+print("Writing resubmit script. Before running resubmission please check status txt to make sure no job is still running or in transition")
+fstat = open(outname)
+fre = open(outname.replace("status_info","resubmit").replace(".txt",".sh"),"w")
+relist = []
+current = ""
+for line in fstat:
+    if "crab_" in line:
+        current = line.strip()
+
+    if "failed" in line:
+        relist.append(current)
+
+for entry in relist:
+    fre.write("crab resubmit -d "+entry.replace(":","")+"\n")
