@@ -47,12 +47,17 @@ if processing:
             folder=line.strip()
 
             command = 'crab status -d '+folder+' > '+os.path.join(outputdir,folder+'.txt')
+            command2 = 'crab report -d '+folder+' > '+os.path.join(outputdir,folder+'_Report.log')
             code = subprocess.call([command], shell=True)
+            code2 = subprocess.call([command2], shell=True)
             if code == 0:
                 count +=1
                 print("Processed %s folders"%count)
             else:
                 print("Error in %s"%folder)
+            
+            if os.path.exists(os.path.join(folder,"results","notFinishedLumis.json")):
+                print("==========WARNING: %s has not-yet-processed lumi=========="%folder)
 
 fout = open(outname, 'w')
 
