@@ -5,7 +5,7 @@ import sys
 from optparse import OptionParser
 
 processing=True
-print("Running scripts. Don't forget to initialize proxy first.\n See the latest folder with largest index.")
+print("Running scripts. Don't forget to initialize proxy first.\nSee the latest folder/files with largest index.")
 parser=OptionParser()
 parser.add_option("-f", dest="folder",help="Output Status folder")
 parser.add_option("-o", dest="output",help="Output info file name")
@@ -72,7 +72,7 @@ with open(listname) as flist:
                     wrong=False
                     fout.write(fname+':\n')
                 if record and linecount<3:
-                    if not "No publication information (publication has been disabled in the CRAB configuration file)" in line:
+                    if not "No publication information (publication has been disabled in the CRAB configuration file)" in linec:
                         fout.write(linec)
                     linecount +=1
                 if linecount >=3:
