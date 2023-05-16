@@ -158,7 +158,8 @@ else:
 #CRAB server blows up if we run "Automatic splitting" on these DY Datasets so require them to be split "FileBased"
 if "DYJetsToLL_M-50" not in primaryDS:
     config.Data.splitting = 'Automatic'
-    config.Data.unitsPerJob = 180
+    #config.Data.unitsPerJob = 180
+    config.Data.unitsPerJob = 540
 else:
     print("Its a DYJetsToLL_M-50 dataset")
     config.Data.splitting = 'FileBased'
