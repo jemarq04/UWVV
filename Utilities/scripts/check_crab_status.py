@@ -7,8 +7,9 @@ from optparse import OptionParser
 processing=True
 print("Running scripts. Don't forget to initialize proxy first.\nSee the latest folder/files with largest index.")
 parser=OptionParser()
-parser.add_option("-f", dest="folder",help="Output Status folder")
-parser.add_option("-o", dest="output",help="Output info file name")
+#parser.add_option("-f", dest="folder",help="Output Status folder")
+#parser.add_option("-o", dest="output",help="Output info file name")
+parser.add_option("--report", dest="report",help="Whether to run crab report",default=False,action="store_true")
 (options,args)=parser.parse_args()
 
 outputdir='output_crab_status_data'
@@ -49,7 +50,8 @@ if processing:
             command = 'crab status -d '+folder+' > '+os.path.join(outputdir,folder+'.txt')
             command2 = 'crab report -d '+folder+' > '+os.path.join(outputdir,folder+'_Report.log')
             code = subprocess.call([command], shell=True)
-            code2 = subprocess.call([command2], shell=True)
+            if options.report:
+                code2 = subprocess.call([command2], shell=True)
             if code == 0:
                 count +=1
                 print("Processed %s folders"%count)
