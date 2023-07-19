@@ -4,6 +4,19 @@ import os
 import sys
 from optparse import OptionParser
 
+#=======================================
+#Usage:
+#Move all project folders into one folder, copy this script into the folder, initialize proxy and run it: python check_crab_status.py [--report]
+#It will run "crab status -d" for all the project folders, put printouts in "output_crab_status_data" folder, and parse the printouts to write a summary file
+#If "--report" is enabled, it will also run "crab report -d" on all folders and put printouts in "output_crab_status_data" folder
+#Currently it only checks if results/notFinishedLumis.json exists in the project folders, and gives a warning if it does. But this may not guarantee 
+#all lumis are processed, since different Data.splitting mode seems to generate the reports differently...
+#suggest to look at the reports by something like "cat *.log"
+#Then if some jobs fail in some datasets, it will create a resubmission script for all such datasets.
+#After Checking from the status summary file that no job is in transition or still running (and other aspects), the script can be run.   
+
+#The new out folder and file/script will be named with 0,1,2 each time this python script is run      
+#=======================================
 processing=True
 print("Running scripts. Don't forget to initialize proxy first.\nSee the latest folder/files with largest index.")
 parser=OptionParser()
@@ -47,8 +60,8 @@ if processing:
                 continue
             folder=line.strip()
 
-            command = 'crab status -d '+folder+' > '+os.path.join(outputdir,folder+'.txt')
-            command2 = 'crab report -d '+folder+' > '+os.path.join(outputdir,folder+'_Report.log')
+            command = 'crab status -d '+folder+' > '+os.path.join(outputdir,folder+'.txt 2>&1')
+            command2 = 'crab report -d '+folder+' > '+os.path.join(outputdir,folder+'_Report.log 2>&1')
             code = subprocess.call([command], shell=True)
             if options.report:
                 code2 = subprocess.call([command2], shell=True)
