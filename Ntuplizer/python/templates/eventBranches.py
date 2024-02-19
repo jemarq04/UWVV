@@ -48,6 +48,7 @@ L1ECALPrefiringBranches = cms.PSet(
 lheScaleWeightBranches = cms.PSet(
     vFloats = cms.PSet(
         scaleWeights = cms.vstring('lheWeights::0,9'),
+				scaleWeightIDs = cms.vstring('lheWeightIDs::0,9'),
         ),
     floats = cms.PSet(
         minScaleWeight = cms.string('minLHEWeight::0,9'),
@@ -58,6 +59,7 @@ lheScaleWeightBranches = cms.PSet(
 lheScaleAndPDFWeightBranches = cms.PSet(
     vFloats = cms.PSet(
         scaleWeights = cms.vstring('lheWeights::0,9'),
+				scaleWeightIDs = cms.vstring('lheWeightIDs::0,9'),
         pdfWeights = cms.vstring('lheWeights::9,111'),
         ),
     floats = cms.PSet(
@@ -69,6 +71,7 @@ lheScaleAndPDFWeightBranches = cms.PSet(
 lheAllWeightBranches = cms.PSet(
     vFloats = cms.PSet(
         scaleWeights = cms.vstring('lheWeights::0,9'),
+				scaleWeightIDs = cms.vstring('lheWeightIDs::0,9'),
         pdfWeights = cms.vstring('lheWeights::9,9999'),
         ),
     floats = cms.PSet(
