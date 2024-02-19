@@ -14,7 +14,9 @@ _defaultEventParams = {
     'metSrc'             : 'slimmedMETs',
     'puSrc'              : 'slimmedAddPileupInfo',
     'genEventInfoSrc'    : 'generator',
-    'lheEventInfoSrc'    : 'externalLHEProducer',
+#===> NOTE: Commented below and added line under comment
+#    'lheEventInfoSrc'    : 'externalLHEProducer',
+    'lheEventInfoSrc'    : 'source',
     'genParticleSrc'     : 'prunedGenParticles',
     'genJetSrc'          : 'slimmedGenJets',
     'initialStateSrc'    : '',
