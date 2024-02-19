@@ -63,6 +63,9 @@ pushd $CMSSW_BASE/src
 #https://twiki.cern.ch/twiki/bin/view/CMS/EgammaUL2016To2018#Recipe_for_running_scales_and_sm
 git cms-addpkg RecoEgamma/EgammaTools  ### essentially just checkout the package from CMSSW
 git clone https://github.com/cms-egamma/EgammaPostRecoTools.git
+cd EgammaPostRecoTools
+git reset --hard 209673a # Needed for Run 2 analysis
+cd ..
 mv EgammaPostRecoTools/python/EgammaPostRecoTools.py RecoEgamma/EgammaTools/python/.
 git clone -b ULSSfiles_correctScaleSysMC https://github.com/jainshilpi/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data/
 git cms-addpkg EgammaAnalysis/ElectronTools
