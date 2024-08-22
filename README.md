@@ -53,7 +53,7 @@ Again the main reference to check is the [PdmV receipe](https://twiki.cern.ch/tw
 
 1. Making sure the lepton IDs and SFs are the correct and optimal ones to use. In particular, in pre-legacy we use lepton SF files and recipe from HZZ group, but we currently don't have the updated version of SFs for UL and are just applying the old ones in later processing stage.
 
-2. Jet related contents still need to be reviewed and updated, in particular JEC, JER and Pileup Jet ID in the PdmV corrections list.
+2. ~~Jet related contents still need to be reviewed and updated, in particular JEC, JER and Pileup Jet ID in the PdmV corrections list.~~ JEC and JetPUID match PdmV Run2UL. JER differs, but matches the HZZ4l analysis.
 
 3. Modifying the codes to use the appropriate names/tags for 2016 preVFP/postVFP samples. As discussed in the list of updated items above, during processing, currently preVFP/postVFP is only determined from global tag, which works for MC but not data. Need to maybe pass some other variable into processing to provide this information for data. Also will need to handle/combine the two eras properly in later processing and plotting.
 
