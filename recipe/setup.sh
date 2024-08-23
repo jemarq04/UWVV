@@ -47,6 +47,9 @@ git cms-addpkg EgammaAnalysis/ElectronTools
 rm -rf EgammaAnalysis/ElectronTools/data
 git clone git@github.com:cms-data/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data
 
+git clone --recursive ssh://git@gitlab.cern.ch:7999/akhukhun/roccor.git
+mv roccor/RoccoR*.txt UWVV/data/RochesterCorrections/
+
 #To get the electron BDT you have to checkout a package like this:
 git cms-merge-topic mkovac:Electron_XGBoost_MVA_2016_and_2018_CMSSW_10_2_15
 
