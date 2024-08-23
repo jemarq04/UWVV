@@ -70,6 +70,9 @@ mv EgammaPostRecoTools/python/EgammaPostRecoTools.py RecoEgamma/EgammaTools/pyth
 git clone -b ULSSfiles_correctScaleSysMC https://github.com/jainshilpi/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data/
 git cms-addpkg EgammaAnalysis/ElectronTools
 
+git clone --recursive ssh://git@gitlab.cern.ch:7999/akhukhun/roccor.git
+mv roccor/RoccoR*.txt UWVV/data/RochesterCorrections/
+
 # Muon MVA, no longer compiles currently 
 #git clone https://github.com/mkovac/MuonMVAReader.git MuonMVAReader
 
