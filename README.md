@@ -82,7 +82,7 @@ In UWVV directory, create data/jetPUSF directory
 ```
 and download effcyPUID_81Xtraining.root and scalefactorsPUID_81Xtraining.root from the bottom attachments of https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetID, and then put them into the created directory. These files are for jet PU ID, and they are currently needed to make the codes run.
 
-Download roccor.Run2.v5.tgz from https://twiki.cern.ch/twiki/bin/viewauth/CMS/RochcorMuon, and after uncompressing, put all the RoccoR*.txt files into the UWVV/data/RochesterCorrections folder (can overwrite the old 2018.txt file).
+~~Download roccor.Run2.v5.tgz from https://twiki.cern.ch/twiki/bin/viewauth/CMS/RochcorMuon, and after uncompressing, put all the RoccoR*.txt files into the UWVV/data/RochesterCorrections folder (can overwrite the old 2018.txt file).~~ This has now been added to the `setup.sh` and `setup_UL.sh` recipes using the CERN gitlab repository for RoccoR corrections.
 
 ## Crab Submission
 Create files like 2016MC.dat, 2017Data.dat, ..., and in each file, list line by line the datasets you want to process.
