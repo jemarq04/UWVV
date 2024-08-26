@@ -47,8 +47,12 @@ git cms-addpkg EgammaAnalysis/ElectronTools
 rm -rf EgammaAnalysis/ElectronTools/data
 git clone git@github.com:cms-data/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data
 
+# For now all that we copy over are the text files that contain the corrections as the .h and .cc files are already in UWVV
+# If they undergo significant changes, we should use the second commented command instead.
+# (For now they are slight organizational changes, so we omit them. Any significant changes should be committed.)
 git clone --recursive ssh://git@gitlab.cern.ch:7999/akhukhun/roccor.git
-mv roccor/RoccoR*.txt UWVV/data/RochesterCorrections/
+[[ -d roccor ]] && mv roccor/RoccoR*.txt UWVV/data/RochesterCorrections/ || echo "ERROR: error cloning roccor gitlab repo"
+#[[ -d roccor ]] && mv roccor/RoccoR*.* UWVV/data/RochesterCorrections/ || echo "ERROR: error cloning roccor gitlab repo"
 
 #To get the electron BDT you have to checkout a package like this:
 git cms-merge-topic mkovac:Electron_XGBoost_MVA_2016_and_2018_CMSSW_10_2_15

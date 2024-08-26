@@ -70,8 +70,12 @@ mv EgammaPostRecoTools/python/EgammaPostRecoTools.py RecoEgamma/EgammaTools/pyth
 git clone -b ULSSfiles_correctScaleSysMC https://github.com/jainshilpi/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data/
 git cms-addpkg EgammaAnalysis/ElectronTools
 
+# For now all that we copy over are the text files that contain the corrections as the .h and .cc files are already in UWVV
+# If they undergo significant changes, we should use the second commented command instead.
+# (For now they are slight organizational changes, so we omit them. Any significant changes should be committed.)
 git clone --recursive ssh://git@gitlab.cern.ch:7999/akhukhun/roccor.git
-mv roccor/RoccoR*.txt UWVV/data/RochesterCorrections/
+[[ -d roccor ]] && mv roccor/RoccoR*.txt UWVV/data/RochesterCorrections/ || echo "ERROR: error cloning roccor gitlab repo"
+#[[ -d roccor ]] && mv roccor/RoccoR*.* UWVV/data/RochesterCorrections/ || echo "ERROR: error cloning roccor gitlab repo"
 
 # Muon MVA, no longer compiles currently 
 #git clone https://github.com/mkovac/MuonMVAReader.git MuonMVAReader
