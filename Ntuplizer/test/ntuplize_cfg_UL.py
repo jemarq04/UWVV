@@ -133,6 +133,11 @@ options.register ('eventsToProcess',  '',
                  VarParsing.VarParsing.multiplicity.list,
                  VarParsing.VarParsing.varType.string,
                  "Events to process")
+options.register('calibVFP', '' #allowed = 'pre' or 'post'
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                "If the year provided is 2016 (default) you must specify "
+                "if this is preVFP or postVFP by providing 'pre' or 'post'.")
 options.parseArguments()
 
 if options.year == "2016":
@@ -143,12 +148,19 @@ if options.year == "2016":
     #options.inputFiles='/store/mc/RunIISummer16MiniAODv3/GluGluHToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3-v1/40000/90B61523-A720-E911-A35B-1866DA890B10.root'
     options.inputFiles='file:qqZZ16phUL_C79571E3-F3DF-3A4C-8B4F-5837AAD31C95.root' #'/store/data/Run2016H/DoubleMuon/MINIAOD/17Jul2018-v1/00000/02359251-628E-E811-BA72-0242AC1C0500.root'
     options.outputFile = 'ntuple2016.root'
+    if options.calibVFP.lower() not in ["pre", "post"]:
+        print("ERROR: When analyzing 2016 data the option 'calibVFP' must be provided as either 'pre' or 'post'.")
+        print("This is to specify preVFP and postVFP for the analysis flow (e.g. lepton calibration)")
+        exit(1)
+    options.calibVFP = options.calibVFP.lower()
+
 if options.year == "2017":
    # options.inputFiles = '/store/mc/RunIIFall17MiniAODv2/VBF_HToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/60000/3450B123-E8BF-E811-B895-FA163E9604CF.root'
     #options.inputFiles = '/store/mc/RunIIFall17MiniAODv2/ZZTo4L_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14_ext2-v1/280000/E6CABE1D-2D78-E911-90C6-008CFA1C6458.root'
     #options.inputFiles='/store/mc/RunIIFall17MiniAODv2/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/280000/FE202169-8B1C-E911-8DF5-0CC47A13CB02.root'
     options.inputFiles ='file:/afs/cern.ch/work/h/hehe/ggZZ_new_files/crab_AllMid_ggZZ012j_MiniAODv2_v3/SMP-RunIIFall17MiniAODv2-99999_1.root'
     options.outputFile = 'ntuple2017.root' #'TestOutput_mediumPUidan50.root'
+
 if options.year == "2018":
     #options.inputFiles = '/store/mc/RunIIAutumn18MiniAOD/ttH_HToZZ_4LFilter_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v2/60000/DCB7927B-269F-3B4B-9DA3-EFE07A37FC9E.root'
     #options.inputFiles='/store/mc/RunIIAutumn18MiniAOD/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15_ext2-v2/90000/F9BD3565-7BA4-604B-B7ED-994931E803B4.root'
@@ -209,18 +221,17 @@ if options.globalTag:
     gt = options.globalTag
 elif options.isMC:
     if options.year == "2016":
-        gt = '94X_mcRun2_asymptotic_v3'
+        if options.calibVFP == "pre":
+            gt = '106X_mcRun2_asymptotic_preVFP_v11'
+        else:
+            gt = '106X_mcRun2_asymptotic_v17'
     if options.year == "2017":
-        gt = '94X_mc2017_realistic_v17'
+        gt = '106X_mc2017_realistic_v10'
     if options.year == "2018" or options.year == "2018Prompt":
-        gt = '102X_upgrade2018_realistic_v20'
+        gt = '106X_upgrade2018_realistic_v16_L1v1'
 else:
-    if options.year == "2016":
-        gt = '94X_dataRun2_v10'
-    if options.year == "2017":
-        gt = '94X_dataRun2_v11'
-    if options.year == "2018":
-        gt = '102X_dataRun2_v12'
+    gt = '106X_dataRun2_v35'
+    # Keeping this in just in case, but this doesn't seem to be up-to-date or needed
     if options.year == "2018Prompt":
         gt = '102X_dataRun2_Prompt_v15'
         
@@ -236,7 +247,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1
 #Input source
 if len(options.inputFileList) > 0 :
     with open(options.inputFileList) as f :
-        inputFiles = list((line.strip() for line in f))
+        inputFiles = list((line.strip() for line in f if line[0] != "#"))
 else:
     inputFiles = cms.untracked.vstring(options.inputFiles)
 process.source = cms.Source(
@@ -297,7 +308,7 @@ if options.isMC and (options.year == "2016" or options.year == "2017"):
     from PhysicsTools.PatUtils.l1PrefiringWeightProducer_cfi import l1PrefiringWeightProducer
 
     if options.year == "2016":
-        if "preVFP" in gt:
+        if options.calibVFP == "pre":
             process.prefiringweight = l1PrefiringWeightProducer.clone(
             TheJets = cms.InputTag("updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs !
             DataEraECAL = cms.string("UL2016preVFP"),
@@ -339,6 +350,18 @@ if options.isMC and (options.year == "2016" or options.year == "2017"):
                 UseJetEMPt = cms.bool(False),
                 PrefiringRateSystematicUncty = cms.double(0.2),
                 SkipWarnings = False)'''
+    '''
+    if options.year == "2018":
+        print "2018 L1Prefiring"
+        process.prefiringweight = l1PrefiringWeightProducer.clone(
+        TheJets = cms.InputTag("updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs !
+        DataEraECAL = cms.string("None"),
+        DataEraMuon = cms.string("20172018"),
+        UseJetEMPt = cms.bool(False),
+        PrefiringRateSystematicUnctyECAL = cms.double(0.2),
+        PrefiringRateSystematicUnctyMuon = cms.double(0.2)
+        )
+    '''
     process.prefiring = cms.Path(process.prefiringweight)
     process.schedule.append(process.prefiring)
 
@@ -490,8 +513,8 @@ if zz or wz:
             from UWVV.Ntuplizer.templates.vbsBranches import vbsDerivedSystematicBranches
             extraInitialStateBranches.append(vbsDerivedSystematicBranches)
 
-#Determining 2016 era for use in setupEgammaPostRecoSeq, currently this gt-determined method only works for MC
-if "preVFP" in gt:
+#Determining 2016 era for use in setupEgammaPostRecoSeq
+if options.calibVFP == "pre":
     CalibULera16 = "2016preVFP-UL"
 else:
     CalibULera16 = '2016postVFP-UL'
