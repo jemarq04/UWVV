@@ -89,4 +89,4 @@ AnalysisTools/plugins/ZKinematicFitEmbedder.cc
 !AnalysisTools/plugins/*Code.txt
 
 # Crab submit directories 
-crab_*
+crab_*/
