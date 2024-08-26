@@ -53,7 +53,7 @@ Again the main reference to check is the [PdmV receipe](https://twiki.cern.ch/tw
 
 1. Making sure the lepton IDs and SFs are the correct and optimal ones to use. In particular, in pre-legacy we use lepton SF files and recipe from HZZ group, but we currently don't have the updated version of SFs for UL and are just applying the old ones in later processing stage.
 
-2. ~~Jet related contents still need to be reviewed and updated, in particular JEC, JER and Pileup Jet ID in the PdmV corrections list.~~ JEC and JetPUID match PdmV Run2UL. JER differs, but matches the HZZ4l analysis.
+2. ~~Jet related contents still need to be reviewed and updated, in particular JEC, JER and Pileup Jet ID in the PdmV corrections list.~~ JEC, JER, and JetPUID match PdmV Run2UL.
 
 3. Modifying the codes to use the appropriate names/tags for 2016 preVFP/postVFP samples. ~~As discussed in the list of updated items above, during processing, currently preVFP/postVFP is only determined from global tag, which works for MC but not data. Need to maybe pass some other variable into processing to provide this information for data. Also will need to handle/combine the two eras properly in later processing and plotting.~~ The config file will now accept a new command-line argument that specifies pre/post VFP for 2016 analysis. This should provide the appropriate strings for analysis flow.
 
@@ -80,9 +80,9 @@ In UWVV directory, create data/jetPUSF directory
 ```
  mkdir -p data/jetPUSF
 ```
-and download effcyPUID_81Xtraining.root and scalefactorsPUID_81Xtraining.root from the bottom attachments of https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetID, and then put them into the created directory. These files are for jet PU ID, and they are currently needed to make the codes run.
+and download ~~effcyPUID_81Xtraining.root and scalefactorsPUID_81Xtraining.root from the bottom attachments of https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetID~~ PUID_106XTraining_ULRun2_EffSFandUncties_v1.root from the bottom attachment of https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetIDUL, and then put them into the created directory. These files are for jet PU ID, and they are currently needed to make the codes run.
 
-~~Download roccor.Run2.v5.tgz from https://twiki.cern.ch/twiki/bin/viewauth/CMS/RochcorMuon, and after uncompressing, put all the RoccoR*.txt files into the UWVV/data/RochesterCorrections folder (can overwrite the old 2018.txt file).~~ This has now been added to the `setup.sh` and `setup_UL.sh` recipes using the CERN gitlab repository for RoccoR corrections.
+~~Download roccor.Run2.v5.tgz from https://twiki.cern.ch/twiki/bin/viewauth/CMS/RochcorMuon, and after uncompressing, put all the RoccoR*.txt files into the UWVV/data/RochesterCorrections folder (can overwrite the old 2018.txt file).~~ (This has now been added to the `setup.sh` and `setup_UL.sh` recipes using the CERN gitlab repository for RoccoR corrections.)
 
 ## Crab Submission
 Create files like 2016MC.dat, 2017Data.dat, ..., and in each file, list line by line the datasets you want to process.
