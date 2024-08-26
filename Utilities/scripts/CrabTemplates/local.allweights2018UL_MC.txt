@@ -11,9 +11,9 @@ muCalib: 1
 lheWeights: 3
 genInfo: 1
 genLeptonType: dressedHPFS
-mcGlobalTag: 106X_upgrade2018_realistic_v15_L1v1
+mcGlobalTag: 106X_upgrade2018_realistic_v16_L1v1
 PromptdataGlobalTag: 102X_dataRun2_Prompt_v15
-dataGlobalTag: 102X_dataRun2_v12
+dataGlobalTag: 106X_dataRun2_v37
 dataset: /CustomSet/106X_upgrade2018_realistic_v15_L1v1/MINIAODSIM
 requestName: CustomRequestName
 datalist: CustomData.dat
