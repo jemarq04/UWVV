@@ -103,7 +103,7 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   // Which year JET ID we need
   setup_(iConfig.exists("setup") ? iConfig.getParameter<int>("setup") : 2016),
   deltaR(iConfig.getUntrackedParameter<double>("deltaR", 0.4)),
-  APV(iConfig.getUntrackedParameter<bool>("APV", false)),
+  APV(iConfig.getParameter<bool>("APV", false)),
   jesUpTagExists(iConfig.existsAs<edm::InputTag>("jesUpJetSrc")),
   jesDownTagExists(iConfig.existsAs<edm::InputTag>("jesDownJetSrc")),
   jerUpTagExists(iConfig.existsAs<edm::InputTag>("jerUpJetSrc")),
