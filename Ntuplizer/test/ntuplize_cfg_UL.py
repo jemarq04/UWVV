@@ -133,7 +133,7 @@ options.register ('eventsToProcess',  '',
                  VarParsing.VarParsing.multiplicity.list,
                  VarParsing.VarParsing.varType.string,
                  "Events to process")
-options.register('calibVFP', '' #allowed = 'pre' or 'post'
+options.register('calibVFP', '', #allowed = 'pre' or 'post'
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "If the year provided is 2016 (default) you must specify "
