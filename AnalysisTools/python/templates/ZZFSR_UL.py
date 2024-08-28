@@ -57,7 +57,7 @@ class ZZFSR(AnalysisFlowBase):
             step.addModule('jetFSRCleaner', jetFSRCleaner, 'j')
 
 
-            jsfFileP = jsfFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
+            jsfFileP = jeffFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
                                   'PUID_106XTraining_ULRun2_EffSFandUncties_v1.root')
             yearstring = ""
             if self.year == "2016" and "preVFP" in self.CalibULera16:
