@@ -122,7 +122,7 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   {
     // Define correction set here
     try{
-      scaleFile_ = correction::Correction::from_file(scaleFileN_);
+      scaleFile_ = correction::CorrectionSet::from_file(scaleFileN_);
     }
     catch (...){
       throw cms::Exception("Invalid POG file") << "Filepath: " << scaleFileN_;
