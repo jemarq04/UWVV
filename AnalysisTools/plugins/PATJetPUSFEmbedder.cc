@@ -41,8 +41,6 @@ public:
 private:
   virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup);
 
-  bool passTight(const Jet &jet) const;
-  bool passPUID(const Jet &jet) const;
   typedef edm::Association<reco::GenJetCollection> MatchMap;
   edm::EDGetTokenT<JetView> srcToken;
   edm::EDGetTokenT<MatchMap> matchToken_;
@@ -129,9 +127,6 @@ void PATJetPUSFEmbedder::produce(edm::Event &iEvent,
 
     Jet &jet = out->back();
 
-    //jet.addUserFloat("idTight", float(passTight(jet)));
-    //jet.addUserFloat("idPU", float(passPUID(jet)));
-
     if (domatch_)
     {
       // jetcount++;
@@ -183,83 +178,6 @@ void PATJetPUSFEmbedder::produce(edm::Event &iEvent,
   if (domatch_ && sfFileN_ != notSF){
     iEvent.put(std::move(putweight),"jetPUSFmulfac");
   }
-}
-
-bool PATJetPUSFEmbedder::passTight(const Jet &jet) const
-{
-  float NHF = jet.neutralHadronEnergyFraction();
-  float NEMF = jet.neutralEmEnergyFraction();
-  float CHF = jet.chargedHadronEnergyFraction();
-  float CEMF = jet.chargedEmEnergyFraction();
-  int NumConst = jet.chargedMultiplicity() + jet.neutralMultiplicity();
-  int NumNeutralParticles = jet.neutralMultiplicity();
-  float CHM = jet.chargedMultiplicity();
-
-  float absEta = std::abs(jet.eta());
-
-  bool JetID = false;
-
-  if (setup_ == 2016)
-  { // Tight jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
-    JetID = ((NHF < 0.90 && NEMF < 0.90 && NumConst > 1) && ((absEta <= 2.4 && CHF > 0 && CHM > 0 && CEMF < 0.99) || absEta > 2.4) && absEta <= 2.7) ||
-            (NHF < 0.98 && NEMF > 0.01 && NumNeutralParticles > 2 && absEta > 2.7 && absEta <= 3.0) ||
-            (NEMF < 0.90 && NumNeutralParticles > 10 && absEta > 3.0);
-    // JetID = ((NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absEta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absEta>2.4) && absEta<=2.7) ||
-    //         ( NHF<0.98 && NEMF>0.01 && NumNeutralParticles>2 && absEta>2.7 && absEta<=3.0 ) ||
-    //         ( NEMF<0.90 && NumNeutralParticles>10 && absEta >3.0 );
-  }
-  else if (setup_ == 2017)
-  { // Tight jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2017 without JetIDLepVeto
-    JetID = ((NHF < 0.90 && NEMF < 0.90 && NumConst > 1) && ((absEta <= 2.4 && CHF > 0 && CHM > 0) || absEta > 2.4) && absEta <= 2.7) ||
-            (NEMF < 0.99 && NEMF > 0.02 && NumNeutralParticles > 2 && absEta > 2.7 && absEta <= 3.0) ||
-            (NEMF < 0.90 && NHF > 0.02 && NumNeutralParticles > 10 && absEta > 3.0);
-  }
-  else if (setup_ == 2018)
-  { // Tight jet ID https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID13TeVRun2018 without JetIDLepVeto
-    JetID = (CHM > 0 && CHF > 0 && NumConst > 1 && NEMF < 0.9 && NHF < 0.9 && absEta <= 2.6) ||
-            (CHM > 0 && NEMF < 0.99 && NHF < 0.9 && absEta > 2.6 && absEta <= 2.7) ||
-            (NEMF > 0.02 && NEMF < 0.99 && NumNeutralParticles > 2 && absEta > 2.7 && absEta <= 3.0) ||
-            (NEMF < 0.90 && NHF > 0.2 && NumNeutralParticles > 10 && absEta > 3.0);
-  }
-  else
-  {
-    throw cms::Exception("JetID") << "Jet ID is not defined for the given setup (" << setup_ << ")!";
-  }
-  return JetID;
-}
-bool PATJetPUSFEmbedder::passPUID(const Jet &jet) const
-{
-  if (!jet.hasUserFloat("pileupJetId:fullDiscriminant"))
-    return false;
-
-  float mva = jet.userFloat("pileupJetId:fullDiscriminant");
-
-  float absEta = std::abs(jet.eta());
-
-  if (jet.pt() > 20.)
-  {
-    if (absEta > 3. && mva <= -0.45)
-      return false;
-    if (absEta > 2.75 && mva <= 0.55)
-      return false;
-    if (absEta > 2.5 && mva <= -0.6)
-      return false;
-    if (mva <= -0.63)
-      return false;
-  }
-  else
-  {
-    if (absEta > 3. && mva <= -0.95)
-      return false;
-    if (absEta > 2.75 && mva <= -0.94)
-      return false;
-    if (absEta > 2.5 && mva <= -0.96)
-      return false;
-    if (mva <= -0.95)
-      return false;
-  }
-
-  return true;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
