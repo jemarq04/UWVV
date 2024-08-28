@@ -43,6 +43,10 @@ mv AnalysisTools/plugins/PATMuonZZIDEmbedder.cc AnalysisTools/plugins/PATMuonZZI
 mv AnalysisTools/python/templates/ElectronCalibration.py AnalysisTools/python/templates/ElectronCalibration.py_backup_old
 mv AnalysisTools/python/templates/MuonCalibration.py AnalysisTools/python/templates/MuonCalibration.py_backup_old
 mv AnalysisTools/python/templates/ZZID.py AnalysisTools/python/templates/ZZID.py_backup_old
+mv AnalysisTools/python/templates/ZZFSR.py AnalysisTools/python/templates/ZZFSR.py_backup_old
+mv AnalysisTools/python/templates/JetBaseFlow.py AnalysisTools/python/templates/JetBaseFlow.py_backup_old
+mv AnalysisTools/python/templates/ZZInitialStateBaseFlow.py AnalysisTools/python/templates/ZZInitialStateBaseFlow.py_backup_old
+mv AnalysisTools/plugins/CleanedJetCollectionEmbedder.cc AnalysisTools/plugins/CleanedJetCollectionEmbedder.cc_backup_old
 
 mv AnalysisTools/plugins/PATObjectValueEmbedder.cc AnalysisTools/plugins/PATObjectValueEmbedder.cc_backup_old
 mv AnalysisTools/python/templates/BadMuonFilters.py AnalysisTools/python/templates/BadMuonFilters.py_backup_old
@@ -51,12 +55,16 @@ cp AnalysisTools/plugins/PATMuonZZIDEmbedder.cc_UL AnalysisTools/plugins/PATMuon
 cp AnalysisTools/python/templates/ElectronCalibrationUL.py AnalysisTools/python/templates/ElectronCalibration.py
 cp AnalysisTools/python/templates/MuonCalibrationUL.py AnalysisTools/python/templates/MuonCalibration.py
 cp AnalysisTools/python/templates/ZZID_UL.py AnalysisTools/python/templates/ZZID.py
+cp AnalysisTools/python/templates/ZZFSR_UL.py AnalysisTools/python/templates/ZZFSR.py
+cp AnalysisTools/python/templates/JetBaseFlow.py_UL AnalysisTools/python/templates/JetBaseFlow.py
+cp AnalysisTools/python/templates/ZZInitialStateBaseFlow.py_UL AnalysisTools/python/templates/ZZInitialStateBaseFlow.py
+cp AnalysisTools/plugins/CleanedJetCollectionEmbedder.cc_UL AnalysisTools/plugins/CleanedJetCollectionEmbedder.cc
 
 cp AnalysisTools/plugins/PATObjectValueEmbedder.cc_UL AnalysisTools/plugins/PATObjectValueEmbedder.cc
 cp AnalysisTools/python/templates/BadMuonFilters.py_UL AnalysisTools/python/templates/BadMuonFilters.py
 
-mv AnalysisTools/UL_Bd AnalysisTools/BuildFile.xml
-mv AnalysisTools/plugins/UL_Bd AnalysisTools/plugins/BuildFile.xml
+cp AnalysisTools/UL_Bd AnalysisTools/BuildFile.xml
+cp AnalysisTools/plugins/UL_Bd AnalysisTools/plugins/BuildFile.xml
 
 pushd $CMSSW_BASE/src
 
