@@ -67,6 +67,7 @@ Again the main reference to check is the [PdmV receipe](https://twiki.cern.ch/tw
 
 
 ```bash
+cmssw-el7
 cmsrel CMSSW_10_6_30
 cd CMSSW_10_6_30/src
 cmsenv
