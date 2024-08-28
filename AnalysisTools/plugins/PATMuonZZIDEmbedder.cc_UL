@@ -95,7 +95,7 @@ PATMuonZZIDEmbedder::PATMuonZZIDEmbedder(const edm::ParameterSet& iConfig):
 	   2016),
   ptCut(iConfig.exists("ptCut") ? iConfig.getParameter<double>("ptCut") : 5.),
   etaCut(iConfig.exists("etaCut") ? iConfig.getParameter<double>("etaCut") : 2.4),
-  sipCut(iConfig.exists("sipCut") ? iConfig.getParameter<double>("sipCut") : 10.),
+  sipCut(iConfig.exists("sipCut") ? iConfig.getParameter<double>("sipCut") : 4.),
   pvDXYCut(iConfig.exists("pvDXYCut") ? iConfig.getParameter<double>("pvDXYCut") : 0.5),
   pvDZCut(iConfig.exists("pvDZCut") ? iConfig.getParameter<double>("pvDZCut") : 1.)
 {
@@ -264,8 +264,8 @@ bool PATMuonZZIDEmbedder::passVertex(const edm::Ptr<pat::Muon>& mu) const
   if(!vertices->size())
     return false;
 
-  //return (fabs(mu->dB(pat::Muon::PV3D))/mu->edB(pat::Muon::PV3D) < sipCut &&
-	  return (fabs(mu->muonBestTrack()->dxy(vertices->at(0).position())) < pvDXYCut &&
+  return (fabs(mu->dB(pat::Muon::PV3D))/mu->edB(pat::Muon::PV3D) < sipCut &&
+	  (fabs(mu->muonBestTrack()->dxy(vertices->at(0).position())) < pvDXYCut &&
 	  fabs(mu->muonBestTrack()->dz(vertices->at(0).position())) < pvDZCut);
 }
 
