@@ -13,3 +13,4 @@ genLeptonType: dressedHPFS
 mcGlobalTag: 106X_mcRun2_asymptotic_v17
 APVGlobalTag: 106X_mcRun2_asymptotic_preVFP_v11
 dataGlobalTag: 106X_dataRun2_v37
+isAPV: 0

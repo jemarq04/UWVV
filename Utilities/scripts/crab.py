@@ -51,10 +51,9 @@ else:
     isUL = 0
 print("isUL:%s"%isUL)
 
-if "preVFP" in conditions:
-    isAPV = 1
-else:
-    isAPV = 0
+year = localSettings.get("local", "year")
+if year == "2016":
+    isAPV = localSettings.get("local", "isAPV")
 print("isAPV:%s"%isAPV)
 
 def getUnitsPerJob(ds):
@@ -99,7 +98,7 @@ configParams = [
     #'isSync=%i' % (1 if "WZ" in dataset or "DYJets" in dataset else 0),
     'isMC=%d' % isMC,
     'datasetName=%s' % dataset,
-    "year=%s" % localSettings.get("local", "year"),
+    "year=%s" % year,
     "channels=%s" % localSettings.get("local", "channels"),
     "lheWeights=%s" % lheWeight,
     "genInfo=%s" % localSettings.get("local", "genInfo"),
@@ -198,7 +197,7 @@ config.Data.inputDBS = 'global' if 'USER' not in dataset else 'phys03'
 config.Data.useParent = False
 config.Data.publication = False
 outdir = localSettings.get("local", "outLFNDirBase").replace(
-    "$USER", 'hehe').replace("$DATE", today)
+    "$USER", 'marquez').replace("$DATE", today)
 #outdir = localSettings.get("local", "outLFNDirBase").replace(
 #    "$USER", getUsernameFromSiteDB()).replace("$DATE", "25Jan2019")
 # Useful for VBFNLO samples
