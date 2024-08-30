@@ -213,7 +213,7 @@ edm::PtrVector<pat::Jet> CleanedJetCollectionEmbedder::getCleanedJetCollection2(
         const auto genMatched = (*match)[jetRef];
 
         if (genMatched.isNonnull() && jet.pt() < 50 && scaleFileN_ != notSF)
-          weight *= scaleFile_->at("PUJetID_eff")->evaluate({jet.pt(), jet.eta(), "nom", "T"});
+          weight *= scaleFile_->at("PUJetID_eff")->evaluate({jet.eta(), jet.pt(), "nom", "T"});
       }
     }
   }
