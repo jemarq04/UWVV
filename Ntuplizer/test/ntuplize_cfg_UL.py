@@ -392,8 +392,8 @@ if options.muCalib:
 #    from UWVV.AnalysisTools.templates.RecomputeElectronID import RecomputeElectronID
 #    FlowSteps.append(RecomputeElectronID)
 
-from UWVV.AnalysisTools.templates.MuonGhostCleaning import MuonGhostCleaning
-FlowSteps.append(MuonGhostCleaning)
+#from UWVV.AnalysisTools.templates.MuonGhostCleaning import MuonGhostCleaning
+#FlowSteps.append(MuonGhostCleaning)
 
 #Apply Scale Factors downstream with TSelectors after skimming
 #from UWVV.AnalysisTools.templates.MuonScaleFactors import MuonScaleFactors
