@@ -159,7 +159,7 @@ PATLeptonZZIsoEmbedder::PATLeptonZZIsoEmbedder(const edm::ParameterSet& iConfig)
   isoConeVetoEtaThresholdE(iConfig.exists("isoConeVetoEtaThresholdE") ?
                            iConfig.getParameter<double>("isoConeVetoEtaThreshold") :
                            1.479),
-  isoCutM(iConfig.exists("isoCutMu") ? iConfig.getParameter<double>("isoCutMu") : 0.4),
+  isoCutM(iConfig.exists("isoCutMu") ? iConfig.getParameter<double>("isoCutMu") : 0.35),
   isoConeDRMaxM(iConfig.exists("isoConeDRMaxMu") ?
                 iConfig.getParameter<double>("isoConeDRMaxMu") : 0.4),
   isoConeDRMinM(iConfig.exists("isoConeDRMinMu") ?
