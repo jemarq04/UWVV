@@ -43,6 +43,7 @@ mv AnalysisTools/plugins/PATMuonZZIDEmbedder.cc AnalysisTools/plugins/PATMuonZZI
 mv AnalysisTools/python/templates/ElectronCalibration.py AnalysisTools/python/templates/ElectronCalibration.py_backup_old
 mv AnalysisTools/python/templates/MuonCalibration.py AnalysisTools/python/templates/MuonCalibration.py_backup_old
 mv AnalysisTools/python/templates/ZZID.py AnalysisTools/python/templates/ZZID.py_backup_old
+mv AnalysisTools/python/templates/ZZIso.py AnalysisTools/python/templates/ZZIso.py_backup_old
 mv AnalysisTools/python/templates/ZZFSR.py AnalysisTools/python/templates/ZZFSR.py_backup_old
 mv AnalysisTools/python/templates/JetBaseFlow.py AnalysisTools/python/templates/JetBaseFlow.py_backup_old
 mv AnalysisTools/python/templates/ZZInitialStateBaseFlow.py AnalysisTools/python/templates/ZZInitialStateBaseFlow.py_backup_old
@@ -55,6 +56,7 @@ cp AnalysisTools/plugins/PATMuonZZIDEmbedder.cc_UL AnalysisTools/plugins/PATMuon
 cp AnalysisTools/python/templates/ElectronCalibrationUL.py AnalysisTools/python/templates/ElectronCalibration.py
 cp AnalysisTools/python/templates/MuonCalibrationUL.py AnalysisTools/python/templates/MuonCalibration.py
 cp AnalysisTools/python/templates/ZZID_UL.py AnalysisTools/python/templates/ZZID.py
+cp AnalysisTools/python/templates/ZZIso_UL.py AnalysisTools/python/templates/ZZIso.py
 cp AnalysisTools/python/templates/ZZFSR_UL.py AnalysisTools/python/templates/ZZFSR.py
 cp AnalysisTools/python/templates/JetBaseFlow.py_UL AnalysisTools/python/templates/JetBaseFlow.py
 cp AnalysisTools/python/templates/ZZInitialStateBaseFlow.py_UL AnalysisTools/python/templates/ZZInitialStateBaseFlow.py
