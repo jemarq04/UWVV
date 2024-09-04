@@ -74,6 +74,7 @@ class CleanedJetCollectionEmbedder : public edm::stream::EDProducer<>
 
     const double deltaR;
     const bool APV;
+    const std::string workingPoint;
     const std::string notSF = "sfFileNone";
 
     edm::EDGetTokenT<edm::View<pat::Jet>> jesUpJetSrcToken;
@@ -104,6 +105,7 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   setup_(iConfig.exists("setup") ? iConfig.getParameter<int>("setup") : 2016),
   deltaR(iConfig.getUntrackedParameter<double>("deltaR", 0.4)),
   APV(iConfig.exists("APV") ? iConfig.getParameter<bool>("APV") : false),
+  workingPoint(iConfig.exists("workingPoint") ? iConfig.getParameter<std::string>("workingPoint") : "T"),
   jesUpTagExists(iConfig.existsAs<edm::InputTag>("jesUpJetSrc")),
   jesDownTagExists(iConfig.existsAs<edm::InputTag>("jesDownJetSrc")),
   jerUpTagExists(iConfig.existsAs<edm::InputTag>("jerUpJetSrc")),
@@ -212,8 +214,16 @@ edm::PtrVector<pat::Jet> CleanedJetCollectionEmbedder::getCleanedJetCollection2(
         edm::Ref<JetView> jetRef(uncleanedJets, j);
         const auto genMatched = (*match)[jetRef];
 
-        if (genMatched.isNonnull() && jet.pt() < 50 && scaleFileN_ != notSF)
-          weight *= scaleFile_->at("PUJetID_eff")->evaluate({jet.eta(), jet.pt(), "nom", "T"});
+        if (genMatched.isNonnull() && jet.pt() < 50 && scaleFileN_ != notSF){
+          float jetPUSF = scaleFile_->at("PUJetID_eff")->evaluate({jet.eta(), jet.pt(), "nom", workingPoint});
+          float jeffPU  = scaleFile_->at("PUJetID_eff")->evaluate({jet.eta(), jet.pt(), "MCEff", workingPoint});
+          float mulfac = 1.;
+
+          if (PUid < 7) mulfac = (1. - jetPUSF * jeffPU) / (1. - jeffPU);
+          else mulfac = jetPUSF;
+
+          weight *= mulfac;
+        }
       }
     }
   }

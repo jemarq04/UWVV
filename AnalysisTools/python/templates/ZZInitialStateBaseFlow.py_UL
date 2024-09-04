@@ -97,7 +97,8 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
                     setup = cms.int32(int(self.year)),
                     APV = cms.bool(self.year == "2016" and "preVFP" in self.year),
                     domatch = cms.bool(self.isMC),
-                    scaleFile = cms.string(scaleFileP)
+                    scaleFile = cms.string(scaleFileP),
+                    workingPoint = cms.string("T")
                 )
             except KeyError:
                 mod = cms.EDProducer(
