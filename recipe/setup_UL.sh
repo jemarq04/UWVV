@@ -50,6 +50,7 @@ mv AnalysisTools/python/templates/ZZInitialStateBaseFlow.py AnalysisTools/python
 mv AnalysisTools/plugins/CleanedJetCollectionEmbedder.cc AnalysisTools/plugins/CleanedJetCollectionEmbedder.cc_backup_old
 mv AnalysisTools/plugins/RochesterPATMuonCorrector.cc AnalysisTools/plugins/RochesterPATMuonCorrector.cc_backup_old
 mv AnalysisTools/plugins/PATElectronZZIDEmbedder.cc AnalysisTools/plugins/PATElectronZZIDEmbedder.cc_backup_old
+mv AnalysisTools/plugins/PATObjectFSREmbedder.cc AnalysisTools/plugins/PATObjectFSREmbedder.cc_backup_old
 
 mv AnalysisTools/plugins/PATObjectValueEmbedder.cc AnalysisTools/plugins/PATObjectValueEmbedder.cc_backup_old
 mv AnalysisTools/python/templates/BadMuonFilters.py AnalysisTools/python/templates/BadMuonFilters.py_backup_old
@@ -65,6 +66,7 @@ cp AnalysisTools/python/templates/ZZInitialStateBaseFlow.py_UL AnalysisTools/pyt
 cp AnalysisTools/plugins/CleanedJetCollectionEmbedder.cc_UL AnalysisTools/plugins/CleanedJetCollectionEmbedder.cc
 cp AnalysisTools/plugins/RochesterPATMuonCorrector.cc_UL AnalysisTools/plugins/RochesterPATMuonCorrector.cc
 cp AnalysisTools/plugins/PATElectronZZIDEmbedder.cc_UL AnalysisTools/plugins/PATElectronZZIDEmbedder.cc
+cp AnalysisTools/plugins/PATObjectFSREmbedder.cc_UL AnalysisTools/plugins/PATObjectFSREmbedder.cc
 
 cp AnalysisTools/plugins/PATObjectValueEmbedder.cc_UL AnalysisTools/plugins/PATObjectValueEmbedder.cc
 cp AnalysisTools/python/templates/BadMuonFilters.py_UL AnalysisTools/python/templates/BadMuonFilters.py
