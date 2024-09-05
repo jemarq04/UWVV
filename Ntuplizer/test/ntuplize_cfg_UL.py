@@ -350,18 +350,6 @@ if options.isMC and (options.year == "2016" or options.year == "2017"):
                 UseJetEMPt = cms.bool(False),
                 PrefiringRateSystematicUncty = cms.double(0.2),
                 SkipWarnings = False)'''
-    '''
-    if options.year == "2018":
-        print "2018 L1Prefiring"
-        process.prefiringweight = l1PrefiringWeightProducer.clone(
-        TheJets = cms.InputTag("updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs !
-        DataEraECAL = cms.string("None"),
-        DataEraMuon = cms.string("20172018"),
-        UseJetEMPt = cms.bool(False),
-        PrefiringRateSystematicUnctyECAL = cms.double(0.2),
-        PrefiringRateSystematicUnctyMuon = cms.double(0.2)
-        )
-    '''
     process.prefiring = cms.Path(process.prefiringweight)
     process.schedule.append(process.prefiring)
 
