@@ -18,7 +18,7 @@ class ZZIso(AnalysisFlowBase):
                 isoDecisionLabel = cms.string(self.getZZIsoLabel()),
                 isoValueLabel = cms.string(self.getZZIsoLabel().replace("Pass", "Val")),
                 fsrLabel = cms.string(self.getFSRLabel()),
-                fsrElecSelection = cms.string('userFloat("%s") > 0.5'%self.getZZIDLabel()),
+                #fsrElecSelection = cms.string('userFloat("%s") > 0.5'%self.getZZIDLabel()),
                 fsrMuonSelection = cms.string('userFloat("%s") > 0.5'%self.getZZIDLabel()),
                 eaLabel = cms.string('EffectiveArea'),
                 isoConeDRMaxE = cms.double(0.3),
