@@ -137,7 +137,7 @@ void PATMuonZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       out->back().addUserFloat(idLabel_+"PFNoVtx", float(idResultNoVtx && mi->isPFMuon())); // 1 for true, 0 for false
 
       //bool trackerHighPtID = passTrackerHighPtID(mptr);
-      bool trackerHighPtID = mi->passed("CutBasedIdTrkHighPt") && mi->pt() > 200.;
+      bool trackerHighPtID = mi->passed(reco::Muon::CutBasedIdTrkHighPt) && mi->pt() > 200.;
 
       //Some Indepenent Muon IDs including the PAS2019 version of TightMuonID
       out->back().addUserFloat(idLabel_+"HighPt", float(idResult && trackerHighPtID));
