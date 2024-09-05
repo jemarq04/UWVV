@@ -14,9 +14,9 @@ _defaultEventParams = {
     'metSrc'             : 'slimmedMETs',
     'puSrc'              : 'slimmedAddPileupInfo',
     'genEventInfoSrc'    : 'generator',
-#===> NOTE: Commented below and added line under comment
-#    'lheEventInfoSrc'    : 'externalLHEProducer',
-    'lheEventInfoSrc'    : 'source',
+#===> NOTE: When using LHEWriter in workflow, use 'source' instead of 'externalLHEProducer'
+    'lheEventInfoSrc'    : 'externalLHEProducer',
+#    'lheEventInfoSrc'    : 'source',
     'genParticleSrc'     : 'prunedGenParticles',
     'genJetSrc'          : 'slimmedGenJets',
     'initialStateSrc'    : '',
