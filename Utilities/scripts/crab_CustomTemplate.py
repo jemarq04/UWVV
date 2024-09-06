@@ -166,7 +166,7 @@ config.General.transferLogs = True
 
 config.JobType.pluginName = 'ANALYSIS'
 config.JobType.allowUndistributedCMSSW = True 
-config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg.py' % os.environ["CMSSW_BASE"]
+config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg_UL.py' % os.environ["CMSSW_BASE"]
 config.JobType.numCores = 1
 config.JobType.inputFiles = ["%s/src/UWVV/data" % os.environ["CMSSW_BASE"]]
 

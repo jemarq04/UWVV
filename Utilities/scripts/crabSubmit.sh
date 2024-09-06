@@ -11,11 +11,11 @@ scripts_path=$CMSSW_BASE/src/UWVV/Utilities/scripts
 config_path=$scripts_path/CrabTemplates
 #config=$config_path/local.allweights2016.txt
 if [[ $2 == "2016" ]]; then
-  config=$config_path/local.allweights2016.txt
+  config=$config_path/local.allweights2016UL.txt
 elif [[ $2 == "2017" ]]; then
-  config=$config_path/local.allweights2017.txt 
+  config=$config_path/local.allweights2017UL.txt 
 elif [[ $2 == "2018" ]]; then
-  config=$config_path/local.allweights2018.txt
+  config=$config_path/local.allweights2018UL.txt
 elif [[ $2 == "2016UL" ]]; then
   config=$config_path/local.allweights2016UL.txt
 elif [[ $2 == "2017UL" ]]; then
