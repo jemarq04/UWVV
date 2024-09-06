@@ -1,43 +1,5 @@
 #!/usr/bin/bash
 
-
-if [ "$1" == "-h" ] || [ "$1" == "--help" ]
-then
-    echo "$0 usage: ./$0 [-h|--help] [--hzzExtras] [-j NTHREADS]"
-    echo "    --hzzExtras: Get and compile HZZ matrix element and kinematic fit stuff, and generate the UWVV plugins that use them."
-    echo "               This is not the default because most people do not need them and one of the packages' authors frequently make changes that break everything without intervention on our side."
-    echo "               NB if you use this option and later use scram b clean, you should rerun this script with this option or your CONDOR jobs may fail."
-    echo "    --met: Download updated MET correction recipes (needed for MET filters and uncertainties)"
-    echo "    -j NTHREADS: [with --hzzExtras] Compile ZZMatrixElement package with NTHREADS threads (default 12)."
-    exit 1
-fi
-
-while [ "$1" ]
-do
-    case "$1" in
-        --hzzExtras)
-            HZZ=1
-            ;;
-        --met)
-            MET=1
-            ;;
-        -j)
-            shift
-            UWVVNTHREADS="$1"
-            ;;
-        *)
-            echo "Unknown option: $1"
-            exit 1
-            ;;
-    esac
-
-    shift
-done
-
-if [ ! "$UWVVNTHREADS" ]; then
-    UWVVNTHREADS=12
-fi
-
 pushd $CMSSW_BASE/src
 
 #https://twiki.cern.ch/twiki/bin/view/CMS/EgammaUL2016To2018#Recipe_for_running_scales_and_sm
@@ -62,5 +24,7 @@ git clone --recursive ssh://git@gitlab.cern.ch:7999/akhukhun/roccor.git
 
 #(To avoid compilation errors although we t need this anymore in 2017/2018: https://github.com/CJLST/ZZAnalysis/blob/miniAOD_80X/checkout_10X.csh#L89)don
 git clone https://github.com/bachtis/Analysis.git -b KaMuCa_V4 KaMuCa
+
+
 scram b -j 12
 popd
