@@ -90,3 +90,6 @@ AnalysisTools/plugins/ZKinematicFitEmbedder.cc
 
 # Crab submit directories 
 crab_*/
+
+# Local ntuplizer submission inputs
+Ntuplizer/test/inputs/*

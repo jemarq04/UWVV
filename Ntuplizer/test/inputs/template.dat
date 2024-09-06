@@ -1,0 +1,5 @@
+#List your files below. Lines beginning with '#' will be ignored. Don't leave any empty lines!
+#As an example, here's how you would provide files from HDFS storage
+/store/user/marquez/SMEFTsim/pp_eemm-cHWB_massless/CMSSW_10_6_19/100093_MINI.root
+/store/user/marquez/SMEFTsim/pp_eemm-cHWB_massless/CMSSW_10_6_19/100180_MINI.root
+/store/user/marquez/SMEFTsim/pp_eemm-cHWB_massless/CMSSW_10_6_19/105385_MINI.root
