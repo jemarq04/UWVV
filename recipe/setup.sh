@@ -19,12 +19,5 @@ git clone --recursive ssh://git@gitlab.cern.ch:7999/akhukhun/roccor.git
 [[ -d roccor ]] && mv roccor/RoccoR*.txt UWVV/data/RochesterCorrections/ || echo "ERROR: error cloning roccor gitlab repo"
 #[[ -d roccor ]] && mv roccor/RoccoR*.* UWVV/data/RochesterCorrections/ || echo "ERROR: error cloning roccor gitlab repo"
 
-# Muon MVA, no longer compiles currently 
-#git clone https://github.com/mkovac/MuonMVAReader.git MuonMVAReader
-
-#(To avoid compilation errors although we t need this anymore in 2017/2018: https://github.com/CJLST/ZZAnalysis/blob/miniAOD_80X/checkout_10X.csh#L89)don
-git clone https://github.com/bachtis/Analysis.git -b KaMuCa_V4 KaMuCa
-
-
 scram b -j 12
 popd

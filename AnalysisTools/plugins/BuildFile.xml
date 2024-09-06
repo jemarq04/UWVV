@@ -7,7 +7,6 @@
 <use name="CommonTools/CandAlgos"/>
 <use name="CommonTools/CandUtils"/>
 <use name="RecoEgamma/EgammaTools"/>
-<use name="KaMuCa/Calibration"/>
 <use name="JetMETCorrections/Modules"/>
 <use name="CondFormats/JetMETObjects"/>
 <use name="DataFormats/Math"/>
