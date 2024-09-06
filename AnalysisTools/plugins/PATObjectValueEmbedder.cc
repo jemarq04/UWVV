@@ -29,6 +29,8 @@
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/Utilities/interface/transform.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 
 template<class T>
@@ -54,7 +56,9 @@ private:
                       const std::vector<edm::EDGetTokenT<V> >& tokens, 
                       const edm::Event& iEvent) const;
 
+  const bool replaceFlag_; //get BadPFMuonFilter and BadChargedCandidateFilter flags directly from miniAOD
   const edm::EDGetTokenT<edm::View<T> > srcToken_;
+  edm::EDGetTokenT<edm::TriggerResults > trigToken_;
   const std::vector<edm::EDGetTokenT<int> > intTokens_;
   const std::vector<edm::EDGetTokenT<bool> > boolTokens_;
   const std::vector<edm::EDGetTokenT<double> > doubleTokens_;
@@ -63,11 +67,13 @@ private:
   const std::vector<std::string> boolLabels_;
   const std::vector<std::string> doubleLabels_;
   const std::vector<std::string> floatLabels_;
+  
 };
 
 
 template<class T>
 PATObjectValueEmbedder<T>::PATObjectValueEmbedder(const edm::ParameterSet& iConfig) :
+  replaceFlag_(iConfig.exists("replaceFlag") ? iConfig.getParameter<bool>("replaceFlag") : false),
   srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
   intTokens_(edm::vector_transform(iConfig.exists("intSrc") ?
                                    iConfig.getParameter<std::vector<edm::InputTag> >("intSrc") :
@@ -100,6 +106,10 @@ PATObjectValueEmbedder<T>::PATObjectValueEmbedder(const edm::ParameterSet& iConf
 {
   produces<std::vector<T> >();
 
+  if (replaceFlag_){
+    trigToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","","PAT"));
+  }
+
   if(intTokens_.size() != intLabels_.size())
     throw cms::Exception("InvalidParams")
       << "You must supply exactly one label for each int you want to embed" 
@@ -107,7 +117,7 @@ PATObjectValueEmbedder<T>::PATObjectValueEmbedder(const edm::ParameterSet& iConf
       << "; intTokens_.size() == " << intTokens_.size()
       << std::endl;
 
-  if(boolTokens_.size() != boolLabels_.size())
+  if(boolTokens_.size() != boolLabels_.size() && !replaceFlag_)
     throw cms::Exception("InvalidParams")
       << "You must supply exactly one label for each bool you want to embed" 
       << "Given: boolLabels_.size() == " << boolLabels_.size()
@@ -148,6 +158,22 @@ void PATObjectValueEmbedder<T>::produce(edm::Event& iEvent,
   retrieveValues(bools, boolTokens_, iEvent);
   embedAll(*out, bools, boolLabels_);
 
+  std::vector<bool> bools2;
+  bools2.clear();
+
+  if (replaceFlag_){ //handle special case BadMuonFilters.py in UL, in this case variable bools should be empty 
+  edm::Handle<edm::TriggerResults> trigResults;
+  iEvent.getByToken(trigToken_, trigResults);
+  const edm::TriggerNames& trigNames = iEvent.triggerNames(*trigResults);
+  std::string pathName1 = "Flag_BadPFMuonFilter";
+  std::string pathName2 = "Flag_BadChargedCandidateFilter";
+  bool passTrig1=trigResults->accept(trigNames.triggerIndex(pathName1));
+  bools2.push_back(passTrig1);
+  bool passTrig2=trigResults->accept(trigNames.triggerIndex(pathName2));
+  bools2.push_back(passTrig2);
+  embedAll(*out, bools2, boolLabels_);
+  }
+  
   std::vector<double> doubles;
   retrieveValues(doubles, doubleTokens_, iEvent);
   embedAll(*out, doubles, doubleLabels_);

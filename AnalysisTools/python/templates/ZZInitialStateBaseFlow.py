@@ -63,14 +63,26 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
         Add modules to embed jet collection cleaned leptons 
         selected in the initial state object
         '''
-        jsfFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
-                               'scalefactorsPUID_81Xtraining.root')
 
-        jeffFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
-                               'effcyPUID_81Xtraining.root')
+        '''
+        jsfFileP = jsfFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
+                              'PUID_106XTraining_ULRun2_EffSFandUncties_v1.root')
+        yearstring = ""
+        if self.year == "2016" and "preVFP" in self.CalibULera16:
+            yearstring="2016APV"
+        else:
+            yearstring="%s" % int(self.year)
 
-        jsfhist = "h2_eff_sf%s_T"%(int(self.year))
-        jeffhist = "h2_eff_mc%s_T"%(int(self.year))
+        jsfhist = "h2_eff_sfUL%s_T" % yearstring
+        jeffhist = "h2_eff_mcUL%s_T" % yearstring
+        '''
+        yearstring = ""
+        if self.year == "2016":
+            yearstring = "2016%s_UL" % ("preVFP" if "preVFP" in self.CalibULera16 else "postVFP")
+        else:
+            yearstring = "%s_UL" % self.year
+        scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
+                                yearstring, "jmar.json.gz")
 
         for chan in parseChannels('zz'):
             try:
@@ -83,11 +95,10 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
                     jerUpJetSrc = step.getObjTag('j_jerUp'),
                     jerDownJetSrc = step.getObjTag('j_jerDown'),
                     setup = cms.int32(int(self.year)),
+                    APV = cms.bool(self.year == "2016" and "preVFP" in self.year),
                     domatch = cms.bool(self.isMC),
-                    jsfFile = cms.string(jsfFileP),
-                    jeffFile = cms.string(jeffFileP),
-                    SFhistName = cms.string(jsfhist),
-                    effhistName = cms.string(jeffhist),
+                    scaleFile = cms.string(scaleFileP),
+                    workingPoint = cms.string("T")
                 )
             except KeyError:
                 mod = cms.EDProducer(

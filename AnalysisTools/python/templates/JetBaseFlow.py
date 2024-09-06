@@ -26,12 +26,21 @@ class JetBaseFlow(AnalysisFlowBase):
             # Pileup veto
             # This puts the IDs in the event stream, not an updated
             # jet collection
+            from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_106X_UL16, _chsalgos_106X_UL17, _chsalgos_106X_UL18
+            algos = None
+            if LeptonSetup == "2016":
+                algos = cms.VPSet(_chsalgos_106X_UL16)
+            elif LeptonSetup == "2017":
+                algos = cms.VPSet(_chsalgos_106X_UL17)
+            elif LeptonSetup == "2018":
+                algos = cms.VPSet(_chsalgos_106X_UL18)
             self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
             self.process.pileupJetIdUpdated = self.process.pileupJetId.clone(
                 jets = step.getObjTag('j'),
                 inputIsCorrected = True,
                 applyJec = True,
                 vertexes = step.getObjTag('v'),
+                algos=algos
                 )
             step.addModule('pileupJetIdUpdated',
                            self.process.pileupJetIdUpdated,
@@ -133,14 +142,12 @@ class JetBaseFlow(AnalysisFlowBase):
                 #              )
                 #step.addModule('jetMatchViewerMy',jetMatchViewerMy)
 
-            jsfFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
-                               'scalefactorsPUID_81Xtraining.root')
-
-            jeffFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
-                               'effcyPUID_81Xtraining.root')
-                            
-            jsfhist = "h2_eff_sf%s_T"%(int(self.year))
-            jeffhist = "h2_eff_mc%s_T"%(int(self.year))
+            #jsfFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
+            #                   'scalefactorsPUID_81Xtraining.root')
+            #jeffFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
+            #                   'effcyPUID_81Xtraining.root')
+            #jsfhist = "h2_eff_sf%s_T"%(int(self.year))
+            #jeffhist = "h2_eff_mc%s_T"%(int(self.year))
 
             jetIDEmbedding = cms.EDProducer(
                 "PATJetIDEmbedder",
@@ -227,18 +234,12 @@ class JetBaseFlow(AnalysisFlowBase):
         if stepName == 'preselection':
             # For now, we're not using the PU ID, but we'll store it in the
             # ntuples later
-            selectionString = ('pt > 30. && abs(eta) < 4.7 && '
+            selectionString = ('pt > 20. && abs(eta) < 4.7 && '
                                'userFloat("idTight") > 0.5 && (userInt("{}") >= 0||pt>50.)').format(step.getObjTagString('puID'))
             
-            selectionString2 = ('pt > 30. && abs(eta) < 4.7 && '
+            selectionString2 = ('pt > 20. && abs(eta) < 4.7 && '
                                'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
 
-            # # use medium PU ID
-            # # PU IDs are stored as a userInt where the first three digits are
-            # # tight, medium, and loose PUID decisions (going right to left)
-            # selectionString = ('pt>30. && abs(eta) < 4.7 && '
-            #                    'userFloat("idLoose") > 0.5 && '
-            #                    'userInt("{}") >= 6').format(step.getObjTagString('puID'))
             if self.isMC:
                 step.addBasicSelector('j', selectionString) #not apply PU id here in order to calculate PU SF multiplication factor
             else:

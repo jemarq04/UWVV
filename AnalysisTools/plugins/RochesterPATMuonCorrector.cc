@@ -107,7 +107,7 @@ RochesterPATMuonCorrector::produce(edm::Event& event, const edm::EventSetup& set
 	 
 	  
 
-    if (calibrator != 0  && muIn->muonBestTrackType() == 1 && pt <= maxPt)
+    if (calibrator != 0  && muIn->track().isNonnull())
     {
     double eta = muIn->eta();
     double phi = muIn->phi();

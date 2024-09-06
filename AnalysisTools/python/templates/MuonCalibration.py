@@ -12,6 +12,8 @@ class MuonCalibration(AnalysisFlowBase):
             self.year = kwargs.pop('year', '2016')
         if not hasattr(self, 'muonClosureShift'):
             self.muonClosureShift = kwargs.pop('muonClosureShift', 0) if self.isMC else 0
+        if not hasattr(self, 'CalibULera16'):
+            self.CalibULera16 = kwargs.pop('CalibULera16', '2016postVFP-UL')
         super(MuonCalibration, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
@@ -24,11 +26,16 @@ class MuonCalibration(AnalysisFlowBase):
             #    calibType = 'DATA_80X_13TeV'
             LeptonSetup = cms.string(self.year)
 
+            if "preVFP" in self.CalibULera16:
+                fRocstring16 = "RoccoR2016aUL"
+            else:
+                fRocstring16 = "RoccoR2016bUL"
+
             if LeptonSetup=="2016":
                 muCalibrator = cms.EDProducer(
                     "RochesterPATMuonCorrector",
                     src = step.getObjTag('m'),
-                    identifier = cms.string("RoccoR2016"),
+                    identifier = cms.string(fRocstring16),
                     isMC = cms.bool(self.isMC),
                     isSync = cms.bool(self.isSync),
                     maxPt = cms.double(200),
@@ -40,7 +47,7 @@ class MuonCalibration(AnalysisFlowBase):
                 muCalibrator = cms.EDProducer(
                     "RochesterPATMuonCorrector",
                     src = step.getObjTag('m'),
-                    identifier = cms.string("RoccoR2017"),
+                    identifier = cms.string("RoccoR2017UL"),
                     isMC = cms.bool(self.isMC),
                     isSync = cms.bool(self.isSync),
                     maxPt = cms.double(200),
@@ -52,7 +59,7 @@ class MuonCalibration(AnalysisFlowBase):
                 muCalibrator = cms.EDProducer(
                     "RochesterPATMuonCorrector",
                     src = step.getObjTag('m'),
-                    identifier = cms.string("RoccoR2018"),
+                    identifier = cms.string("RoccoR2018UL"),
                     isMC = cms.bool(self.isMC),
                     isSync = cms.bool(self.isSync),
                     maxPt = cms.double(200),

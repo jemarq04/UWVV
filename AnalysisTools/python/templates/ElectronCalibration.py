@@ -12,6 +12,9 @@ class ElectronCalibration(AnalysisFlowBase):
         if not hasattr(self, 'year'):
             self.year = kwargs.pop('year', '2016')
 
+        if not hasattr(self, 'CalibULera16'):
+            self.CalibULera16 = kwargs.pop('CalibULera16', '2016postVFP-UL')
+
         eesShift = kwargs.pop('electronScaleShift', 0) if self.isMC else 0
         eerRhoShift = kwargs.pop('electronRhoResShift', 0) if self.isMC else 0
         eerPhiShift = kwargs.pop('electronPhiResShift', 0) if self.isMC else 0
@@ -36,27 +39,32 @@ class ElectronCalibration(AnalysisFlowBase):
             LeptonSetup = cms.string(self.year)
             #https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPostRecoRecipes
             #fix a bug in the ECAL-Tracker momentum combination when applying the scale and smearing
+
+            #For UL now use twiki: https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaUL2016To2018
             from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+            from RecoEgamma.EgammaTools.EgammaPostRecoTools import _defaultEleIDModules
+
             if LeptonSetup=="2016":
                 setupEgammaPostRecoSeq(self.process,
                         runEnergyCorrections=True,
                         runVID=True,
-                        eleIDModules=['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer16_ID_ISO_cff','RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff'],
-                        era='2016-Legacy')
+                        eleIDModules=(_defaultEleIDModules+['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer16UL_ID_ISO_cff']),
+                        era=self.CalibULera16) #'2016preVFP-UL' '2016postVFP-UL'
 
             if LeptonSetup=="2017":
                 setupEgammaPostRecoSeq(self.process,
                         runEnergyCorrections=True,
                         runVID=True,
-                        era='2017-Nov17ReReco',
+                        eleIDModules=(_defaultEleIDModules+['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer17UL_ID_ISO_cff']),
+                        era='2017-UL',
                         )
 
-            if LeptonSetup=="2018":
+            if LeptonSetup=="2018": #change to use official id instead of custom for 2018 UL
                 setupEgammaPostRecoSeq(self.process,
                         runEnergyCorrections=True,
                         runVID=True,
-                        eleIDModules=['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Autumn18_ID_ISO_cff','RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff'],
-                        era='2018-Prompt'
+                        eleIDModules=(_defaultEleIDModules+['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer18UL_ID_ISO_cff']),
+                        era='2018-UL'
                         )
             
             step.addModule('egammaPostRecoSeq',self.process.egammaPostRecoSeq)

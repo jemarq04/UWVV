@@ -1,3 +1,4 @@
+<use name="correctionlib"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/PluginManager"/>
 <use name="DataFormats/RecoCandidate"/>
@@ -15,7 +16,6 @@
 <use name="UWVV/DataFormats"/>
 <use name="EgammaAnalysis/ElectronTools"/>
 <use name="UWVV/Utilities"/>
-<use name="MuonMVAReader/Reader"/>
 
 <library file="*.cc" name="UWVVAnalysisToolsPlugins">
   <flags EDM_PLUGIN="1"/>

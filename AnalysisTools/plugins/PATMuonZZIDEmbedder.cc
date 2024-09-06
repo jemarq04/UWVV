@@ -29,7 +29,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "MuonMVAReader/Reader/interface/MuonGBRForestReader.hpp"
+//#include "MuonMVAReader/Reader/interface/MuonGBRForestReader.hpp"
 
 class PATMuonZZIDEmbedder : public edm::stream::EDProducer<>
 {
@@ -66,7 +66,7 @@ private:
   const double pvDZCut;
 
   // MVA Reader
-  MuonGBRForestReader *r;
+  //MuonGBRForestReader *r;
 
 };
 
@@ -95,13 +95,13 @@ PATMuonZZIDEmbedder::PATMuonZZIDEmbedder(const edm::ParameterSet& iConfig):
 	   2016),
   ptCut(iConfig.exists("ptCut") ? iConfig.getParameter<double>("ptCut") : 5.),
   etaCut(iConfig.exists("etaCut") ? iConfig.getParameter<double>("etaCut") : 2.4),
-  sipCut(iConfig.exists("sipCut") ? iConfig.getParameter<double>("sipCut") : 10.),
+  sipCut(iConfig.exists("sipCut") ? iConfig.getParameter<double>("sipCut") : 4.),
   pvDXYCut(iConfig.exists("pvDXYCut") ? iConfig.getParameter<double>("pvDXYCut") : 0.5),
   pvDZCut(iConfig.exists("pvDZCut") ? iConfig.getParameter<double>("pvDZCut") : 1.)
 {
   produces<std::vector<pat::Muon> >();
   
-  r = new MuonGBRForestReader(setup_); //for setup put 2016,2017, or 2018 to select correct training
+  //r = new MuonGBRForestReader(setup_); //for setup put 2016,2017, or 2018 to select correct training
 }
 
 
@@ -136,17 +136,22 @@ void PATMuonZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       out->back().addUserFloat(idLabel_+"PF", float(idResult && mi->isPFMuon())); // 1 for true, 0 for false
       out->back().addUserFloat(idLabel_+"PFNoVtx", float(idResultNoVtx && mi->isPFMuon())); // 1 for true, 0 for false
 
-      bool trackerHighPtID = passTrackerHighPtID(mptr);
+      //bool trackerHighPtID = passTrackerHighPtID(mptr);
+      bool trackerHighPtID = mi->passed(reco::Muon::CutBasedIdTrkHighPt) && mi->pt() > 200.;
 
       //Some Indepenent Muon IDs including the PAS2019 version of TightMuonID
       out->back().addUserFloat(idLabel_+"HighPt", float(idResult && trackerHighPtID));
       out->back().addUserFloat(idLabel_+"PASID", float(idResult && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
       out->back().addUserFloat(idLabel_+"HighPtNoVtx", float(idResultNoVtx && trackerHighPtID));
       out->back().addUserFloat(idLabel_+"PASIDNoVtx", float(idResultNoVtx && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
+
+      //replace tight id BDT with PAS2019 id for UL sample for now
+      out->back().addUserFloat(idLabel_+"Tight", float(idResult && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
+      out->back().addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
       
       //Now both electrons and muons have BDT for ZZTightID and thats how its stored in "leptonBranches"
-      out->back().addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && (passBDT(mptr) || trackerHighPtID))); // 1 for true, 0 for false
-      out->back().addUserFloat(idLabel_+"Tight", float(idResult && (passBDT(mptr) || trackerHighPtID))); // 1 for true, 0 for false
+      //out->back().addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && (passBDT(mptr) || trackerHighPtID))); // 1 for true, 0 for false
+      //out->back().addUserFloat(idLabel_+"Tight", float(idResult && (passBDT(mptr) || trackerHighPtID))); // 1 for true, 0 for false
       //Some cut-based IDs for validation with other frameworks if needed 
       out->back().addUserInt("isTightMuon",mi->isTightMuon(pv));
       out->back().addUserInt("CutBasedIdLoose",mi->passed(reco::Muon::CutBasedIdLoose));
@@ -170,6 +175,8 @@ void PATMuonZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
 bool PATMuonZZIDEmbedder::passBDT(const edm::Ptr<pat::Muon>& mu) const
 {
+  return true; //Use PASid for muon instead
+  /*
   double rho = *rhoHandle;
   float PFChargedHadIso   = mu->pfIsolationR03().sumChargedHadronPt;
   float PFNeutralHadIso   = mu->pfIsolationR03().sumNeutralHadronEt;
@@ -242,7 +249,8 @@ bool PATMuonZZIDEmbedder::passBDT(const edm::Ptr<pat::Muon>& mu) const
     std::cerr << "[ERROR] MuFiller: no MVA setup for: " << setup_ << " year!" << std::endl;
   }
   // MVA Reader end
-  return isBDT;
+  return isBDT; 
+*/
 }
 bool PATMuonZZIDEmbedder::passKinematics(const edm::Ptr<pat::Muon>& mu) const
 {
@@ -257,8 +265,8 @@ bool PATMuonZZIDEmbedder::passVertex(const edm::Ptr<pat::Muon>& mu) const
   if(!vertices->size())
     return false;
 
-  //return (fabs(mu->dB(pat::Muon::PV3D))/mu->edB(pat::Muon::PV3D) < sipCut &&
-	  return (fabs(mu->muonBestTrack()->dxy(vertices->at(0).position())) < pvDXYCut &&
+  return fabs(mu->dB(pat::Muon::PV3D))/mu->edB(pat::Muon::PV3D) < sipCut &&
+	  (fabs(mu->muonBestTrack()->dxy(vertices->at(0).position())) < pvDXYCut &&
 	  fabs(mu->muonBestTrack()->dz(vertices->at(0).position())) < pvDZCut);
 }
 
@@ -266,7 +274,7 @@ bool PATMuonZZIDEmbedder::passVertex(const edm::Ptr<pat::Muon>& mu) const
 bool PATMuonZZIDEmbedder::passType(const edm::Ptr<pat::Muon>& mu) const
 {
   // Global muon or (arbitrated) tracker muon
-  return (mu->isGlobalMuon() || (mu->isTrackerMuon() && mu->numberOfMatchedStations() > 0)) && mu->muonBestTrackType() != 2;
+  return (mu->isGlobalMuon() || (mu->isTrackerMuon() && mu->numberOfMatchedStations() > 0));
 }
 
 

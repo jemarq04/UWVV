@@ -13,6 +13,10 @@ class ZZFSR(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
         if not hasattr(self, 'isMC'):
             self.isMC = kwargs.pop('isMC', True)
+        if not hasattr(self, 'year'):
+            self.year = kwargs.pop('year', '2016')
+        if not hasattr(self, 'CalibULera16'):
+            self.CalibULera16 = kwargs.pop('CalibULera16', '2016postVFP-UL')
         super(ZZFSR, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
@@ -24,7 +28,8 @@ class ZZFSR(AnalysisFlowBase):
                 muSrc = step.getObjTag('m'),
                 eSrc = step.getObjTag('e'),
                 candSrc = step.getObjTag('pfCands'),
-                phoSelection = cms.string("pt > 2 && abs(eta) < 2.4"),
+                phoESelection = cms.string("pt > 2 && abs(eta) < 2.5"),
+                phoMSelection = cms.string("pt > 2 && abs(eta) < 2.4"),
                 nIsoSelection = cms.string("pt > 0.5"),
                 chIsoSelection = cms.string("pt > 0.2"),
                 eSelection = cms.string('userFloat("%s") > 0.5'%self.getZZIDLabel()),
@@ -53,14 +58,16 @@ class ZZFSR(AnalysisFlowBase):
             step.addModule('jetFSRCleaner', jetFSRCleaner, 'j')
 
 
-            jsfFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
-                               'scalefactorsPUID_81Xtraining.root')
+            jsfFileP = jeffFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
+                                  'PUID_106XTraining_ULRun2_EffSFandUncties_v1.root')
+            yearstring = ""
+            if self.year == "2016" and "preVFP" in self.CalibULera16:
+                yearstring="2016APV"
+            else:
+                yearstring="%s" % int(self.year)
 
-            jeffFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
-                               'effcyPUID_81Xtraining.root')
-
-            jsfhist = "h2_eff_sf%s_T"%(int(self.year))
-            jeffhist = "h2_eff_mc%s_T"%(int(self.year))
+            jsfhist = "h2_eff_sfUL%s_T" % yearstring
+            jeffhist = "h2_eff_mcUL%s_T" % yearstring
 
             if self.isMC:
                 patJetGenJetMatch2 = cms.EDProducer("GenJetMatcher",  # cut on deltaR; pick best by deltaR

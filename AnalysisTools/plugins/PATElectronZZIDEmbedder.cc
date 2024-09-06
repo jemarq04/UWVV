@@ -212,8 +212,10 @@ bool PATElectronZZIDEmbedder::passVertex(const edm::Ptr<pat::Electron>& elec) co
     return false;
 
   return (fabs(elec->dB(pat::Electron::PV3D))/elec->edB(pat::Electron::PV3D) < sipCut &&
-          fabs(elec->gsfTrack()->dxy(vertices->at(0).position())) < pvDXYCut &&
-          fabs(elec->gsfTrack()->dz(vertices->at(0).position())) < pvDZCut);
+          fabs(elec->dB(pat::Electron::PV2D)) < pvDXYCut &&
+          fabs(elec->dB(pat::Electron::PVDZ)) < pvDZCut);
+          //fabs(elec->gsfTrack()->dxy(vertices->at(0).position())) < pvDXYCut &&
+          //fabs(elec->gsfTrack()->dz(vertices->at(0).position())) < pvDZCut);
 }
 
 
