@@ -1,5 +1,10 @@
 #!/usr/bin/bash
 
+if [[ -z $CMSSW_BASE ]]; then
+  echo "CMSSW environment not set. Don't forget to run cmsenv!"
+  exit 1
+fi
+
 pushd $CMSSW_BASE/src
 
 #https://twiki.cern.ch/twiki/bin/view/CMS/EgammaUL2016To2018#Recipe_for_running_scales_and_sm
