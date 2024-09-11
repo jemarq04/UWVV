@@ -24,6 +24,12 @@ genLepChoices = {
     "dressedFS": "status() == 1",
     "dressedPromptFS": "isPromptFinalState()"
 }
+yearDefault = "2022"
+yearChoices = ["2022", "2023", "2024"]
+#NOTE: At the moment, data has a global tag for 2022A-E while MC has a global tag for 2022A-D
+# To handle this, the config will require an "era" option for 2022
+eraDefault = "C"
+eraChoices = ["C", "D", "E", "F", "G"]
 
 # Initializing process
 process = cms.Process("Ntuple")
@@ -31,6 +37,7 @@ process = cms.Process("Ntuple")
 # Parsing command-line arguments
 options = VarParsing.VarParsing("analysis")
 options.maxEvents = -1
+options.inputFiles = ""
 
 options.register("inputFileList", "",
         VarParsing.VarParsing.multiplicity.singleton,
@@ -75,14 +82,20 @@ options.register("datasetName", "",
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.string,
         "dataset name")
-options.register("year", "2022",
+options.register("year", yearDefault,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.string,
-        "year for processing samples. options: 2022, 2023, 2024")
-options.register("postEE", 0,
+        "year for processing samples. options: " \
+            + ", ".join(yearChoices))
+options.register("era", eraDefault,
         VarParsing.VarParsing.multiplicity.singleton,
-        VarParsing.VarParsing.varType.bool,
-        "relevant for 2022 analysis. 0: 2022C-D, 1: 2022E-G")
+        VarParsing.VarParsing.varType.string,
+        "era for processing samples. options: " \
+            + ", ".join(eraChoices))
+#options.register("postEE", 0,
+#        VarParsing.VarParsing.multiplicity.singleton,
+#        VarParsing.VarParsing.varType.bool,
+#        "relevant for 2022 analysis. 0: 2022C-D, 1: 2022E-G")
 options.register("eventsToProcess", "",
         VarParsing.VarParsing.multiplicity.list,
         VarParsing.VarParsing.varType.string,
@@ -94,6 +107,17 @@ options.register("skipEvents", 0,
 options.parseArguments()
 
 # Error checking
+options.era = options.era.upper()
+if options.era not in eraChoices:
+    print("ERROR: Invalid era %s" % options.era)
+    print("Valid options are")
+    for era in eraChoices:
+        print("    %s" % era)
+elif options.era in ["E", "F", "G"]:
+    options.postEE = 1
+else:
+    options.postEE = 0
+
 if options.year == "2022":
     print("postEE: %i" % options.postEE)
     options.outputFile = "ntuple2022.root"
@@ -124,6 +148,7 @@ l  = any(len(c) == 1 for c in channels)
 wz = any("wz" in c   for c in channels)
 
 # Determine global tag
+# https://docs.google.com/presentation/d/1F4ndU7DBcyvrEEyLfYqb29NGkBPs20EAnBxe_l7AEII/edit#slide=id.g289f499aa6b_2_52
 if options.globalTag:
     gt = options.globalTag
 elif options.isMC:
@@ -134,11 +159,10 @@ elif options.isMC:
             gt = "130X_mcRun3_2022_realistic_postEE_v6"
 else:
     if options.year == "2022":
-        #TODO: Determine data GTs
-        if not options.postEE:
-            gt = ""
+        if options.era in ["C", "D", "E"]:
+            gt = "130X_dataRun3_v2"
         else:
-            gt = ""
+            gt = "130X_dataRun3_PromptAnalysis_v1"
 
 # Override inputs if input file list provided
 if options.inputFileList:
@@ -233,8 +257,9 @@ if not wz:
     from UWVV.AnalysisTools.templates.ZZFlow import ZZFlow
     FlowSteps.append(ZZFlow)
 
-# Make final states
+# Create initial states
 if zz or l:
+    # Add ZZ information along with jetPUSF
     if zz:
         from UWVV.AnalysisTools.templates.ZZInitialStateBaseFlow import ZZInitialStateBaseFlow
         FlowSteps.append(ZZInitialStateBaseFlow)
