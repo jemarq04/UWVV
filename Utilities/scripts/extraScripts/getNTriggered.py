@@ -44,7 +44,7 @@ events = Events("root://eoscms.cern.ch//store/mc/RunIISpring16MiniAODv1/WminusH_
 
 for iEv, event in enumerate(events):
     if iEv % 5000 == 0:
-        print "Checking event %d"%iEv
+        print("Checking event %d"%iEv)
     event.getByLabel(triggerBitLabel, triggerBits)
     names = event.object().triggerNames(triggerBits.product())
     for i in xrange(triggerBits.product().size()):
@@ -53,6 +53,6 @@ for iEv, event in enumerate(events):
                 nPass[names.triggerName(i)[:-1]] += 1
 
 
-print "%d Events passing each trigger:"
+print("%d Events passing each trigger:")
 for t in goodTriggers:
-    print "     {}: {}".format(t,nPass[t])
+    print("     {}: {}".format(t,nPass[t]))

@@ -40,7 +40,7 @@ options = VarParsing.VarParsing('analysis')
 
 options.maxEvents = -1
 
-#print options.inputFiles
+#print(options.inputFiles)
 #options.register('inputFiles', '', VarParsing.VarParsing.multiplicity.list,VarParsing.VarParsing.varType.string, 'Manual file list input, will query DAS if empty')
 options.register('inputFileList', '', VarParsing.VarParsing.multiplicity.singleton, 
                  VarParsing.VarParsing.varType.string, 'Manual file list input, will query DAS if empty')
@@ -176,13 +176,13 @@ genLepChoices =  {"hardProcess" : "isHardProcess()",
         "dressedPromptFS" : "isPromptFinalState()",
 }
 if options.genLeptonType not in genLepChoices:
-    print "ERROR: Invalid GEN-lepton type %s" % options.genLeptonType
-    print "Valid optons and corresponding status flags are"
-    print "    Format: keyword: status flag"
-    print "    Default: hardProcessFS: fromHardProcessFinalState()"
-    print "-"*80
+    print("ERROR: Invalid GEN-lepton type %s" % options.genLeptonType)
+    print("Valid optons and corresponding status flags are")
+    print("    Format: keyword: status flag")
+    print("    Default: hardProcessFS: fromHardProcessFinalState()")
+    print("-"*80)
     for key, value in genLepChoices.iteritems():
-        print "    %s: %s" % (key, value)
+        print("    %s: %s" % (key, value))
     exit(1)
 
 channels = parseChannels(options.channels)
@@ -238,7 +238,7 @@ else:
         gt = '102X_dataRun2_Prompt_v15'
         
 
-print "globalTag: ",gt
+print("globalTag:",gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 #pdb.set_trace()
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -337,7 +337,7 @@ if options.isMC and (options.year == "2016" or options.year == "2017"):
                 SkipWarnings = False)'''
 
     if options.year == "2017":
-        print "2017 L1Prefiring"
+        print("2017 L1Prefiring")
         process.prefiringweight = l1PrefiringWeightProducer.clone(
         TheJets = cms.InputTag("updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs !
         DataEraECAL = cms.string("UL2017BtoF"),

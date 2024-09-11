@@ -103,13 +103,13 @@ genLepChoices =  {"hardProcess" : "isHardProcess()",
         "dressedPromptFS" : "isPromptFinalState()",
 }
 if options.genLeptonType not in genLepChoices:
-    print "ERROR: Invalid GEN-lepton type %s" % options.genLeptonType
-    print "Valid optons and corresponding status flags are"
-    print "    Format: keyword: status flag"
-    print "    Default: hardProcessFS: fromHardProcessFinalState()"
-    print "-"*80
+    print("ERROR: Invalid GEN-lepton type %s" % options.genLeptonType)
+    print("Valid optons and corresponding status flags are")
+    print("    Format: keyword: status flag")
+    print("    Default: hardProcessFS: fromHardProcessFinalState()")
+    print("-"*80)
     for key, value in genLepChoices.iteritems():
-        print "    %s: %s" % (key, value)
+        print("    %s: %s" % (key, value))
     exit(1)
 
 channels = parseChannels(options.channels)

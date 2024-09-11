@@ -50,7 +50,7 @@ class ZZID(AnalysisFlowBase):
                     ptCut = cms.double(5.), 
                 )
             if LeptonSetup=="2018":
-                print "LeptonSetup:",LeptonSetup
+                print("LeptonSetup:", LeptonSetup)
                 eIDEmbedder = cms.EDProducer(
                     "PATElectronZZIDEmbedder",
                     src = step.getObjTag('e'),

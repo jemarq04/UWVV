@@ -11,7 +11,7 @@ import hashlib,pdb
 
 settingsFile = "local.txt"
 if not os.path.exists(settingsFile):
-    print "Please copy local.template.txt to local.txt and edit as appropriate"
+    print("Please copy local.template.txt to local.txt and edit as appropriate")
     exit()
 localSettings = ConfigParser.ConfigParser()
 localSettings.read(settingsFile)
@@ -19,10 +19,10 @@ localSettings.read(settingsFile)
 gitDescription = subprocess.check_output(["git", "describe", "--always"]).strip()
 gitStatus = subprocess.check_output(["git", "status", "--porcelain", "-uno"])
 if gitStatus != "":
-    print "\033[33mWARNING: git status is dirty!\033[0m"
-    print gitStatus
+    print("\033[33mWARNING: git status is dirty!\033[0m")
+    print(gitStatus)
     gitDescription += "*"
-print "Git status is %s" % gitDescription
+print("Git status is %s" % gitDescription)
 # We have to hack our way around how crab parses command line arguments :<
 dataset = 'dummy'
 for arg in sys.argv:
@@ -84,7 +84,7 @@ elif (isPrompt):
 else: 
     globalTag=(localSettings.get("local", "dataGlobalTag"))
 print(globalTag)
-print ("primaryDS: ",primaryDS.lower())
+print("primaryDS:",primaryDS.lower())
 if isMC:
     if (("mcfm" in primaryDS.lower()) or ("phantom" in primaryDS.lower()) or ("sherpa" in primaryDS.lower())):
         lheWeight=0
@@ -92,7 +92,7 @@ if isMC:
         lheWeight=(localSettings.get("local", "lheWeights"))
 else:
     lheWeight=0
-print("lheWeights: ",lheWeight)
+print("lheWeights:",lheWeight)
 configParams = [
     'isSync=0',
     #'isSync=%i' % (1 if "WZ" in dataset or "DYJets" in dataset else 0),
@@ -131,17 +131,17 @@ else:
     if "Run2016" in conditions:
         #2016 JSON
         config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt'
-        print "Golden JSON: Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt"
+        print("Golden JSON: Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt")
     elif "Run2017" in conditions:
         #2017 JSON
         config.Data.lumiMask ='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Legacy_2017/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt'
-        print "Golden JSON: Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt"
+        print("Golden JSON: Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt")
     elif "Run2018" in conditions:
         #2018 JSON
         config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt'
-        print "Golden JSON: Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt"
+        print("Golden JSON: Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt")
     else:
-        print "What kind of JSON are you running for?"
+        print("What kind of JSON are you running for?")
         exit()
     # Comment out in the (hopefully very rare) case where resubmit needs to 
     # be done manually

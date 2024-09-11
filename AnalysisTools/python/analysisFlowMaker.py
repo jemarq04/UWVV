@@ -17,7 +17,7 @@ def createFlow(*bases):
     try:
         basesOk = all(issubclass(b, AnalysisFlowBase) for b in bases)
     except TypeError:
-        print "Error: Non-class object passed as Analysis Flow component"
+        print("Error: Non-class object passed as Analysis Flow component")
         raise
 
     if not basesOk:

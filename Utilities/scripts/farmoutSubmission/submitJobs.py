@@ -60,9 +60,9 @@ def writeFarmoutCommand(cfg, jobid, dataset, fullDataset,
 
     dasFilesCmd = 'file dataset={}'.format(fullDataset)
 
-    #print "submitDir: ",submitDir
+    #print("submitDir:",submitDir)
     
-    #print "dagDir: ",dagDir
+    #print("dagDir:",dagDir)
     # das throws a lot of exceptions, but they're usually transient, so try a
     # few times if needed
     for i in range(5):
@@ -81,7 +81,7 @@ def writeFarmoutCommand(cfg, jobid, dataset, fullDataset,
     inputListFile = os.path.join(dagDir+"inputs", '{}_inputFiles.txt'.format(dataset))
     with open(inputListFile, 'w') as f:
         f.write('\n'.join(dasFiles))
-        #print dasFiles
+        #print(dasFiles)
     cmds = [
         'farmoutAnalysisJobs',
         '--infer-cmssw-path',
@@ -146,7 +146,7 @@ def buildScript(cfg, jobid, scriptFile='',
     if campaign:
         assert not dataEra, "You can't specify a data era and an MC campaign tag."
         datasetStr = '/*/{}/MINIAODSIM'.format(campaign)
-        #print "datasetStr", datasetStr
+        #print("datasetStr", datasetStr)
         postfixPattern = _compileRE('(?<=_)(?:(?:backup)|(?:ext\\d))')
 
     # data
@@ -154,14 +154,14 @@ def buildScript(cfg, jobid, scriptFile='',
         assert dataEra, "You must specify a data era or an MC campaign tag."
         datasetStr = '/*/{}/MINIAOD'.format(dataEra)
 
-        #print "datasetStr", datasetStr
+        #print("datasetStr", datasetStr)
         postfixPattern = _compileRE('(?<=Run201\\d[B-F]-)[a-zA-Z0-9_-]*')
 
     # das throws a lot of exceptions, but they're usually transient, so try a
     # few times if needed
     
     dasDatasetCmd = 'dataset='+datasetStr
-    #print dasDatasetCmd
+    #print(dasDatasetCmd)
     for i in range(5):
         try:
             datasets = get_das_info(dasDatasetCmd)
@@ -175,8 +175,8 @@ def buildScript(cfg, jobid, scriptFile='',
                            "client.".format(ex.message))
 
     found = set()
-    #print "samples: ", samples
-    #print "datasets: ",datasets
+    #print("samples:", samples)
+    #print("datasets:",datasets)
 
     for s in samples:
         matches = [d for d in datasets if fnmatch.fnmatchcase(d.split('/')[1], s)]
@@ -202,7 +202,7 @@ def buildScript(cfg, jobid, scriptFile='',
 
     if not scriptFile:
         for l in lines:
-            print l
+            print(l)
     else:
         with open(scriptFile, 'w') as f:
             for l in lines:
