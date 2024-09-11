@@ -50,7 +50,7 @@ def get_das_info(query):
     out, err = p.communicate()
     das_exitcode = p.wait()
     
-    if das_exitcode <> 0:
+    if das_exitcode != 0:
         raise RuntimeError(
             'dasgoclient crashed with error:\n%s' % \
                 err+out ) #sometimes das sends the crash message to stdout

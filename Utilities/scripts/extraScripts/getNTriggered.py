@@ -47,7 +47,7 @@ for iEv, event in enumerate(events):
         print("Checking event %d"%iEv)
     event.getByLabel(triggerBitLabel, triggerBits)
     names = event.object().triggerNames(triggerBits.product())
-    for i in xrange(triggerBits.product().size()):
+    for i in range(triggerBits.product().size()):
         if names.triggerName(i)[:-1] in goodTriggers:
             if triggerBits.product().accept(i):
                 nPass[names.triggerName(i)[:-1]] += 1

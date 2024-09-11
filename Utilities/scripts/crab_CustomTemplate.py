@@ -1,6 +1,6 @@
 # Modified from N. Smith, U. Wisconsin
 from CRABClient.UserUtilities import config #, getUsernameFromSiteDB
-import ConfigParser
+import configparser
 import os
 import re
 import subprocess
@@ -13,7 +13,7 @@ settingsFile = "local.txt"
 if not os.path.exists(settingsFile):
     print("Please copy local.template.txt to local.txt and edit as appropriate")
     exit()
-localSettings = ConfigParser.ConfigParser()
+localSettings = configparser.ConfigParser()
 localSettings.read(settingsFile)
 
 gitDescription = subprocess.check_output(["git", "describe", "--always"]).strip()

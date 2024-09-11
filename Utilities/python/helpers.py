@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Mixins import _Parameterizable
+from functools import reduce
 
 from os import path
 from math import sqrt, pi
@@ -110,7 +111,7 @@ _objectList = {
 }
 
 def getObjTypes():
-    return _objectList.keys()
+    return list(_objectList.keys())
 
 def getObjName(obj, capitalize=False):
     '''
@@ -141,7 +142,7 @@ def mapObjects(channel):
             else:
                 nObjects[obj] += 1
     
-        for obj, num in nObjects.iteritems():
+        for obj, num in nObjects.items():
             if num == 1:
                 objects.append(obj)
             else:
