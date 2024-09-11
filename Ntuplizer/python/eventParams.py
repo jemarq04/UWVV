@@ -46,7 +46,7 @@ def makeEventParams(flowOutputs,channel='', **newParams):
     objTypes = set(['e', 'm', 't', 'g', 'j'])
     extras = {ob:{} for ob in objTypes}
     extras['vtx'] = {}
-    for fo, tag in flowOutputs.iteritems():
+    for fo, tag in flowOutputs.items():
         if fo in objTypes:
             params[fo+'Src'] = tag
         elif fo.split('_')[0] in extras:
@@ -62,8 +62,8 @@ def makeEventParams(flowOutputs,channel='', **newParams):
             params['genInitialStateSrc'] = tag
 
     extraCollections = {}
-    for obj, tags in extras.iteritems():
-        tags = {n:cms.InputTag(t) for n,t in tags.iteritems()}
+    for obj, tags in extras.items():
+        tags = {n:cms.InputTag(t) for n,t in tags.items()}
         if tags:
             extraCollections[obj+'Extra'] = cms.PSet(**tags)
 

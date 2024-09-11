@@ -181,7 +181,7 @@ if options.genLeptonType not in genLepChoices:
     print("    Format: keyword: status flag")
     print("    Default: hardProcessFS: fromHardProcessFinalState()")
     print("-"*80)
-    for key, value in genLepChoices.iteritems():
+    for key, value in genLepChoices.items():
         print("    %s: %s" % (key, value))
     exit(1)
 

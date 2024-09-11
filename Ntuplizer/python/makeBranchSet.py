@@ -53,7 +53,7 @@ def makeZBranchSet(lep, n, extraBranches=[], extraLepBranches=[], addName=False)
 
     if addName:
         renamedBranches = {}
-        for bName, b in branchSet.parameters_().iteritems():
+        for bName, b in branchSet.parameters_().items():
             renamedBranches['_'.join(daughterNames+[bName])] = b
         branchSet = cms.PSet(**renamedBranches)
 
