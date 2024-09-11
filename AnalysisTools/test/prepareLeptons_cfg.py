@@ -164,7 +164,7 @@ outputCommands = cms.untracked.vstring(
     'keep *_packedPFCandidates_*_*',
     'keep *_offlineSlimmedPrimaryVertices_*_*',
     )
-for obj, objName in flow.finalTags().iteritems():
+for obj, objName in flow.finalTags().items():
     print(obj, objName)
 triggerBranches_2018 = cms.PSet(
     trigNames = cms.vstring(

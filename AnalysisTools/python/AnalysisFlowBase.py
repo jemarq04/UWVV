@@ -93,7 +93,7 @@ class AnalysisFlowBase(object):
         return it
         '''
         p = cms.Path()
-        for stepName, step in self.steps.iteritems():
+        for stepName, step in self.steps.items():
             p *= step.makeSequence(self.process)
 
 

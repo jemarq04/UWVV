@@ -65,7 +65,7 @@ class AnalysisStep(object):
 
         for obj in objectsOutput:
             self.outputs[obj] = newTag
-        for obj, suffix in tagSuffixes.iteritems():
+        for obj, suffix in tagSuffixes.items():
             self.outputs[obj] = ':'.join([self.outputs[obj], suffix])
 
 
@@ -77,7 +77,7 @@ class AnalysisStep(object):
         seq = cms.Sequence()
         setattr(process, self.name+"Sequence", seq)
 
-        for name, mod in self.modules.iteritems():
+        for name, mod in self.modules.items():
             if not hasattr(process, name+self.suffix):
                 setattr(process, name+self.suffix, mod)
             if not isinstance(mod, cms.ESSource):
@@ -139,7 +139,7 @@ class AnalysisStep(object):
         If 'name' is empty, the module is called <obj>crossCleaning<stepName>.
         '''
         overlapParams = cms.PSet()
-        for obj2, params in otherObjects.iteritems():
+        for obj2, params in otherObjects.items():
             objParams = cms.PSet(
                 src=self.getObjTag(obj2),
                 algorithm=cms.string('byDeltaR'),
