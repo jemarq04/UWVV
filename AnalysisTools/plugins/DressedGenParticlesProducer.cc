@@ -2,11 +2,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "UWVV/DataFormats/interface/DressedGenParticle.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
 
-class DressedGenParticlesProducer : public edm::EDProducer {
+class DressedGenParticlesProducer : public edm::stream::EDProducer<> {
     public:
 
         DressedGenParticlesProducer(const edm::ParameterSet& cfg);

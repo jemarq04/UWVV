@@ -70,7 +70,7 @@ namespace uwvv
   };
 
 
-  template<>
+  //template<>
   template<class T1, class T2>
   class BranchManager<CompositeDaughter<T1, T2> > :
     public BranchManager<pat::CompositeCandidate>

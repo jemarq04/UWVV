@@ -86,9 +86,10 @@ void PATJetSmearing::produce(edm::Event& iEvent,
   std::unique_ptr<VJet> outUp(new VJet());
   std::unique_ptr<VJet> outDn(new VJet());
 
-  JME::JetResolutionScaleFactor resSF =
-    JME::JetResolutionScaleFactor::get(iSetup, "AK4PFchs");
-  JME::JetResolution resPt = JME::JetResolution::get(iSetup, "AK4PFchs_pt");
+  JME::JetResolutionScaleFactor resSF = 
+    JME::JetResolutionScaleFactor::get(iSetup, (JME::JetResolutionScaleFactor::Token)esConsumes(edm::ESInputTag("","AK4PFchs")));
+  JME::JetResolution resPt = 
+    JME::JetResolution::get(iSetup, (JME::JetResolution::Token)esConsumes(edm::ESInputTag("","AK4PFchs_pt")));
 
   for(size_t i = 0; i < in->size(); ++i)
     {

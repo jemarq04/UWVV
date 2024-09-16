@@ -14,6 +14,7 @@
 #include<string>
 #include<vector>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -41,11 +42,15 @@ class PATJetEnergyScaleShifter : public edm::stream::EDProducer<>
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   edm::EDGetTokenT<JetView> srcToken;
+  edm::ConsumesCollector cc;
+  edm::ESGetToken<JetCorrectorParametersCollection,JetCorrectionsRecord> jecToken;
 };
 
 
 PATJetEnergyScaleShifter::PATJetEnergyScaleShifter(const edm::ParameterSet& pset) :
-  srcToken(consumes<JetView>(pset.getParameter<edm::InputTag>("src")))
+  srcToken(consumes<JetView>(pset.getParameter<edm::InputTag>("src"))),
+  cc(consumesCollector()),
+  jecToken(cc.esConsumes(edm::ESInputTag("","AK4PFchs")))
 {
   produces<VJet>("jesUp");
   produces<VJet>("jesDown");
@@ -59,7 +64,7 @@ void PATJetEnergyScaleShifter::produce(edm::Event& iEvent,
   iEvent.getByToken(srcToken, in);
 
   edm::ESHandle<JetCorrectorParametersCollection> jecParams;
-  iSetup.get<JetCorrectionsRecord>().get("AK4PFchs", jecParams);
+  jecParams = iSetup.get<JetCorrectionsRecord>().getHandle(jecToken);
   const JetCorrectorParameters & param = (*jecParams)["Uncertainty"];
   JetCorrectionUncertainty jecUnc(param);
 

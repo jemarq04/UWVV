@@ -64,7 +64,7 @@ bool TriggerPathInfo::pass(const edm::TriggerResults& results) const
 }
 
 
-unsigned 
+double
 TriggerPathInfo::prescale(const pat::PackedTriggerPrescales& prescales) const
 {
   if(!isValid_)
@@ -74,6 +74,6 @@ TriggerPathInfo::prescale(const pat::PackedTriggerPrescales& prescales) const
       explode();
     }
 
-  return prescales.getPrescaleForIndex(bit_);
+  return prescales.getPrescaleForIndex<double>(bit_);
 }
 

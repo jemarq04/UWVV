@@ -23,7 +23,7 @@ namespace uwvv
 
     bool pass(const edm::TriggerResults& results) const;
 
-    unsigned 
+    double
     prescale(const pat::PackedTriggerPrescales& prescales) const;
 
     std::string& name() {return name_;}
