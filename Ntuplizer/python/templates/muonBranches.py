@@ -69,10 +69,10 @@ muonBranches = cms.PSet(
         IsMedium = cms.string('isMediumMuon'),
         HighPtID = cms.string('? hasUserFloat("ZZIDPassHighPt") ? '
                               'userFloat("ZZIDPassHighPt") : 0.'),
-        PFID = cms.string('? hasUserFloat("ZZIDPassPF") ? '
-                          'userFloat("ZZIDPassPF") : 0.'),
         HighPtIDNoVtx = cms.string('? hasUserFloat("ZZIDPassHighPtNoVtx") ? '
                                    'userFloat("ZZIDPassHighPtNoVtx") : 0.'),
+        PFID = cms.string('? hasUserFloat("ZZIDPassPF") ? '
+                          'userFloat("ZZIDPassPF") : 0.'),
         PFIDNoVtx = cms.string('? hasUserFloat("ZZIDPassPFNoVtx") ? '
                                'userFloat("ZZIDPassPFNoVtx") : 0.'),
         #Tight ID from the SMP-PAS-19-001

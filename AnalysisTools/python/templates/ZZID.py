@@ -16,7 +16,7 @@ class ZZID(AnalysisFlowBase):
         LeptonSetup = cms.string(self.year)
         if stepName == 'embedding':
             pass
-            #TODO: Determine Run3 HZZ4l E/Mu Selections
+            #TODO: Determine Run3 HZZ4l E Selections
             '''
             if LeptonSetup=="2016":
                 eIDEmbedder = cms.EDProducer(
@@ -69,6 +69,8 @@ class ZZID(AnalysisFlowBase):
                     ptCut = cms.double(5.), 
                 )
                 #HZZWP = cms.string("mvaEleID-Fall17-iso-V2-wpHZZ"),#2018 version
+            step.addModule("eZZIDEmbedder", eIDEmbedder, 'e')
+            '''
 
             mIDEmbedder = cms.EDProducer(
                 "PATMuonZZIDEmbedder",
@@ -79,10 +81,7 @@ class ZZID(AnalysisFlowBase):
                 ptCut = cms.double(3.),
                 idLabel = cms.string(self.getZZIDLabel()),
                 )
-
-            step.addModule("eZZIDEmbedder", eIDEmbedder, 'e')
             step.addModule("mZZIDEmbedder", mIDEmbedder, 'm')
-            '''
 
         return step
 
