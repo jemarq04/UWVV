@@ -48,7 +48,6 @@ private:
   bool passVertex(const edm::Ptr<pat::Electron>& elec) const;
   bool passBDT(const edm::Ptr<pat::Electron>& elec) const;
   bool passMissingHits(const edm::Ptr<pat::Electron>& elec) const;
-  //bool passHZZWP(const edm::Ptr<pat::Electron>& elec) const;
 
   // Data
   edm::EDGetTokenT<edm::View<pat::Electron> > electronCollectionToken_;
@@ -108,7 +107,6 @@ PATElectronZZIDEmbedder::PATElectronZZIDEmbedder(const edm::ParameterSet& iConfi
   idCutHighPtMedEta(iConfig.exists("idCutHighPtMedEta") ? iConfig.getParameter<double>("idCutHighPtMedEta") : 0.701),
   idCutHighPtHighEta(iConfig.exists("idCutHighPtHighEta") ? iConfig.getParameter<double>("idCutHighPtHighEta") : 0.350),
   bdtLabel(iConfig.exists("bdtLabel") ? iConfig.getParameter<std::string>("bdtLabel") : "ElectronMVAEstimatorRun2Fall17IsoV2Values"),
-  //HZZWP(iConfig.exists("HZZWP") ? iConfig.getParameter<std::string>("HZZWP") : "mvaEleID-Fall17-iso-V2-wpHZZ"),
   missingHitsCut(iConfig.exists("missingHitsCut") ? iConfig.getParameter<int>("missingHitsCut") : 1),
   checkMVAID(bdtLabel != ""),
   selector(iConfig.exists("selection") ?
@@ -199,10 +197,7 @@ void PATElectronZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup&
 
 bool PATElectronZZIDEmbedder::passKinematics(const edm::Ptr<pat::Electron>& elec) const
 {
-  bool result = (elec->pt() > ptCut);
-  result = (result && fabs(elec->eta()) < etaCut);
-
-  return result;
+  return elec->pt() > ptCut && fabs(elec->eta()) < etaCut;
 }
 
 
@@ -214,15 +209,9 @@ bool PATElectronZZIDEmbedder::passVertex(const edm::Ptr<pat::Electron>& elec) co
   return (fabs(elec->dB(pat::Electron::PV3D))/elec->edB(pat::Electron::PV3D) < sipCut &&
           fabs(elec->dB(pat::Electron::PV2D)) < pvDXYCut &&
           fabs(elec->dB(pat::Electron::PVDZ)) < pvDZCut);
-          //fabs(elec->gsfTrack()->dxy(vertices->at(0).position())) < pvDXYCut &&
-          //fabs(elec->gsfTrack()->dz(vertices->at(0).position())) < pvDZCut);
 }
 
 
-//bool PATElectronZZIDEmbedder::passHZZWP(const edm::Ptr<pat::Electron>& elec) const
-//{
-//  return (elec->electronID(HZZWP));
-//}
 bool PATElectronZZIDEmbedder::passBDT(const edm::Ptr<pat::Electron>& elec) const
 {
   if(!checkMVAID)
@@ -233,24 +222,24 @@ bool PATElectronZZIDEmbedder::passBDT(const edm::Ptr<pat::Electron>& elec) const
 
   double bdtCut;
   if(pt < idPtThr)
-    {
-      if(eta < idEtaThrLow)
-	bdtCut = idCutLowPtLowEta;
-      else if(eta < idEtaThrHigh)
-	bdtCut = idCutLowPtMedEta;
-      else
-	bdtCut = idCutLowPtHighEta;
-    }
+  {
+    if(eta < idEtaThrLow)
+      bdtCut = idCutLowPtLowEta;
+    else if(eta < idEtaThrHigh)
+      bdtCut = idCutLowPtMedEta;
+    else
+      bdtCut = idCutLowPtHighEta;
+  }
   else
-    {
-      if(eta < idEtaThrLow)
-	bdtCut = idCutHighPtLowEta;
-      else if(eta < idEtaThrHigh)
-	bdtCut = idCutHighPtMedEta;
-      else
-	bdtCut = idCutHighPtHighEta;
-    }
-  
+  {
+    if(eta < idEtaThrLow)
+      bdtCut = idCutHighPtLowEta;
+    else if(eta < idEtaThrHigh)
+      bdtCut = idCutHighPtMedEta;
+    else
+      bdtCut = idCutHighPtHighEta;
+  }
+
   return (elec->userFloat(bdtLabel) > bdtCut);
 }
 
