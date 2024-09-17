@@ -9,21 +9,20 @@ class MuonCalibration(AnalysisFlowBase):
         if not hasattr(self, 'isSync'):
             self.isSync = self.isMC and kwargs.pop('isSync', False)
         if not hasattr(self, 'year'):
-            self.year = kwargs.pop('year', '2016')
+            self.year = kwargs.pop('year', '2022')
         if not hasattr(self, 'muonClosureShift'):
             self.muonClosureShift = kwargs.pop('muonClosureShift', 0) if self.isMC else 0
-        if not hasattr(self, 'CalibULera16'):
-            self.CalibULera16 = kwargs.pop('CalibULera16', '2016postVFP-UL')
+        if not hasattr(self, 'calibEEera22'):
+            self.calibEEera22 = kwargs.pop('calibEEera22', 'preEE')
         super(MuonCalibration, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(MuonCalibration, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == 'preliminary':
-            #if self.isMC:
-            #    calibType = 'MC_80X_13TeV'
-            #else:
-            #    calibType = 'DATA_80X_13TeV'
+            pass
+            #TODO: Determine Run3 Muon Calibrations
+            '''
             LeptonSetup = cms.string(self.year)
 
             if "preVFP" in self.CalibULera16:
@@ -76,6 +75,7 @@ class MuonCalibration(AnalysisFlowBase):
                 function = cms.string('pt'),
                 )
             step.addModule('muonSorting', mSort, 'm')
+        '''
 
         return step
 

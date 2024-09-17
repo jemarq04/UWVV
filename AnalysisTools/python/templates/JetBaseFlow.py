@@ -11,7 +11,7 @@ class JetBaseFlow(AnalysisFlowBase):
         if not hasattr(self, 'isMC'):
             self.isMC = kwargs.pop('isMC', True)
         if not hasattr(self, 'year'):
-            self.year = kwargs.pop('year', '2016')
+            self.year = kwargs.pop('year', '2022')
         if not hasattr(self, 'runningLocal'):
             self.runningLocal = kwargs.pop('runningLocal', False)
         super(JetBaseFlow, self).__init__(*args, **kwargs)
@@ -27,68 +27,16 @@ class JetBaseFlow(AnalysisFlowBase):
             # This puts the IDs in the event stream, not an updated
             # jet collection
             from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_106X_UL16, _chsalgos_106X_UL17, _chsalgos_106X_UL18
-            algos = None
-            if LeptonSetup == "2016":
-                algos = cms.VPSet(_chsalgos_106X_UL16)
-            elif LeptonSetup == "2017":
-                algos = cms.VPSet(_chsalgos_106X_UL17)
-            elif LeptonSetup == "2018":
-                algos = cms.VPSet(_chsalgos_106X_UL18)
             self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
             self.process.pileupJetIdUpdated = self.process.pileupJetId.clone(
                 jets = step.getObjTag('j'),
                 inputIsCorrected = True,
                 applyJec = True,
                 vertexes = step.getObjTag('v'),
-                algos=algos
                 )
             step.addModule('pileupJetIdUpdated',
                            self.process.pileupJetIdUpdated,
                            'puID', puID='fullId')
-            
-            '''if LeptonSetup=="2018":
-                sqlitePath = '{0}.db'.format('Autumn18_V16_MC' if self.isMC else 'Autumn18_RunABCD_V19_DATA')
-                pdb.set_trace()
-                #dbPath = 'sqlite_file:' + path.join(UWVV_BASE_PATH, 'data',  
-                #                                    sqlitePath)
-                #sqlitePath = '{0}/src/UWVV/data/{1}.db'.format(cmsswversion,'Autumn18_V16_MC' if self.isMC else 'Autumn18_RunABCD_V16_DATA' )
-                if self.runningLocal:
-                    sqPath = '{0}.db'.format('Autumn18_V16_MC' if self.isMC else 'Autumn18_RunABCD_V19_DATA')
-                    sqlitePath =  path.join(UWVV_BASE_PATH, 'data',  
-                                                    sqPath)
-                    print "Running Locally"
-                
-                dbPath = 'sqlite:' + sqlitePath
-                
-                JECtag="JetCorrectorParametersCollection_Autumn18_RunABCD_V16_DATA_AK4PFchs"
-                if self.isMC:
-                        JECtag="JetCorrectorParametersCollection_Autumn18_V16_MC_AK4PFchs"
-                #print "JECtag: ",JECtag
-
-                self.process.load("CondCore.CondDB.CondDB_cfi")
-                # Use this version to get it from a local db file
-                #dbPath = 'sqlite:' + path.join(UWVV_BASE_PATH, 'data',  
-                #                                    sqlitePath)
-                print "dbPath: ",dbPath
-                JECDBESSource = cms.ESSource(
-                    "PoolDBESSource",
-                    self.process.CondDB,
-                    #DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0)),
-                    #timetype = cms.string('runnumber'),
-                    toGet = cms.VPSet(cms.PSet(record = cms.string('JetCorrectionsRecord'),
-                                            tag    = cms.string(JECtag),
-                                            label  = cms.untracked.string('AK4PFchs')
-                                             )
-                                        ),
-                            #connect = cms.string(dbPath)
-                    )
-
-                JECDBESSource.connect = cms.string(dbPath)
-
-                step.addModule('JECDBESSource', JECDBESSource)
-                
-                self.process.es_prefer_jec = cms.ESPrefer('PoolDBESSource', 'JECDBESSource')'''
-
 
             # Jet energy corrections
             corrections = ['L1FastJet', 'L2Relative', 'L3Absolute',]
@@ -231,7 +179,7 @@ class JetBaseFlow(AnalysisFlowBase):
                 )
             step.addModule('jetSorting', jSort, 'j')
 
-        if stepName == 'preselection':
+        elif stepName == 'preselection':
             # For now, we're not using the PU ID, but we'll store it in the
             # ntuples later
             selectionString = ('pt > 20. && abs(eta) < 4.7 && '
@@ -251,9 +199,3 @@ class JetBaseFlow(AnalysisFlowBase):
                 step.addBasicSelector('j_jerDown', selectionString2)
 
         return step
-
-
-
-
-
-

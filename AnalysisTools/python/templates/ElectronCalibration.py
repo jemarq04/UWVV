@@ -10,10 +10,10 @@ class ElectronCalibration(AnalysisFlowBase):
             self.isSync = self.isMC and kwargs.pop('isSync', False)
 
         if not hasattr(self, 'year'):
-            self.year = kwargs.pop('year', '2016')
+            self.year = kwargs.pop('year', '2022')
 
-        if not hasattr(self, 'CalibULera16'):
-            self.CalibULera16 = kwargs.pop('CalibULera16', '2016postVFP-UL')
+        if not hasattr(self, 'calibEEera22'):
+            self.calibEEera22 = kwargs.pop('calibEEera22', 'preEE')
 
         eesShift = kwargs.pop('electronScaleShift', 0) if self.isMC else 0
         eerRhoShift = kwargs.pop('electronRhoResShift', 0) if self.isMC else 0
@@ -31,7 +31,9 @@ class ElectronCalibration(AnalysisFlowBase):
         step = super(ElectronCalibration, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == 'preliminary':
-
+            pass
+            #TODO: Determine Run3 Electron Calibrations
+            '''
             if not hasattr(self.process, 'RandomNumberGeneratorService'):
                 self.process.RandomNumberGeneratorService = cms.Service(
                     'RandomNumberGeneratorService',
@@ -93,5 +95,6 @@ class ElectronCalibration(AnalysisFlowBase):
                 function = cms.string('pt'),
                 )
             step.addModule('electronSorting', eSort, 'e')
+            '''
 
         return step

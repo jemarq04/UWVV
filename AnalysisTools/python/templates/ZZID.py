@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 class ZZID(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
         if not hasattr(self, 'year'):
-            self.year = kwargs.pop('year', '2016')
+            self.year = kwargs.pop('year', '2022')
 
         super(ZZID, self).__init__(*args, **kwargs)
 
@@ -15,6 +15,9 @@ class ZZID(AnalysisFlowBase):
 
         LeptonSetup = cms.string(self.year)
         if stepName == 'embedding':
+            pass
+            #TODO: Determine Run3 HZZ4l E/Mu Selections
+            '''
             if LeptonSetup=="2016":
                 eIDEmbedder = cms.EDProducer(
                     "PATElectronZZIDEmbedder",
@@ -79,6 +82,7 @@ class ZZID(AnalysisFlowBase):
 
             step.addModule("eZZIDEmbedder", eIDEmbedder, 'e')
             step.addModule("mZZIDEmbedder", mIDEmbedder, 'm')
+            '''
 
         return step
 

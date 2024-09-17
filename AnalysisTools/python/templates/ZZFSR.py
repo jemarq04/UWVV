@@ -14,9 +14,9 @@ class ZZFSR(AnalysisFlowBase):
         if not hasattr(self, 'isMC'):
             self.isMC = kwargs.pop('isMC', True)
         if not hasattr(self, 'year'):
-            self.year = kwargs.pop('year', '2016')
-        if not hasattr(self, 'CalibULera16'):
-            self.CalibULera16 = kwargs.pop('CalibULera16', '2016postVFP-UL')
+            self.year = kwargs.pop('year', '2022')
+        if not hasattr(self, 'calibEEera22'):
+            self.calibEEera22 = kwargs.pop('calibEEera22', 'preEE')
         super(ZZFSR, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
@@ -58,17 +58,6 @@ class ZZFSR(AnalysisFlowBase):
             step.addModule('jetFSRCleaner', jetFSRCleaner, 'j')
 
 
-            jsfFileP = jeffFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
-                                  'PUID_106XTraining_ULRun2_EffSFandUncties_v1.root')
-            yearstring = ""
-            if self.year == "2016" and "preVFP" in self.CalibULera16:
-                yearstring="2016APV"
-            else:
-                yearstring="%s" % int(self.year)
-
-            jsfhist = "h2_eff_sfUL%s_T" % yearstring
-            jeffhist = "h2_eff_mcUL%s_T" % yearstring
-
             if self.isMC:
                 patJetGenJetMatch2 = cms.EDProducer("GenJetMatcher",  # cut on deltaR; pick best by deltaR
                 src         = step.getObjTag('j'),                    # RECO jets (any View<Jet> is ok)
@@ -83,18 +72,6 @@ class ZZFSR(AnalysisFlowBase):
                 )
                 
                 step.addModule("patJetGenJetMatch2",patJetGenJetMatch2) #store RECO/gen jet association in the event
-
-                jetPUSFEmbedding = cms.EDProducer(
-                    "PATJetPUSFEmbedder",
-                    src = step.getObjTag('j'),
-                    setup = cms.int32(int(self.year)),
-                    domatch = cms.bool(self.isMC),
-                    jsfFile = cms.string(jsfFileP),
-                    jeffFile = cms.string(jeffFileP),
-                    SFhistName = cms.string(jsfhist),
-                    effhistName = cms.string(jeffhist),
-                    )
-                #step.addModule('jetPUSFEmbedding', jetPUSFEmbedding)
 
             if self.isMC: #apply PU id here after calculating PU id SF multiplication factor
                 selectionString2 = ('pt > 30. && abs(eta) < 4.7 && '

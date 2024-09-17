@@ -53,13 +53,9 @@ class PATJetIDEmbedder : public edm::stream::EDProducer<>
 PATJetIDEmbedder::PATJetIDEmbedder(const edm::ParameterSet& pset) :
   srcToken(consumes<JetView>(pset.getParameter<edm::InputTag>("src"))),
   matchToken_(consumes<MatchMap>(edm::InputTag("patJetGenJetMatch"))),
-  domatch_(pset.exists("domatch") ?
-	   pset.getParameter<bool>("domatch") :
-	   false),
+  domatch_(pset.exists("domatch") ? pset.getParameter<bool>("domatch") : false),
   //Which year JET ID we need
-  setup_(pset.exists("setup") ?
-	   pset.getParameter<int>("setup") :
-	   2016)
+  setup_(pset.exists("setup") ? pset.getParameter<int>("setup") : 2022)
 {
   produces<VJet>();
 }
@@ -115,7 +111,7 @@ bool PATJetIDEmbedder::passTight(const Jet& jet) const
   float NHF  = jet.neutralHadronEnergyFraction();
   float NEMF = jet.neutralEmEnergyFraction();
   float CHF  = jet.chargedHadronEnergyFraction();
-  float CEMF = jet.chargedEmEnergyFraction();
+  //float CEMF = jet.chargedEmEnergyFraction();
   int NumConst = jet.chargedMultiplicity()+jet.neutralMultiplicity();
   int NumNeutralParticles = jet.neutralMultiplicity();
   float CHM  = jet.chargedMultiplicity();
@@ -124,33 +120,15 @@ bool PATJetIDEmbedder::passTight(const Jet& jet) const
 
   bool JetID = false;
 
-  if ( setup_ == 2016 )
-  {// Tight jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
-    JetID = ((NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absEta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absEta>2.4) && absEta<=2.7) ||
-            ( NHF<0.98 && NEMF>0.01 && NumNeutralParticles>2 && absEta>2.7 && absEta<=3.0 ) ||
-            ( NEMF<0.90 && NumNeutralParticles>10 && absEta >3.0 );
-    //JetID = ((NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absEta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absEta>2.4) && absEta<=2.7) ||
-    //        ( NHF<0.98 && NEMF>0.01 && NumNeutralParticles>2 && absEta>2.7 && absEta<=3.0 ) ||
-    //        ( NEMF<0.90 && NumNeutralParticles>10 && absEta >3.0 );
-  
-}
-  else if ( setup_ == 2017 )
-  {// Tight jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2017 without JetIDLepVeto
-   JetID  = ((NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absEta<=2.4 && CHF>0 && CHM>0) || absEta>2.4) && absEta<=2.7) ||
-            ( NEMF<0.99 && NEMF>0.02 && NumNeutralParticles>2 && absEta>2.7 && absEta<=3.0 ) ||
-            ( NEMF<0.90 && NHF>0.02 && NumNeutralParticles>10 && absEta>3.0 );
-  }
-  else if ( setup_ == 2018) 
-  {// Tight jet ID https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID13TeVRun2018 without JetIDLepVeto
-    JetID = ( CHM>0 && CHF>0 && NumConst>1 && NEMF<0.9 && NHF < 0.9 && absEta<=2.6) ||
-            ( CHM>0 && NEMF<0.99 && NHF < 0.9 && absEta>2.6 && absEta<=2.7) ||
-            ( NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 && absEta>2.7 && absEta<=3.0 ) ||
-            ( NEMF<0.90 && NHF>0.2 && NumNeutralParticles>10 && absEta>3.0 );
+  if (setup_ == 2022){
+    //https://twiki.cern.ch/twiki/bin/view/CMS/JetID13p6TeV#Recommendations_for_the_13_6_AN1 (assuming AK4CHS)
+    JetID = (absEta <= 2.6 && NHF < 0.99 && NEMF < 0.90 && NumConst > 1 && CHF > 0.01 && CHM > 0) ||
+            (absEta > 2.6 && absEta <= 2.7 && NHF < 0.9 && NEMF < 0.99 && CHM > 0) ||
+            (absEta > 2.7 && absEta <= 3.0 && NHF < 0.99 && NEMF < 0.99 && NumNeutralParticles > 1) ||
+            (absEta > 3.0 && NEMF < 0.4 && NumNeutralParticles > 10);
   }
   else
-  {
     throw cms::Exception("JetID") << "Jet ID is not defined for the given setup (" << setup_ << ")!";
-  }
   return JetID;
 }
 bool PATJetIDEmbedder::passPUID(const Jet& jet) const
