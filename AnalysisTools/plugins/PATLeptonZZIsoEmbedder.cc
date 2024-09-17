@@ -225,7 +225,7 @@ PATLeptonZZIsoEmbedder::makeCollection(const edm::Handle<edm::View<Lep> >& lepsI
 
     }
 
-  return std::move(out);
+  return out;
 }
 
 

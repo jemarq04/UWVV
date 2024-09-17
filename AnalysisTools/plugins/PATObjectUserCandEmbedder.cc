@@ -44,7 +44,7 @@ public:
 private:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  const std::string& label_;
+  const std::string label_;
 
   const edm::EDGetTokenT<edm::View<T> > srcToken_;
   const edm::EDGetTokenT<CandView> srcToEmbedToken_;
