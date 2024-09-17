@@ -29,7 +29,7 @@ class ZZFSR(AnalysisFlowBase):
                 eSrc = step.getObjTag('e'),
                 candSrc = step.getObjTag('pfCands'),
                 phoESelection = cms.string("pt > 2 && abs(eta) < 2.5"),
-                phoMSelection = cms.string("pt > 2 && abs(eta) < 2.4"),
+                phoMSelection = cms.string("pt > 2 && abs(eta) < 2.5"),
                 nIsoSelection = cms.string("pt > 0.5"),
                 chIsoSelection = cms.string("pt > 0.2"),
                 eSelection = cms.string('userFloat("%s") > 0.5'%self.getZZIDLabel()),
