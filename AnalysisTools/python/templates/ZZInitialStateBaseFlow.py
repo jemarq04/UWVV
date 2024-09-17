@@ -19,7 +19,7 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
 
         if stepName == 'initialStateEmbedding':
             self.addAlternatePairInfo(step)
-            self.embedCleanedJets(step)
+            #self.embedCleanedJets(step)
 
         return step
 
@@ -63,19 +63,10 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
         Add modules to embed jet collection cleaned leptons 
         selected in the initial state object
         '''
+        #TODO: Move into its own analysis flow
+        print("No longer using in Run3 -> moved to other analysis flow")
+        return
 
-        '''
-        jsfFileP = jsfFileP = path.join(UWVV_BASE_PATH, 'data', 'jetPUSF',
-                              'PUID_106XTraining_ULRun2_EffSFandUncties_v1.root')
-        yearstring = ""
-        if self.year == "2016" and "preVFP" in self.CalibULera16:
-            yearstring="2016APV"
-        else:
-            yearstring="%s" % int(self.year)
-
-        jsfhist = "h2_eff_sfUL%s_T" % yearstring
-        jeffhist = "h2_eff_mcUL%s_T" % yearstring
-        '''
         yearstring = ""
         if self.year == "2016":
             yearstring = "2016%s_UL" % ("preVFP" if "preVFP" in self.CalibULera16 else "postVFP")

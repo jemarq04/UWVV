@@ -11,7 +11,6 @@ class VertexCleaning(AnalysisFlowBase):
         step = super(VertexCleaning, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == 'preselection':
-            #return step
             vtxCleaner = cms.EDFilter(
                 "VertexSelector",
                 src = step.getObjTag('v'),
