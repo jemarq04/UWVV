@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsZZ4lRunIII#Trigger_Paths
 # Same triggers as 2018 + HLT_Ele30_WPTight_Gsf_v*
-triggerBranches_2022 = cms.Pset(
+triggerBranches_2022 = cms.PSet(
     trigNames = cms.vstring(
         "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",#2018diEle
         "HLT_DoubleEle25_CaloIdL_MW",#2018diEle
