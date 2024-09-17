@@ -6,6 +6,7 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import FWCore.PythonUtilities.LumiList as LumiList
 import FWCore.ParameterSet.Types as CfgTypes
+from Configuration.AlCa.GlobalTag import GlobalTag
 
 # UWVV Modules
 from UWVV.AnalysisTools.analysisFlowMaker import createFlow
@@ -114,12 +115,13 @@ if options.era not in eraChoices:
     for era in eraChoices:
         print("    %s" % era)
 elif options.era in ["E", "F", "G"]:
-    options.postEE = 1
+    postEE = 1
 else:
-    options.postEE = 0
+    postEE = 0
 
 if options.year == "2022":
-    print("postEE: %i" % options.postEE)
+    print("Running 2022 MC")
+    print("postEE: %i" % postEE)
     options.outputFile = "ntuple2022.root"
 else:
     print("Run3 config still in progresss. Only 2022 is able to be processed.")
@@ -138,6 +140,7 @@ if not options.isMC:
 
 # Load CMS CFIs
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 # Retrieve list of channels from intermediate steps
 channels = parseChannels(",".join(options.channels))
@@ -153,7 +156,7 @@ if options.globalTag:
     gt = options.globalTag
 elif options.isMC:
     if options.year == "2022":
-        if not options.postEE:
+        if not postEE:
             gt = "130X_mcRun3_2022_realistic_v5"
         else:
             gt = "130X_mcRun3_2022_realistic_postEE_v6"
@@ -170,7 +173,7 @@ if options.inputFileList:
         options.inputFiles = [line.strip() for line in f if line[0] != "#" and not line.isspace()]
 
 print("globalTag: %s" % gt)
-process.globalTag = GlobalTag(process.GlobalTag, gt)
+process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
 # Set process variables
 process.schedule = cms.Schedule()
@@ -178,7 +181,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.source = cms.Source(
     "PoolSource",
     #inputCommands("keep *", "drop LHERunInfoProduct_*_*_*"),
-    fileNames = cms.untracked.vstring(inputFiles),
+    fileNames = cms.untracked.vstring(options.inputFiles),
     skipEvents = cms.untracked.uint32(options.skipEvents),
     eventsToProcess = cms.untracked.VEventRange(options.eventsToProcess)
 )
@@ -209,10 +212,10 @@ from UWVV.AnalysisTools.templates.VertexCleaning import VertexCleaning
 FlowSteps.append(VertexCleaning)
 
 # Basic lepton steps
-from UWVV.AnalysisTools.template.ElectronBaseFlow import ElectronBaseFlow
+from UWVV.AnalysisTools.templates.ElectronBaseFlow import ElectronBaseFlow
 FlowSteps.append(ElectronBaseFlow)
 
-from UWVV.AnalysisTools.template.MuonBaseFlow import MuonBaseFlow
+from UWVV.AnalysisTools.templates.MuonBaseFlow import MuonBaseFlow
 FlowSteps.append(MuonBaseFlow)
 
 # Lepton corrections
@@ -247,7 +250,7 @@ if options.isMC:
         extraInitialStateBranches.append(lheAllWeightBranches)
 
     from UWVV.Ntuplizer.templates.eventBranches import eventGenBranches
-    extraInitialStateBrnaches.append(eventGenBranches)
+    extraInitialStateBranches.append(eventGenBranches)
     from UWVV.Ntuplizer.templates.leptonBranches import matchedGenLeptonBranches
     extraFinalObjectBranches["e"].append(matchedGenLeptonBranches)
     extraFinalObjectBranches["m"].append(matchedGenLeptonBranches)
@@ -263,6 +266,9 @@ if zz or l:
     if zz:
         from UWVV.AnalysisTools.templates.ZZInitialStateBaseFlow import ZZInitialStateBaseFlow
         FlowSteps.append(ZZInitialStateBaseFlow)
+        
+        from UWVV.AnalysisTools.templates.JetPUSFEmbedder import ZZJetPUSFEmbedder
+        FlowSteps.append(ZZJetPUSFEmbedder)
 
     from UWVV.AnalysisTools.templates.ZZSkim import ZZSkim
     FlowSteps.append(ZZSkim)
@@ -282,7 +288,7 @@ elif zl or z or wz:
         from UWVV.Ntuplizer.templates.countBranches import wzCountBranches
         extraInitialStateBranches.append(wzCountBranches)
 
-if (zz or zl or z) and not qz:
+if (zz or zl or z) and not wz:
     for step in FlowSteps:
         if step.__name__ in ["ZZFSR", "ZZFlow"]:
             from UWVV.Ntuplizer.templates.fsrBranches import compositeObjectFSRBranches, leptonFSRBranches
@@ -292,7 +298,7 @@ if (zz or zl or z) and not qz:
             extraFinalObjectBranches['m'].append(leptonFSRBranches)
             break
     for step in FlowSteps:
-        if f.__name__ in ["ZZID", "ZZIso", "ZZFlow"]:
+        if step.__name__ in ["ZZID", "ZZIso", "ZZFlow"]:
             from UWVV.AnalysisTools.templates.ZZLeptonCounters import ZZLeptonCounters
             FlowSteps.append(ZZLeptonCounters)
             from UWVV.Ntuplizer.templates.countBranches import zzCountBranches
@@ -317,7 +323,7 @@ if zz or wz:
 flowOpts = {
     "isMC": bool(options.isMC),
     "year": options.year,
-    "calibEEera22": "%sEE" % ("post" if options.postEE else "pre"),
+    "calibEEera22": "%sEE" % ("post" if postEE else "pre"),
 }
 
 # Turn all these into a single flow class
@@ -354,6 +360,7 @@ else:
 #filterBranches = trgBranches.clone(trigNames=cms.vstring())
 
 # Channel trees
+process.treeSequence = cms.Sequence()
 for chan in channels:
     module = cms.EDAnalyzer(
         "TreeGenerator%s" % expandChannelName(chan),

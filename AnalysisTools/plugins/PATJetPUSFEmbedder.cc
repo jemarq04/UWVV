@@ -63,7 +63,7 @@ PATJetPUSFEmbedder::PATJetPUSFEmbedder(const edm::ParameterSet &pset) : srcToken
                                                                     sfFileN_(pset.exists("jsfFile") ? pset.getParameter<std::string>("jsfFile") : "sfFileNone"),
                                                                     effFileN_(pset.exists("jeffFile") ? pset.getParameter<std::string>("jeffFile") : "sfFileNone"),
                                                                     // Which year JET ID we need
-                                                                    setup_(pset.exists("setup") ? pset.getParameter<int>("setup") : 2016)
+                                                                    setup_(pset.exists("setup") ? pset.getParameter<int>("setup") : 2022)
 {
   std::string notSF = "sfFileNone";
   if (domatch_ && sfFileN_ != notSF) // if sfFile and effFile names are input, also the hists name should be there

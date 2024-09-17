@@ -102,7 +102,7 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   domatch_(iConfig.exists("domatch") ? iConfig.getParameter<bool>("domatch") : false),
   scaleFileN_(iConfig.exists("scaleFile") ? iConfig.getParameter<std::string>("scaleFile") : notSF),
   // Which year JET ID we need
-  setup_(iConfig.exists("setup") ? iConfig.getParameter<int>("setup") : 2016),
+  setup_(iConfig.exists("setup") ? iConfig.getParameter<int>("setup") : 2022),
   deltaR(iConfig.getUntrackedParameter<double>("deltaR", 0.4)),
   APV(iConfig.exists("APV") ? iConfig.getParameter<bool>("APV") : false),
   workingPoint(iConfig.exists("workingPoint") ? iConfig.getParameter<std::string>("workingPoint") : "T"),
