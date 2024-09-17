@@ -4,8 +4,6 @@ from UWVV.Utilities.helpers import mapObjects, parseChannels
 import FWCore.ParameterSet.Config as cms
 
 from UWVV.Utilities.helpers import UWVV_BASE_PATH
-import os
-from os import path
 
 class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
     def __init__(self, *args, **kwargs):
@@ -19,7 +17,6 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
 
         if stepName == 'initialStateEmbedding':
             self.addAlternatePairInfo(step)
-            #self.embedCleanedJets(step)
 
         return step
 
@@ -57,44 +54,3 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
                 fsrLabel = cms.string("fsr"),
                 )
             step.addModule(chan+'AlternatePairs', mod, chan)
-
-    def embedCleanedJets(self, step):
-        '''
-        Add modules to embed jet collection cleaned leptons 
-        selected in the initial state object
-        '''
-        #TODO: Move into its own analysis flow
-        print("No longer using in Run3 -> moved to other analysis flow")
-        return
-
-        yearstring = ""
-        if self.year == "2016":
-            yearstring = "2016%s_UL" % ("preVFP" if "preVFP" in self.CalibULera16 else "postVFP")
-        else:
-            yearstring = "%s_UL" % self.year
-        scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
-                                yearstring, "jmar.json.gz")
-
-        for chan in parseChannels('zz'):
-            try:
-                mod = cms.EDProducer(
-                    'CleanedJetCollectionEmbedder',
-                    src = step.getObjTag(chan),
-                    jetSrc = step.getObjTag('j'),
-                    jesUpJetSrc = step.getObjTag('j_jesUp'),
-                    jesDownJetSrc = step.getObjTag('j_jesDown'),
-                    jerUpJetSrc = step.getObjTag('j_jerUp'),
-                    jerDownJetSrc = step.getObjTag('j_jerDown'),
-                    setup = cms.int32(int(self.year)),
-                    APV = cms.bool(self.year == "2016" and "preVFP" in self.year),
-                    domatch = cms.bool(self.isMC),
-                    scaleFile = cms.string(scaleFileP),
-                    workingPoint = cms.string("T")
-                )
-            except KeyError:
-                mod = cms.EDProducer(
-                    'CleanedJetCollectionEmbedder',
-                    src = step.getObjTag(chan),
-                    jetSrc = step.getObjTag('j'),
-                )
-            step.addModule(chan+'CleanedJetsEmbed', mod, chan)
