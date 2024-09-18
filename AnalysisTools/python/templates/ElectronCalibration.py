@@ -31,61 +31,31 @@ class ElectronCalibration(AnalysisFlowBase):
         step = super(ElectronCalibration, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == 'preliminary':
-            pass
             #TODO: Determine Run3 Electron Calibrations
+            # At the moment, EgammaPostRecoTools does not support above CMSSW 12
+            # (even though they recommend using >= CMSSW_13_X ...)
             '''
             if not hasattr(self.process, 'RandomNumberGeneratorService'):
                 self.process.RandomNumberGeneratorService = cms.Service(
                     'RandomNumberGeneratorService',
                     )
             LeptonSetup = cms.string(self.year)
-            #https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPostRecoRecipes
-            #fix a bug in the ECAL-Tracker momentum combination when applying the scale and smearing
 
-            #For UL now use twiki: https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaUL2016To2018
-            from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
-            from RecoEgamma.EgammaTools.EgammaPostRecoTools import _defaultEleIDModules
+            #For Run3: https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun3
+            from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq, _defaultEleIDModules
 
-            if LeptonSetup=="2016":
+            if LeptonSetup == "2022":
                 setupEgammaPostRecoSeq(self.process,
-                        runEnergyCorrections=True,
-                        runVID=True,
-                        eleIDModules=(_defaultEleIDModules+['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer16UL_ID_ISO_cff']),
-                        era=self.CalibULera16) #'2016preVFP-UL' '2016postVFP-UL'
-
-            if LeptonSetup=="2017":
-                setupEgammaPostRecoSeq(self.process,
-                        runEnergyCorrections=True,
-                        runVID=True,
-                        eleIDModules=(_defaultEleIDModules+['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer17UL_ID_ISO_cff']),
-                        era='2017-UL',
-                        )
-
-            if LeptonSetup=="2018": #change to use official id instead of custom for 2018 UL
-                setupEgammaPostRecoSeq(self.process,
-                        runEnergyCorrections=True,
-                        runVID=True,
-                        eleIDModules=(_defaultEleIDModules+['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer18UL_ID_ISO_cff']),
-                        era='2018-UL'
-                        )
-            
+                    runEnergyCorrections=True,
+                    runVID=True,
+                    era="2022-Prompt",
+                    eleIDModules=_defaultEleIDModules \
+                        + ['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter22_iso_V1_cff',
+                           'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter22_noIso_V1_cff',
+                           'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Winter22_122X_V1_cff']
+                )
             step.addModule('egammaPostRecoSeq',self.process.egammaPostRecoSeq)
-
-            if self.electronScaleShift or self.electronRhoResShift or self.electronPhiResShift:
-                self.process.RandomNumberGeneratorService.electronSystematicShift = cms.PSet(
-                    initialSeed = cms.untracked.uint32(345),
-                    )
-
-                shiftMod = cms.EDProducer(
-                    "PATElectronSystematicShifter",
-                    src = step.getObjTag('e'),
-                    correctionFile = cms.string(correctionFile),
-                    scaleShift = cms.double(self.electronScaleShift),
-                    rhoResShift = cms.double(self.electronRhoResShift),
-                    phiResShift = cms.double(self.electronPhiResShift),
-                    )
-
-                step.addModule('electronSystematicShift', shiftMod, 'e')
+            '''
 
         if stepName == 'selection':
             # need to re-sort now that we're calibrated
@@ -95,6 +65,5 @@ class ElectronCalibration(AnalysisFlowBase):
                 function = cms.string('pt'),
                 )
             step.addModule('electronSorting', eSort, 'e')
-            '''
 
         return step
