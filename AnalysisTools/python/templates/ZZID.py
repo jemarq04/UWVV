@@ -15,22 +15,18 @@ class ZZID(AnalysisFlowBase):
 
         LeptonSetup = cms.string(self.year)
         if stepName == 'embedding':
-            pass
-            #TODO: Determine Run3 HZZ4l E Selections. For now use 2018UL WPs
+            #TODO: Determine Run3 HZZ4l E Selections. For now use 2022 MVA for Iso wp90
             if LeptonSetup=="2022":
                 eIDEmbedder = cms.EDProducer(
                     "PATElectronZZIDEmbedder",
                     src = step.getObjTag('e'),
                     idLabel = cms.string(self.getZZIDLabel()),
                     vtxSrc = step.getObjTag('v'),
-                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer18ULIdIsoValues"),
-                    idCutLowPtLowEta = cms.double(1.49603193295), 
-                    idCutLowPtHighEta = cms.double(1.77694249574),
-                    idCutHighPtLowEta = cms.double(0.199463934736),
-                    idCutHighPtMedEta = cms.double(0.076063564084),
-                    idCutHighPtHighEta = cms.double(-0.572118857519),
+                    mvaLabel = cms.string("mvaEleID-RunIIIWinter22-iso-V1-wp90"),
+                    #bdtLabel=cms.string("ElectronMVAEstimatorRun2RunIIIWinter22IsoV1Values"),
                     missingHitsCut = cms.int32(999),
                     ptCut = cms.double(5.), 
+                    etaCut = cms.double(2.5),
                 )
                 #HZZWP = cms.string("mvaEleID-Fall17-iso-V2-wpHZZ"),#2018 version
             step.addModule("eZZIDEmbedder", eIDEmbedder, 'e')

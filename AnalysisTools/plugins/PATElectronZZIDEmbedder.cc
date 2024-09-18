@@ -71,9 +71,10 @@ private:
   const double idCutHighPtMedEta;
   const double idCutHighPtHighEta;
   const std::string bdtLabel;
+  const std::string mvaLabel;
+  const std::string cutBasedLabel;
   //const std::string HZZWP;
   const int missingHitsCut;
-  const bool checkMVAID;
 
   StringCutObjectSelector<pat::Electron> selector;
 };
@@ -107,8 +108,9 @@ PATElectronZZIDEmbedder::PATElectronZZIDEmbedder(const edm::ParameterSet& iConfi
   idCutHighPtMedEta(iConfig.exists("idCutHighPtMedEta") ? iConfig.getParameter<double>("idCutHighPtMedEta") : 0.701),
   idCutHighPtHighEta(iConfig.exists("idCutHighPtHighEta") ? iConfig.getParameter<double>("idCutHighPtHighEta") : 0.350),
   bdtLabel(iConfig.exists("bdtLabel") ? iConfig.getParameter<std::string>("bdtLabel") : "ElectronMVAEstimatorRun2Fall17IsoV2Values"),
+  mvaLabel(iConfig.exists("mvaLabel") ? iConfig.getParameter<std::string>("mvaLabel") : "mvaEleID-RunIIIWinter22-iso-V1-wp90"),
+  cutBasedLabel(iConfig.exists("cutBasedLabel") ? iConfig.getParameter<std::string>("cutBasedLabel") : "cutBasedElectronID-RunIIIWinter22-V1"),
   missingHitsCut(iConfig.exists("missingHitsCut") ? iConfig.getParameter<int>("missingHitsCut") : 1),
-  checkMVAID(bdtLabel != ""),
   selector(iConfig.exists("selection") ?
 	    iConfig.getParameter<std::string>("selection") :
 	    "")
@@ -142,16 +144,16 @@ void PATElectronZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup&
       out->back().addUserFloat(idLabel_+"NoVtx", float(idResultNoVtx)); // 1 for true, 0 for false
       out->back().addUserFloat(idLabel_, float(idResult)); // 1 for true, 0 for false
 
-      //std::cout << iEvent.id().run() << ":" << iEvent.id().luminosityBlock() <<":"
-      //        << iEvent.id().event() << std::endl;
-      out->back().addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && passBDT(eptr))); // 1 for true, 0 for false
-      out->back().addUserFloat(idLabel_+"Tight", float(idResult && passBDT(eptr))); // 1 for true, 0 for false
+      //bool bdtID = passBDT(eptr);
+      bool bdtID = ei->electronID(mvaLabel);
+      out->back().addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && bdtID)); // 1 for true, 0 for false
+      out->back().addUserFloat(idLabel_+"Tight", float(idResult && bdtID)); // 1 for true, 0 for false
 
       //Also add some cut-based Run2 electron IDs for validation
-      out->back().addUserFloat("Loose",float(ei->electronID("cutBasedElectronID-Fall17-94X-V2-loose")));
-      out->back().addUserFloat("Medium",float(ei->electronID("cutBasedElectronID-Fall17-94X-V2-medium")));
-      out->back().addUserFloat("Tight",float(ei->electronID("cutBasedElectronID-Fall17-94X-V2-tight")));
-      out->back().addUserFloat("Veto",float(ei->electronID("cutBasedElectronID-Fall17-94X-V2-veto")));
+      out->back().addUserFloat("Loose",float(ei->electronID((cutBasedLabel + "-loose").c_str())));
+      out->back().addUserFloat("Medium",float(ei->electronID((cutBasedLabel + "-medium").c_str())));
+      out->back().addUserFloat("Tight",float(ei->electronID((cutBasedLabel + "-tight").c_str())));
+      out->back().addUserFloat("Veto",float(ei->electronID((cutBasedLabel + "-veto").c_str())));
       //-- Scale and smearing corrections are now stored in the miniAOD https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#Energy_Scale_and_Smearing
       float uncorrected_pt = ei->pt();
       float corr_factor = ei->userFloat("ecalTrkEnergyPostCorr") / ei->energy();//get scale/smear correction factor directly from miniAOD       
@@ -203,8 +205,7 @@ bool PATElectronZZIDEmbedder::passKinematics(const edm::Ptr<pat::Electron>& elec
 
 bool PATElectronZZIDEmbedder::passVertex(const edm::Ptr<pat::Electron>& elec) const
 {
-  if(!vertices->size())
-    return false;
+  if (!vertices->size()) return false;
 
   return (fabs(elec->dB(pat::Electron::PV3D))/elec->edB(pat::Electron::PV3D) < sipCut &&
           fabs(elec->dB(pat::Electron::PV2D)) < pvDXYCut &&
@@ -214,8 +215,7 @@ bool PATElectronZZIDEmbedder::passVertex(const edm::Ptr<pat::Electron>& elec) co
 
 bool PATElectronZZIDEmbedder::passBDT(const edm::Ptr<pat::Electron>& elec) const
 {
-  if(!checkMVAID)
-    return true;
+  if (bdtLabel == "") return true;
 
   double pt = elec->pt();
   double eta = fabs(elec->superCluster()->eta());
@@ -252,11 +252,3 @@ bool PATElectronZZIDEmbedder::passMissingHits(const edm::Ptr<pat::Electron>& ele
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PATElectronZZIDEmbedder);
-
-
-
-
-
-
-
-
