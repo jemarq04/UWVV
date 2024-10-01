@@ -54,6 +54,8 @@ class PATJetSmearing : public edm::stream::EDProducer<>
 
   edm::EDGetTokenT<JetView> srcToken;
   edm::EDGetTokenT<double> rhoToken;
+  JME::JetResolutionScaleFactor::Token resSFToken;
+  JME::JetResolution::Token resPtToken;
 
   const bool systematics;
 };
@@ -71,6 +73,8 @@ PATJetSmearing::PATJetSmearing(const edm::ParameterSet& pset) :
       produces<VJet>("jerUp");
       produces<VJet>("jerDown");
     }
+  resSFToken = esConsumes(edm::ESInputTag("", "AK4PFchs"));
+  resPtToken = esConsumes(edm::ESInputTag("", "AK4PFchs_pt"));
 }
 
 
@@ -86,10 +90,8 @@ void PATJetSmearing::produce(edm::Event& iEvent,
   std::unique_ptr<VJet> outUp(new VJet());
   std::unique_ptr<VJet> outDn(new VJet());
 
-  JME::JetResolutionScaleFactor resSF = 
-    JME::JetResolutionScaleFactor::get(iSetup, (JME::JetResolutionScaleFactor::Token)esConsumes(edm::ESInputTag("","AK4PFchs")));
-  JME::JetResolution resPt = 
-    JME::JetResolution::get(iSetup, (JME::JetResolution::Token)esConsumes(edm::ESInputTag("","AK4PFchs_pt")));
+  JME::JetResolutionScaleFactor resSF = JME::JetResolutionScaleFactor::get(iSetup, resSFToken);
+  JME::JetResolution resPt = JME::JetResolution::get(iSetup, resPtToken);
 
   for(size_t i = 0; i < in->size(); ++i)
     {
