@@ -38,7 +38,7 @@ process = cms.Process("Ntuple")
 # Parsing command-line arguments
 options = VarParsing.VarParsing("analysis")
 options.maxEvents = -1
-options.inputFiles = ""
+options.inputFiles = []
 
 options.register("inputFileList", "",
         VarParsing.VarParsing.multiplicity.singleton,
