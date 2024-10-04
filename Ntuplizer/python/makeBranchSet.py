@@ -127,7 +127,7 @@ def makeBranchSet(channel, extraInitialStateBranches=[],
         daughterSets = [
             makeZBranchSet(channel[0], 1, extraIntermediateStateBranches,
                            extraFinalObjectBranches.get(channel[0], [])),
-            makeZBranchSet(channel[2], int(finalObjects[3][1])/2,
+            makeZBranchSet(channel[2], int(finalObjects[3][1])//2,
                            extraIntermediateStateBranches,
                            extraFinalObjectBranches.get(channel[2], [])),
             ]
