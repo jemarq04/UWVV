@@ -28,7 +28,12 @@ namespace uwvv
         return cand.p4();
 
       const pat::CompositeCandidate& ccand = dynamic_cast<const pat::CompositeCandidate&>(cand);
-      return p4WithoutFSR(ccand);
+      //return p4WithoutFSR(ccand);
+      math::XYZTLorentzVector out = p4WithoutFSR(*(ccand.daughter(0)->masterClone().get()));
+      if(ccand.numberOfDaughters() >= 2)
+        out += p4WithoutFSR(*(ccand.daughter(1)->masterClone().get()));
+
+      return out;
     }
 
     template<class T>
