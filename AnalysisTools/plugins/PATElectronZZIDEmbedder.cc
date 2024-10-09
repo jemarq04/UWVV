@@ -154,6 +154,8 @@ void PATElectronZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup&
       out->back().addUserFloat("Medium",float(ei->electronID((cutBasedLabel + "-medium").c_str())));
       out->back().addUserFloat("Tight",float(ei->electronID((cutBasedLabel + "-tight").c_str())));
       out->back().addUserFloat("Veto",float(ei->electronID((cutBasedLabel + "-veto").c_str())));
+
+      /* TODO: This needs to be added back in once electron calibration is working for Run 3
       //-- Scale and smearing corrections are now stored in the miniAOD https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#Energy_Scale_and_Smearing
       float uncorrected_pt = ei->pt();
       float corr_factor = ei->userFloat("ecalTrkEnergyPostCorr") / ei->energy();//get scale/smear correction factor directly from miniAOD       
@@ -191,6 +193,7 @@ void PATElectronZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup&
       out->back().addUserFloat("sigma_rho_dn",sigma_rho_dn);
       out->back().addUserFloat("sigma_phi_up",sigma_phi_up);
       out->back().addUserFloat("sigma_phi_dn",sigma_phi_dn);
+      */
     }
 
   iEvent.put(std::move(out));
