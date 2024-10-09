@@ -41,8 +41,8 @@ namespace uwvv
 
     void setup(const edm::TriggerNames& names);
 
-    void fill(const edm::TriggerResults& results,
-              const pat::PackedTriggerPrescales& prescales);
+    void fill(const edm::Handle<edm::TriggerResults>& results,
+              const edm::Handle<pat::PackedTriggerPrescales>& prescales);
 
   private:
     const std::string name;
