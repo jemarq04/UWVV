@@ -35,17 +35,17 @@ void TriggerBranch::setup(const edm::TriggerNames& names)
 }
 
 
-void TriggerBranch::fill(const edm::TriggerResults& results,
-                         const pat::PackedTriggerPrescales& prescales)
+void TriggerBranch::fill(const edm::Handle<edm::TriggerResults>& results,
+                         const edm::Handle<pat::PackedTriggerPrescales>& prescales)
 {
   if(checkPrescale)
     {
       // don't need to check for validity (paths do that)
-      prescale = paths.at(0).prescale(prescales);
+      prescale = paths.at(0).prescale(*prescales);
       pass = false;
       for(auto& path : paths)
         {
-          if(path.prescale(prescales) != prescale)
+          if(path.prescale(*prescales) != prescale)
             {
               if(checkPrescale)
                 throw cms::Exception("InvalidPrescale")
@@ -54,7 +54,7 @@ void TriggerBranch::fill(const edm::TriggerResults& results,
                   << std::endl;
             }
 
-          pass |= path.pass(results);
+          pass |= path.pass(*results);
         }
     }
   else
@@ -62,7 +62,7 @@ void TriggerBranch::fill(const edm::TriggerResults& results,
       pass = false;
       for(auto& path : paths)
         {
-          pass = path.pass(results);
+          pass = path.pass(*results);
           if(pass) break;
         }
     }
@@ -124,6 +124,7 @@ void TriggerBranches::fill()
       << "ERROR: attempt to use uninitialized TriggerBranches object."
       << std::endl;
 
-  for(auto& b : branches)
-    b.second->fill(*results, *prescales);
+  for(auto& b : branches){
+    b.second->fill(results, prescales);
+  }
 }
