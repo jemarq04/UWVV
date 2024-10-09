@@ -75,7 +75,6 @@ class CleanedJetCollectionEmbedder : public edm::stream::EDProducer<>
     const double deltaR;
     const bool APV;
     const std::string workingPoint;
-    const std::string notSF = "sfFileNone";
 
     edm::EDGetTokenT<edm::View<pat::Jet>> jesUpJetSrcToken;
     edm::EDGetTokenT<edm::View<pat::Jet>> jesDownJetSrcToken;
@@ -100,7 +99,7 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   collectionName(iConfig.getUntrackedParameter<std::string>("collectionName", "cleanedJets")),
   matchToken_(consumes<MatchMap>(edm::InputTag("patJetGenJetMatch2"))),
   domatch_(iConfig.exists("domatch") ? iConfig.getParameter<bool>("domatch") : false),
-  scaleFileN_(iConfig.exists("scaleFile") ? iConfig.getParameter<std::string>("scaleFile") : notSF),
+  scaleFileN_(iConfig.exists("scaleFile") ? iConfig.getParameter<std::string>("scaleFile") : "sfFileNone"),
   // Which year JET ID we need
   setup_(iConfig.exists("setup") ? iConfig.getParameter<int>("setup") : 2022),
   deltaR(iConfig.getUntrackedParameter<double>("deltaR", 0.4)),
@@ -120,7 +119,7 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   if (jerDownTagExists)
     jerDownJetSrcToken = consumes<edm::View<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jerDownJetSrc"));
 
-  if (domatch_ && scaleFileN_ != notSF) 
+  if (domatch_ && scaleFileN_ != "sfFileNone") 
   {
     // Define correction set here
     try{
@@ -214,7 +213,7 @@ edm::PtrVector<pat::Jet> CleanedJetCollectionEmbedder::getCleanedJetCollection2(
         edm::Ref<JetView> jetRef(uncleanedJets, j);
         const auto genMatched = (*match)[jetRef];
 
-        if (genMatched.isNonnull() && jet.pt() < 50 && scaleFileN_ != notSF){
+        if (genMatched.isNonnull() && jet.pt() < 50 && scaleFileN_ != "sfFileNone"){
           float jetPUSF = scaleFile_->at("PUJetID_eff")->evaluate({jet.eta(), jet.pt(), "nom", workingPoint});
           float jeffPU  = scaleFile_->at("PUJetID_eff")->evaluate({jet.eta(), jet.pt(), "MCEff", workingPoint});
           float mulfac = 1.;
