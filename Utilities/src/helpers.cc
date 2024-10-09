@@ -66,8 +66,8 @@ namespace uwvv
 
         if ( !cand.hasUserData(collectionName.c_str()) )
             throw cms::Exception("ProductNotFound")
-                << "Cleaned jet collection not found"
-                << "for variation " << variation;
+                << "Cleaned jet collection (" << collectionName << ") not found "
+                << "for variation '" << variation << "'";
             
         return cand.userData<edm::PtrVector<pat::Jet>>(collectionName.c_str());
       }
