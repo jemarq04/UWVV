@@ -107,6 +107,8 @@ configParams = [
     "muCalib=%s" % localSettings.get("local", "muCalib"),
     "globalTag=%s" % globalTag,
 ]
+if year == "2016":
+    configParams.append("calibVFP=%s" % ("pre" if isAPV else "post"))
 today = (datetime.date.today()).strftime("%d%b%Y")
 campaign_name = localSettings.get("local", "campaign").replace("$DATE", today)
 #campaign_name = localSettings.get("local", "campaign").replace("$DATE", "25Jan2019")
@@ -118,6 +120,12 @@ if isMC:
         config.General.requestName += m.groups()[0]
     #config.Data.splitting = 'FileBased'
     #config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
+    if isUL and isAPV:
+        config.General.requestName += "preVFP"
+    
+    if isUL and (not isAPV) and "RunIISummer20UL16MiniAOD" in conditions:
+        config.General.requestName += "postVFP"
+        
 else:
     # Since a PD will have several eras, add conditions to name to differentiate
     config.General.requestName = '_'.join([campaign_name, primaryDS, conditions])
