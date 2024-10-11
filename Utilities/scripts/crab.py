@@ -54,7 +54,7 @@ print("isUL:%s"%isUL)
 
 year = localSettings.get("local", "year")
 if year == "2016":
-    isAPV = localSettings.get("local", "isAPV")
+    isAPV = int(localSettings.get("local", "isAPV"))
 print("isAPV:%s"%isAPV)
 
 def getUnitsPerJob(ds):
