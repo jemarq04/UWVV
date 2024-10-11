@@ -17,13 +17,13 @@ if not os.path.exists(settingsFile):
 localSettings = configparser.ConfigParser()
 localSettings.read(settingsFile)
 
-gitDescription = subprocess.check_output(["git", "describe", "--always"]).strip()
-gitStatus = subprocess.check_output(["git", "status", "--porcelain", "-uno"])
-if gitStatus != "":
-    print("\033[33mWARNING: git status is dirty!\033[0m")
-    print(gitStatus)
-    gitDescription += "*"
-print("Git status is %s" % gitDescription)
+#gitDescription = subprocess.check_output(["git", "describe", "--always"]).strip()
+#gitStatus = subprocess.check_output(["git", "status", "--porcelain", "-uno"])
+#if gitStatus != "":
+#    print("\033[33mWARNING: git status is dirty!\033[0m")
+#    print(gitStatus)
+#    gitDescription += "*"
+#print("Git status is %s" % gitDescription)
 if "dataset" not in localSettings["local"]:
     raise Exception("Must pass dataset argument as Data.inputDataset=...")
 dataset = localSettings.get("local", "dataset")

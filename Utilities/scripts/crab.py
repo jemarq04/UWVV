@@ -17,19 +17,19 @@ if not os.path.exists(settingsFile):
 localSettings = configparser.ConfigParser()
 localSettings.read(settingsFile)
 
-gitDescription = subprocess.check_output(["git", "describe", "--always"]).strip()
-gitStatus = subprocess.check_output(["git", "status", "--porcelain", "-uno"])
-if gitStatus != "":
-    print("\033[33mWARNING: git status is dirty!\033[0m")
-    print(gitStatus)
-    gitDescription += "*"
-print("Git status is %s" % gitDescription)
+#gitDescription = subprocess.check_output(["git", "describe", "--always"]).strip()
+#gitStatus = subprocess.check_output(["git", "status", "--porcelain", "-uno"])
+#if gitStatus != "":
+#    print("\033[33mWARNING: git status is dirty!\033[0m")
+#    print(gitStatus)
+#    gitDescription += "*"
+#print("Git status is %s" % gitDescription)
 # We have to hack our way around how crab parses command line arguments :<
-dataset = 'dummy'
 for arg in sys.argv:
     if 'Data.inputDataset=' in arg:
         dataset = arg.split('=')[1]
-if dataset == 'dummy':
+        break
+else:
     raise Exception("Must pass dataset argument as Data.inputDataset=...")
 
 (_, primaryDS, conditions, dataTier) = dataset.split('/')
