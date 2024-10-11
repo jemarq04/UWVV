@@ -29,6 +29,7 @@ if "dataset" not in localSettings["local"]:
 dataset = localSettings.get("local", "dataset")
 
 (_, primaryDS, conditions, dataTier) = dataset.split('/')
+isPrompt = 0
 if dataTier == 'MINIAOD':
     isMC = 0
     if "Prompt" in conditions:

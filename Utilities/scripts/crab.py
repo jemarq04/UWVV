@@ -33,6 +33,7 @@ else:
     raise Exception("Must pass dataset argument as Data.inputDataset=...")
 
 (_, primaryDS, conditions, dataTier) = dataset.split('/')
+isPrompt = 0
 if dataTier == 'MINIAOD':
     isMC = 0
     if "Prompt" in conditions:
