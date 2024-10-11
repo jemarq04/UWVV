@@ -1,8 +1,7 @@
 # Copy to local.txt and change
-#Only updated MC globaltag according to https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVLegacy2018Analysis
 [local]
 campaign: UWVVNtuples18_$DATE
-outLFNDirBase: /store/user/$USER/UWVVNtuples18_$DATE/
+outLFNDirBase: /store/user/$USER/UWVVNtuples18UL_$DATE/
 storageSite: T2_US_Wisconsin
 channels: zz
 year: 2018

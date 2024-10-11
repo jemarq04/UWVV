@@ -4,37 +4,32 @@
 # . crabSubmit.sh twoLepton-data.txt | . /dev/stdin
 if [ $# -eq 0 ]; then
     echo "You need to specify a file containing your list of datasets"
-    echo "    Usage: . crabSubmit.sh datasetList.txt"
-    return 1
+    echo "You can also specify a year so that a template can be copied to local.txt"
+    echo "    Usage: ${0##*/} datasetList.txt [year]"
+    exit 1
 fi
 scripts_path=$CMSSW_BASE/src/UWVV/Utilities/scripts
-config_path=$scripts_path/CrabTemplates
+config_path=$CMSSW_BASE/src/UWVV/Utilities/test/CrabTemplates
 #config=$config_path/local.allweights2016.txt
-if [[ $2 == "2016" ]]; then
-  config=$config_path/local.allweights2016UL.txt
-elif [[ $2 == "2017" ]]; then
-  config=$config_path/local.allweights2017UL.txt 
-elif [[ $2 == "2018" ]]; then
-  config=$config_path/local.allweights2018UL.txt
-elif [[ $2 == "2016UL" ]]; then
-  config=$config_path/local.allweights2016UL.txt
-elif [[ $2 == "2017UL" ]]; then
-  config=$config_path/local.allweights2017UL.txt
-elif [[ $2 == "2018UL" ]]; then
-  config=$config_path/local.allweights2018UL.txt
-elif [[ $2 == "ZL2016" ]]; then
-  config=$config_path/local.ZL2016.txt
-elif [[ $2 == "ZL2017" ]]; then
-  config=$config_path/local.ZL2017.txt 
-elif [[ $2 == "ZL2018" ]]; then
-  config=$config_path/local.ZL2018.txt
+if [[ $2 == "2022" ]]; then
+  config=$config_path/local.allweights2022UL.txt
 elif [[ $2 == *"NoLHEWeights"* ]]; then
   config=$config_path/local.noweights.txt
 elif [[ $2 == *"LHEScaleWeights"* ]]; then
   config=$config_path/local.onlyscaleweights.txt
-fi 
-(>&2 echo "Using config file $config")
-cp $config local.txt
+elif [[ ! -z $2 ]]; then
+  echo "Template not found for $2"
+  exit 1
+fi
+if [[ ! -z $config ]]; then
+  (>&2 echo "Using config file $config")
+  cp $config local.txt
+elif [[ ! -f local.txt ]]; then
+  echo "If you don't specify a year for the template, you must"
+  echo " already have a 'local.txt' config file!"
+  exit 1
+else (>&2 echo "Using config file local.txt")
+fi
 grep -v -e '^#' -e '^ *$' $1 | while read dataset
 do
   # uncomment to record nevents

@@ -1,0 +1,17 @@
+# Copy to local.txt and change
+[local]
+campaign: UWVVNtuples22_$DATE
+outLFNDirBase: /store/user/$USER/UWVVNtuples22_$DATE/
+storageSite: T2_US_Wisconsin
+channels: zz
+year: 2022
+eCalib: 1
+muCalib: 1
+lheWeights: 3
+genInfo: 1
+genLeptonType: dressedHPFS  
+mcGlobalTag: 130X_mcRun3_2022_realistic_v5
+postEEGlobalTag: 130X_mcRun3_2022_realistic_postEE_v6
+dataGlobalTag: 124X_dataRun3_v15
+PromptdataGlobalTag: 124X_dataRun3_PromptAnalysis_v2
+postEE: 0
