@@ -9,6 +9,7 @@ import datetime
 import glob
 import hashlib,pdb
 
+username = "marquez"
 settingsFile = "local.txt"
 if not os.path.exists(settingsFile):
     print "Please copy local.template.txt to local.txt and edit as appropriate"
@@ -24,15 +25,9 @@ if gitStatus != "":
     gitDescription += "*"
 print "Git status is %s" % gitDescription
 # We have to hack our way around how crab parses command line arguments :<
-dataset = 'dummy'
-for arg in sys.argv:
-    if 'Data.inputDataset2=' in arg:
-        dataset = arg.split('=')[1]
-
-dataset = localSettings.get("local", "dataset") #"/qqZZSpecTest2018/102X_upgrade2018_realistic_v20/MINIAODSIM"
-
-if dataset == 'dummy':
+if "dataset" not in localSettings["local"]:
     raise Exception("Must pass dataset argument as Data.inputDataset=...")
+dataset = localSettings.get("local", "dataset") #"/qqZZSpecTest2018/102X_upgrade2018_realistic_v20/MINIAODSIM"
 
 (_, primaryDS, conditions, dataTier) = dataset.split('/') #For ggZZSpec and qqZZSpec, conditions only matters for naming
 if dataTier == 'MINIAOD':
@@ -45,6 +40,19 @@ elif dataTier == 'MINIAODSIM':
     isMC = 1
 else:
     raise Exception("Dataset malformed? Couldn't deduce isMC parameter")
+
+isUL = 0
+isAPV = 0
+if "Summer20UL" in conditions:
+    isUL = 1
+else:
+    isUL = 0
+print("isUL:%s"%isUL)
+
+year = localSettings.get("local", "year")
+if year == "2016":
+    isAPV = localSettings.get("local", "isAPV")
+print("isAPV:%s"%isAPV)
 
 def getUnitsPerJob(ds):
     if isMC == 0:
@@ -63,33 +71,34 @@ def getUnitsPerJob(ds):
 
 config = config()
 #config.Data.inputDataset = dataset commented out since it can not be used along with userInputFiles
-config.Data.userInputFiles = open(localSettings.get("local", "datalist")).readlines()
+with open(localSettings.get("local", "datalist"), "r") as infile:
+    config.Data.userInputFiles = infile.readlines()
 config.Data.outputDatasetTag = conditions
-
 if (isMC):
-    globalTag=(localSettings.get("local", "mcGlobalTag"))
+    if not isAPV:
+        globalTag=(localSettings.get("local", "mcGlobalTag"))
+    else:
+        globalTag=(localSettings.get("local", "APVGlobalTag"))
 elif (isPrompt):
     globalTag=(localSettings.get("local", "PromptdataGlobalTag"))
 else: 
     globalTag=(localSettings.get("local", "dataGlobalTag"))
 print(globalTag)
-#print ("primaryDS: ",primaryDS.lower())
-
+print ("primaryDS: ",primaryDS.lower())
 if isMC:
-    if (("phantom" in primaryDS.lower()) or ("sherpa" in primaryDS.lower())): # or ("mcfm" in primaryDS.lower()) 
+    if any(generator in primaryDS.lower() for generator in ["phantom", "sherpa", "mcfm"]):
         lheWeight=0
     else:
         lheWeight=(localSettings.get("local", "lheWeights"))
 else:
     lheWeight=0
 print("lheWeights: ",lheWeight)
-#pdb.set_trace()
 configParams = [
     'isSync=0',
     #'isSync=%i' % (1 if "WZ" in dataset or "DYJets" in dataset else 0),
     'isMC=%d' % isMC,
     'datasetName=%s' % dataset, #Checked the config, shouldn't matter
-    "year=%s" % localSettings.get("local", "year"),
+    "year=%s" % year,
     "channels=%s" % localSettings.get("local", "channels"),
     "lheWeights=%s" % lheWeight,
     "genInfo=%s" % localSettings.get("local", "genInfo"),
@@ -115,16 +124,16 @@ else:
     #config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt'
     if "Run2016" in conditions:
         #2016 JSON
-        config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_ReReco_07Aug2017_Collisions16_JSON.txt'
-        print "Golden JSON: Cert_271036-284044_13TeV_ReReco_07Aug2017_Collisions16_JSON.txt",
+        config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt'
+        print "Golden JSON: Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt"
     elif "Run2017" in conditions:
         #2017 JSON
-        config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
-        print "Golden JSON: Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt",
+        config.Data.lumiMask ='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Legacy_2017/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt'
+        print "Golden JSON: Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt"
     elif "Run2018" in conditions:
         #2018 JSON
-        config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt' 
-        print "Golden JSON: Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt",
+        config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt'
+        print "Golden JSON: Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt"
     else:
         print "What kind of JSON are you running for?"
         exit()
@@ -135,17 +144,10 @@ else:
     
     #config.Data.splitting = 'LumiBased'
     #config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
-#CRAB server blows up if we run "Automatic splitting" on these DY Datasets so require them to be split "FileBased"
-
-#if "DYJetsToLL_M-50" not in primaryDS:
-#    config.Data.splitting = 'Automatic'
-#    config.Data.unitsPerJob = 180
-#else:
-#print("Its a DYJetsToLL_M-50 dataset")
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
     
-#config.Data.totalUnits = -1
+config.Data.totalUnits = -1
 
 # Max requestName is 100 characters
 if len(config.General.requestName) > 100:
@@ -166,7 +168,10 @@ config.General.transferLogs = True
 
 config.JobType.pluginName = 'ANALYSIS'
 config.JobType.allowUndistributedCMSSW = True 
-config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg_UL.py' % os.environ["CMSSW_BASE"]
+if not isUL:
+    config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg.py' % os.environ["CMSSW_BASE"]
+else:
+    config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg_UL.py' % os.environ["CMSSW_BASE"]
 config.JobType.numCores = 1
 config.JobType.inputFiles = ["%s/src/UWVV/data" % os.environ["CMSSW_BASE"]]
 
@@ -174,7 +179,6 @@ config.Data.inputDBS = 'global' if 'USER' not in dataset else 'phys03'
 #config.Data.allowNonValidInputDataset = True
 config.Data.useParent = False
 config.Data.publication = False
-username = localSettings.get("local", "username")
 outdir = localSettings.get("local", "outLFNDirBase").replace(
     "$USER", username).replace("$DATE", today)
 #outdir = localSettings.get("local", "outLFNDirBase").replace(
