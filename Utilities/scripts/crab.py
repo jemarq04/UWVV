@@ -25,11 +25,11 @@ if gitStatus != "":
     gitDescription += "*"
 print "Git status is %s" % gitDescription
 # We have to hack our way around how crab parses command line arguments :<
-dataset = 'dummy'
 for arg in sys.argv:
     if 'Data.inputDataset=' in arg:
         dataset = arg.split('=')[1]
-if dataset == 'dummy':
+        break
+else:
     raise Exception("Must pass dataset argument as Data.inputDataset=...")
 
 (_, primaryDS, conditions, dataTier) = dataset.split('/')
