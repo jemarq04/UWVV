@@ -9,9 +9,9 @@ import datetime
 import glob
 import hashlib,pdb
 
-settingsFile = "local.txt"
+settingsFile = "local.cfg"
 if not os.path.exists(settingsFile):
-    print("Please copy local.template.txt to local.txt and edit as appropriate")
+    print("Please copy local.template.cfg to local.cfg and edit as appropriate")
     exit()
 localSettings = configparser.ConfigParser()
 localSettings.read(settingsFile)
