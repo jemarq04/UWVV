@@ -93,3 +93,6 @@ crab_*/
 
 # Local ntuplizer submission inputs
 Ntuplizer/test/inputs/*
+
+# Local crab configs
+Utilities/test/local.cfg
