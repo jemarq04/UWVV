@@ -27,10 +27,6 @@ genLepChoices = {
 }
 yearDefault = "2022"
 yearChoices = ["2022", "2023", "2024"]
-#NOTE: At the moment, data has a global tag for 2022A-E while MC has a global tag for 2022A-D
-# To handle this, the config will require an "era" option for 2022
-eraDefault = "C"
-eraChoices = ["C", "D", "E", "F", "G"]
 
 # Initializing process
 process = cms.Process("Ntuple")
@@ -56,6 +52,10 @@ options.register("isMC", 0,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
         "0: data, 1: simulation")
+options.register("isPrompt", 0,
+        VarParsing.VarParsing.multiplicity.singleton,
+        VarParsing.VarParsing.varType.bool,
+        "0: rereco, 1: prompt")
 options.register("eCalib", 1,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
@@ -88,15 +88,10 @@ options.register("year", yearDefault,
         VarParsing.VarParsing.varType.string,
         "year for processing samples. options: " \
             + ", ".join(yearChoices))
-options.register("era", eraDefault,
+options.register("postEE", 0,
         VarParsing.VarParsing.multiplicity.singleton,
-        VarParsing.VarParsing.varType.string,
-        "era for processing samples. options: " \
-            + ", ".join(eraChoices))
-#options.register("postEE", 0,
-#        VarParsing.VarParsing.multiplicity.singleton,
-#        VarParsing.VarParsing.varType.bool,
-#        "relevant for 2022 analysis. 0: 2022C-D, 1: 2022E-G")
+        VarParsing.VarParsing.varType.bool,
+        "relevant for 2022 analysis. 0: 2022C-D, 1: 2022E-G")
 options.register("eventsToProcess", "",
         VarParsing.VarParsing.multiplicity.list,
         VarParsing.VarParsing.varType.string,
@@ -108,20 +103,12 @@ options.register("skipEvents", 0,
 options.parseArguments()
 
 # Error checking
-options.era = options.era.upper()
-if options.era not in eraChoices:
-    print("ERROR: Invalid era %s" % options.era)
-    print("Valid options are")
-    for era in eraChoices:
-        print("    %s" % era)
-elif options.era in ["E", "F", "G"]:
-    postEE = 1
-else:
-    postEE = 0
-
 if options.year == "2022":
-    print("Running 2022 MC")
-    print("postEE: %i" % postEE)
+    print("Running 2022")
+    if options.isMC:
+        print("postEE: %i" % options.postEE)
+    else:
+        print("isPrompt: %i" % options.isPrompt)
     options.outputFile = "ntuple2022.root"
 else:
     print("Run3 config still in progresss. Only 2022 is able to be processed.")
@@ -133,6 +120,10 @@ if options.genLeptonType not in genLepChoices:
     for key,val in genLepChoices:
         print("    %s (%s)" % (key, val))
     print("Default: %s" % genLepDefault)
+    exit(1)
+
+if (options.isMC and options.isPrompt) or (not options.isMC and options.postEE):
+    print("ERROR: option mismatch. isPrompt is for data and postEE is for MC")
     exit(1)
 
 if not options.isMC:
@@ -156,16 +147,16 @@ if options.globalTag:
     gt = options.globalTag
 elif options.isMC:
     if options.year == "2022":
-        if not postEE:
+        if not options.postEE:
             gt = "130X_mcRun3_2022_realistic_v5"
         else:
             gt = "130X_mcRun3_2022_realistic_postEE_v6"
 else:
     if options.year == "2022":
-        if options.era in ["C", "D", "E"]:
-            gt = "130X_dataRun3_v2"
+        if not options.isPrompt:
+            gt = "124X_dataRun3_v15"
         else:
-            gt = "130X_dataRun3_PromptAnalysis_v1"
+            gt = "124X_dataRun3_PromptAnalysis_v2"
 
 # Override inputs if input file list provided
 if options.inputFileList:
@@ -323,7 +314,7 @@ if zz or wz:
 flowOpts = {
     "isMC": bool(options.isMC),
     "year": options.year,
-    "calibEEera22": "%sEE" % ("post" if postEE else "pre"),
+    "calibEEera22": "%sEE" % ("post" if options.postEE else "pre"),
 }
 
 # Turn all these into a single flow class
