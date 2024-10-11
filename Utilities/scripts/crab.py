@@ -48,7 +48,7 @@ else:
 postEE = 0
 year = localSettings.get("local", "year")
 if year == "2022":
-    postEE = localSettings.get("local", "postEE")
+    postEE = int(localSettings.get("local", "postEE"))
     print("postEE:%s"%postEE)
 
 def getUnitsPerJob(ds):
