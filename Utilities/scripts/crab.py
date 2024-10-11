@@ -34,7 +34,7 @@ if dataset == 'dummy':
 (_, primaryDS, conditions, dataTier) = dataset.split('/')
 if dataTier == 'MINIAOD':
     isMC = 0
-    if "Prompt" in conditions or "22Jan2019" in conditions: #latter correspond to process string for 2018D in some cases
+    if "Prompt" in conditions:
         isPrompt = 1
     else:
         isPrompt = 0
@@ -43,18 +43,11 @@ elif dataTier == 'MINIAODSIM':
 else:
     raise Exception("Dataset malformed? Couldn't deduce isMC parameter")
 
-isUL = 0
-isAPV = 0
-if "Summer20UL" in conditions:
-    isUL = 1
-else:
-    isUL = 0
-print("isUL:%s"%isUL)
-
+postEE = 0
 year = localSettings.get("local", "year")
-if year == "2016":
-    isAPV = localSettings.get("local", "isAPV")
-print("isAPV:%s"%isAPV)
+if year == "2022":
+    postEE = localSettings.get("local", "postEE")
+    print("postEE:%s"%postEE)
 
 def getUnitsPerJob(ds):
     if isMC == 0:
@@ -75,10 +68,10 @@ config = config()
 config.Data.inputDataset = dataset
 config.Data.outputDatasetTag = conditions
 if (isMC):
-    if not isAPV:
+    if not postEE:
         globalTag=(localSettings.get("local", "mcGlobalTag"))
     else:
-        globalTag=(localSettings.get("local", "APVGlobalTag"))
+        globalTag=(localSettings.get("local", "postEEGlobalTag"))
 elif (isPrompt):
     globalTag=(localSettings.get("local", "PromptdataGlobalTag"))
 else: 
@@ -86,7 +79,7 @@ else:
 print(globalTag)
 print("primaryDS:",primaryDS.lower())
 if isMC:
-    if (("mcfm" in primaryDS.lower()) or ("phantom" in primaryDS.lower()) or ("sherpa" in primaryDS.lower())):
+    if any(generator in primaryDS.lower() for generator in ["mcfm", "phantom", "sherpa"]):
         lheWeight=0
     else:
         lheWeight=(localSettings.get("local", "lheWeights"))
@@ -94,9 +87,9 @@ else:
     lheWeight=0
 print("lheWeights:",lheWeight)
 configParams = [
-    'isSync=0',
-    #'isSync=%i' % (1 if "WZ" in dataset or "DYJets" in dataset else 0),
     'isMC=%d' % isMC,
+    'isPrompt=%i' % isPrompt,
+    'postEE=%i' % postEE,
     'datasetName=%s' % dataset,
     "year=%s" % year,
     "channels=%s" % localSettings.get("local", "channels"),
@@ -109,7 +102,6 @@ configParams = [
 ]
 today = (datetime.date.today()).strftime("%d%b%Y")
 campaign_name = localSettings.get("local", "campaign").replace("$DATE", today)
-#campaign_name = localSettings.get("local", "campaign").replace("$DATE", "25Jan2019")
 if isMC:
     config.General.requestName = '_'.join([campaign_name, primaryDS])
     # Check for extension dataset, force unique request name
@@ -118,28 +110,20 @@ if isMC:
         config.General.requestName += m.groups()[0]
     #config.Data.splitting = 'FileBased'
     #config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
-    if isUL and isAPV:
-        config.General.requestName += "preVFP"
-    
-    if isUL and (not isAPV) and "RunIISummer20UL16MiniAOD" in conditions:
-        config.General.requestName += "postVFP"
-        
+    if postEE:
+        config.General.requestName += "postEE"
+
 else:
     # Since a PD will have several eras, add conditions to name to differentiate
     config.General.requestName = '_'.join([campaign_name, primaryDS, conditions])
-    #config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt'
-    if "Run2016" in conditions:
-        #2016 JSON
-        config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt'
-        print("Golden JSON: Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt")
-    elif "Run2017" in conditions:
-        #2017 JSON
-        config.Data.lumiMask ='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Legacy_2017/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt'
-        print("Golden JSON: Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt")
-    elif "Run2018" in conditions:
-        #2018 JSON
-        config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt'
-        print("Golden JSON: Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt")
+    #if "Run2016" in conditions:
+    #    #2016 JSON
+    #    config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt'
+    #    print("Golden JSON: Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt")
+    if year == "2022":
+        #2022 JSON
+        config.Data.lumiMask = "%s/src/UWVV/Utilities/scripts/JSON/Cert_Collisions2022_355100_362760_Golden.json" % os.environ["CMSSW_BASE"]
+        print("Golden JSON: Cert_Collisions2022_355100_362760_Golden.json")
     else:
         print("What kind of JSON are you running for?")
         exit()
@@ -150,15 +134,8 @@ else:
     
     #config.Data.splitting = 'LumiBased'
     #config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
-#CRAB server blows up if we run "Automatic splitting" on these DY Datasets so require them to be split "FileBased"
-if "DYJetsToLL_M-50" not in primaryDS:
-    config.Data.splitting = 'Automatic'
-    #config.Data.unitsPerJob = 180
-    config.Data.unitsPerJob = 540
-else:
-    print("Its a DYJetsToLL_M-50 dataset")
-    config.Data.splitting = 'FileBased'
-    config.Data.unitsPerJob = 1
+config.Data.splitting = 'FileBased'
+config.Data.unitsPerJob = 1
     
 config.Data.totalUnits = -1
 
@@ -181,10 +158,7 @@ config.General.transferLogs = True
 
 config.JobType.pluginName = 'ANALYSIS'
 config.JobType.allowUndistributedCMSSW = True 
-if not isUL:
-    config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg.py' % os.environ["CMSSW_BASE"]
-else:
-    config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg_UL.py' % os.environ["CMSSW_BASE"]
+config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg.py' % os.environ["CMSSW_BASE"]
 config.JobType.numCores = 1
 config.JobType.inputFiles = ["%s/src/UWVV/data" % os.environ["CMSSW_BASE"]]
 
@@ -192,14 +166,10 @@ config.Data.inputDBS = 'global' if 'USER' not in dataset else 'phys03'
 #config.Data.allowNonValidInputDataset = True
 config.Data.useParent = False
 config.Data.publication = False
-outdir = localSettings.get("local", "outLFNDirBase").replace(
-    "$USER", 'marquez').replace("$DATE", today)
-#outdir = localSettings.get("local", "outLFNDirBase").replace(
-#    "$USER", getUsernameFromSiteDB()).replace("$DATE", "25Jan2019")
 # Useful for VBFNLO samples
 #config.Site.whitelist = ['T2_DE_DESY']
 #config.Site.blacklist = ['T2_ES_IFCA']
-config.Data.outLFNDirBase = outdir 
+config.Data.outLFNDirBase = localSettings.get("local", "outLFNDirBase").replace("$DATE", today)
 config.Data.ignoreLocality = False
 
 config.Site.storageSite = localSettings.get("local", "storageSite")
