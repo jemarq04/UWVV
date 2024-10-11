@@ -9,6 +9,7 @@ import datetime
 import glob
 import hashlib,pdb
 
+username = "marquez"
 settingsFile = "local.cfg"
 if not os.path.exists(settingsFile):
     print("Please copy local.template.cfg to local.cfg and edit as appropriate")
@@ -168,7 +169,7 @@ config.Data.publication = False
 # Useful for VBFNLO samples
 #config.Site.whitelist = ['T2_DE_DESY']
 #config.Site.blacklist = ['T2_ES_IFCA']
-config.Data.outLFNDirBase = localSettings.get("local", "outLFNDirBase").replace("$DATE", today)
+config.Data.outLFNDirBase = localSettings.get("local", "outLFNDirBase").replace("$USER", username).replace("$DATE", today)
 config.Data.ignoreLocality = False
 config.Data.outputPrimaryDataset = primaryDS
 
