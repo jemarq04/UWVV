@@ -2,13 +2,13 @@
 # Usage examples:
 # . crabSubmit.sh twoLepton-tranche4.txt | grep 'DYJets' | . /dev/stdin
 # . crabSubmit.sh twoLepton-data.txt | . /dev/stdin
-if [ $# -eq 0 ]; then
+if [ $# -ne 2 ]; then
     echo "You need to specify a file containing your list of datasets"
-    echo "    Usage: . crabSubmit.sh datasetList.txt"
-    return 1
+    echo "    Usage: ${0##*/} datasetList.txt year"
+    exit 1
 fi
 scripts_path=$CMSSW_BASE/src/UWVV/Utilities/scripts
-config_path=$scripts_path/CrabTemplates
+config_path=$CMSSW_BASE/src/UWVV/Utilities/test/CrabTemplates
 #config=$config_path/local.allweights2016.txt
 if [[ $2 == "2016" ]]; then
   config=$config_path/local.allweights2016UL.txt
