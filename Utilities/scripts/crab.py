@@ -9,6 +9,7 @@ import datetime
 import glob
 import hashlib,pdb
 
+username = "marquez"
 settingsFile = "local.txt"
 if not os.path.exists(settingsFile):
     print "Please copy local.template.txt to local.txt and edit as appropriate"
@@ -86,7 +87,7 @@ else:
 print(globalTag)
 print ("primaryDS: ",primaryDS.lower())
 if isMC:
-    if (("mcfm" in primaryDS.lower()) or ("phantom" in primaryDS.lower()) or ("sherpa" in primaryDS.lower())):
+    if any(generator in primaryDS.lower() for generator in ["phantom", "sherpa", "mcfm"]):
         lheWeight=0
     else:
         lheWeight=(localSettings.get("local", "lheWeights"))
@@ -193,7 +194,7 @@ config.Data.inputDBS = 'global' if 'USER' not in dataset else 'phys03'
 config.Data.useParent = False
 config.Data.publication = False
 outdir = localSettings.get("local", "outLFNDirBase").replace(
-    "$USER", 'marquez').replace("$DATE", today)
+    "$USER", username).replace("$DATE", today)
 #outdir = localSettings.get("local", "outLFNDirBase").replace(
 #    "$USER", getUsernameFromSiteDB()).replace("$DATE", "25Jan2019")
 # Useful for VBFNLO samples
