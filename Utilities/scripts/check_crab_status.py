@@ -23,6 +23,7 @@ The new out folder and file/script will be named with 0,1,2 each time this pytho
 parser = argparse.ArgumentParser(description=DESC, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--report", action="store_true", help="if provided, also run 'crab report'")
 parser.add_argument("--noprocess", dest="noprocessing", action="store_true", help="if provided, skip processing")
+parser.add_argument("--noresubmit", action="store_true", help="if provided, skip creating resubmit script")
 parser.add_argument("-d", "--outdir", default="output_crab_status_data", help="output status folder")
 parser.add_argument("-o", "--outname", default="status_info.txt", help="output info txt file name")
 parser.add_argument("dir", default="./", nargs="?", help="input directory to search for crab folders")
@@ -33,9 +34,11 @@ if not args.outname.endswith(".txt"):
 if not os.path.isdir(args.dir):
     parser.error("invalid input directory '%s'" % args.dir)
 
-print("Running scripts. Don't forget to initialize proxy first.\nSee the latest folder/files with largest index.")
-
 crablist = [x.path for x in os.scandir(args.dir) if x.is_dir() and "/crab_" in x.path]
+if not crablist:
+    parser.error("no crab jobs found in input directory '%s'!" % args.dir)
+
+print("Running scripts. Don't forget to initialize proxy first.\nSee the latest folder/files with largest index.")
 
 if os.path.isdir(args.outdir):
     status_idx = 0
@@ -65,14 +68,18 @@ if not args.noprocessing:
             print("==========WARNING: %s has not-yet-processed lumi=========="%folder)
 
 with open(args.outname, "w") as fout:
-    for fname in crablist:
-        with open(os.path.join(args.outdir,fname+'.txt'), "r") as status:
+    for entry in crablist:
+        fname = os.path.join(args.outdir,entry+".txt")
+        if not os.path.isfile(fname):
+            print("Cannot find status file '%s'" % fname)
+            continue
+        with open(fname, "r") as status:
             linecount=0
             record = False
             for line in status:
                 if 'Jobs status:' in line:
                     record = True
-                    fout.write("%s:\n" % fname)
+                    fout.write("%s:\n" % entry)
                 if not record:
                     continue
 
@@ -84,20 +91,21 @@ with open(args.outname, "w") as fout:
                     fout.write("\n")
                     break
             else:
-                fout.write('\nSomething wrong with %s\n\n'%fname)
+                fout.write('\nSomething wrong with %s\n\n' % entry)
 
 print("Info output saved as %s" % args.outname)    
 
-print("Writing resubmit script. Before running resubmission please check status txt to make sure no job is still running or in transition")
-relist = []
-with open(args.outname) as fstat:
-    current = ""
-    for line in fstat:
-        if "crab_" in line:
-            current = line.strip()[:-1]
-        if "failed" in line:
-            relist.append(current)
+if not args.noresubmit:
+    print("Writing resubmit script. Before running resubmission please check status txt to make sure no job is still running or in transition")
+    relist = []
+    with open(args.outname) as fstat:
+        current = ""
+        for line in fstat:
+            if "crab_" in line:
+                current = line.strip()[:-1]
+            if "failed" in line:
+                relist.append(current)
 
-with open("%s-resubmit.sh" % ".".join(args.outname.split(".")[-1])) as fre:
-    for entry in relist:
-        fre.write("crab resubmit -d %s\n" % entry)
+    with open("%s-resubmit.sh" % ".".join(args.outname.split(".")[-1])) as fre:
+        for entry in relist:
+            fre.write("crab resubmit -d %s\n" % entry)
