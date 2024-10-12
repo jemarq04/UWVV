@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import subprocess
 import pdb
 import os
@@ -22,33 +23,36 @@ The new out folder and file/script will be named with 0,1,2 each time this pytho
 parser = argparse.ArgumentParser(description=DESC, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--report", action="store_true", help="if provided, also run 'crab report'")
 parser.add_argument("--noprocess", dest="noprocessing", action="store_true", help="if provided, skip processing")
-parser.add_argument("-d", "--dir", dest="outputdir", default="output_crab_status_data", help="output status folder")
-parser.add_argument("-o", "--output", dest="outname", default="status_info.txt", help="output info txt file name")
+parser.add_argument("-d", "--outdir", default="output_crab_status_data", help="output status folder")
+parser.add_argument("-o", "--outname", default="status_info.txt", help="output info txt file name")
+parser.add_argument("dir", default="./", nargs="?", help="input directory to search for crab folders")
 args = parser.parse_args()
 
 if not args.outname.endswith(".txt"):
-    parser.error("invalid filetype for output file %s. must be .txt" % args.outname)
+    parser.error("invalid filetype for output file '%s'. must be .txt" % args.outname)
+if not os.path.isdir(args.dir):
+    parser.error("invalid input directory '%s'" % args.dir)
 
 print("Running scripts. Don't forget to initialize proxy first.\nSee the latest folder/files with largest index.")
 
-crablist = [x.path for x in os.scandir(".") if x.is_dir() and x.path.startswith("./crab_")]
+crablist = [x.path for x in os.scandir(args.dir) if x.is_dir() and "/crab_" in x.path]
 
-if os.path.isdir(args.outputdir):
+if os.path.isdir(args.outdir):
     status_idx = 0
-    while os.path.isdir("%s%i" % (args.outputdir, status_idx)):
+    while os.path.isdir("%s%i" % (args.outdir, status_idx)):
         status_idx += 1
-    args.outputdir = "%s%i" % (args.outputdir, status_idx)
+    args.outdir = "%s%i" % (args.outdir, status_idx)
     args.outname = "%s%i.txt" % (".".join(args.outname.split(".")[:-1]), status_idx)
-print("Creating new directory %s" % args.outputdir) 
-os.mkdir(args.outputdir)
+print("Creating new directory %s" % args.outdir) 
+os.mkdir(args.outdir)
 
 if not args.noprocessing:
     count = 0
     for folder in crablist:
-        command = "crab status -d %s > %s.txt 2>&1" % (folder, os.path.join(args.outputdir, folder))
+        command = "crab status -d %s > %s.txt 2>&1" % (folder, os.path.join(args.outdir, folder))
         code = subprocess.call([command], shell=True)
         if args.report:
-            command2 = "crab report -d %s > %s_Report.log 2>&1" % (folder, os.path.join(args.outputdir, folder))
+            command2 = "crab report -d %s > %s_Report.log 2>&1" % (folder, os.path.join(args.outdir, folder))
             code2 = subprocess.call([command2], shell=True)
 
         if code == 0:
@@ -62,7 +66,7 @@ if not args.noprocessing:
 
 with open(args.outname, "w") as fout:
     for fname in crablist:
-        with open(os.path.join(args.outputdir,fname+'.txt'), "r") as status:
+        with open(os.path.join(args.outdir,fname+'.txt'), "r") as status:
             linecount=0
             record = False
             for line in status:
@@ -86,8 +90,8 @@ print("Info output saved as %s" % args.outname)
 
 print("Writing resubmit script. Before running resubmission please check status txt to make sure no job is still running or in transition")
 relist = []
-current = ""
 with open(args.outname) as fstat:
+    current = ""
     for line in fstat:
         if "crab_" in line:
             current = line.strip()[:-1]
