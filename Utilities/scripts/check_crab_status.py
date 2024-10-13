@@ -22,7 +22,8 @@ The new out folder and file/script will be named with 0,1,2 each time this pytho
 #=======================================
 parser = argparse.ArgumentParser(description=DESC, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--report", action="store_true", help="if provided, also run 'crab report'")
-parser.add_argument("--noprocess", dest="noprocessing", action="store_true", help="if provided, skip processing")
+parser.add_argument("--noprocessing", action="store_true", help="if provided, skip processing")
+parser.add_argument("--nowriting", action="store_true", help="if provided, skip writing output info file")
 parser.add_argument("--noresubmit", action="store_true", help="if provided, skip creating resubmit script")
 parser.add_argument("-d", "--outdir", default="output_crab_status_data", help="output status folder")
 parser.add_argument("-o", "--outname", default="status_info.txt", help="output info txt file name")
@@ -67,45 +68,48 @@ if not args.noprocessing:
         if os.path.exists(os.path.join(folder,"results","notFinishedLumis.json")):
             print("==========WARNING: %s has not-yet-processed lumi=========="%folder)
 
-with open(args.outname, "w") as fout:
-    for entry in crablist:
-        fname = os.path.join(args.outdir,entry+".txt")
-        if not os.path.isfile(fname):
-            print("Cannot find status file '%s'" % fname)
-            continue
-        with open(fname, "r") as status:
-            linecount=0
-            record = False
-            for line in status:
-                if 'Jobs status:' in line:
-                    record = True
-                    fout.write("%s:\n" % entry)
-                if not record:
-                    continue
+if not args.nowriting:
+    with open(args.outname, "w") as fout:
+        for entry in crablist:
+            fname = os.path.join(args.outdir,entry+".txt")
+            if not os.path.isfile(fname):
+                print("Cannot find status file '%s'" % fname)
+                continue
+            with open(fname, "r") as status:
+                linecount=0
+                record = False
+                for line in status:
+                    if not record:
+                        if 'Jobs status:' in line:
+                            record = True
+                            fout.write("%s:\n" % entry)
+                        continue
 
-                if linecount < 3:
-                    if not "No publication information (publication has been disabled in the CRAB configuration file)" in line:
-                        fout.write(line)
-                    linecount += 1
+                    if linecount < 3:
+                        if not "No publication information (publication has been disabled in the CRAB configuration file)" in line:
+                            fout.write(line)
+                        linecount += 1
+                    else:
+                        fout.write("\n")
+                        break
                 else:
-                    fout.write("\n")
-                    break
-            else:
-                fout.write('\nSomething wrong with %s\n\n' % entry)
-
-print("Info output saved as %s" % args.outname)    
+                    fout.write('\nSomething wrong with %s\n\n' % entry)
+    print("Info output saved as %s" % args.outname)
 
 if not args.noresubmit:
     print("Writing resubmit script. Before running resubmission please check status txt to make sure no job is still running or in transition")
-    relist = []
-    with open(args.outname) as fstat:
-        current = ""
-        for line in fstat:
-            if "crab_" in line:
-                current = line.strip()[:-1]
-            if "failed" in line:
-                relist.append(current)
+    if not os.path.isfile(args.outname):
+        print("Cannot find output file '%s'" % args.outname)
+    else:
+        relist = []
+        with open(args.outname) as fstat:
+            current = ""
+            for line in fstat:
+                if "crab_" in line:
+                    current = line.strip()[:-1]
+                if "failed" in line:
+                    relist.append(current)
 
-    with open("%s-resubmit.sh" % ".".join(args.outname.split(".")[-1])) as fre:
-        for entry in relist:
-            fre.write("crab resubmit -d %s\n" % entry)
+        with open("%s-resubmit.sh" % ".".join(args.outname.split(".")[-1])) as fre:
+            for entry in relist:
+                fre.write("crab resubmit -d %s\n" % entry)
