@@ -1,122 +1,115 @@
+#!/usr/bin/env python3
 import subprocess
 import pdb
 import os
 import sys
-from optparse import OptionParser
+import argparse
 
 #=======================================
-#Usage:
-#Move all project folders into one folder, copy this script into the folder, initialize proxy and run it: python check_crab_status.py [--report]
-#It will run "crab status -d" for all the project folders, put printouts in "output_crab_status_data" folder, and parse the printouts to write a summary file
-#If "--report" is enabled, it will also run "crab report -d" on all folders and put printouts in "output_crab_status_data" folder
-#Currently it only checks if results/notFinishedLumis.json exists in the project folders, and gives a warning if it does. But this may not guarantee 
-#all lumis are processed, since different Data.splitting mode seems to generate the reports differently...
-#suggest to look at the reports by something like "cat *.log"
-#Then if some jobs fail in some datasets, it will create a resubmission script for all such datasets.
-#After Checking from the status summary file that no job is in transition or still running (and other aspects), the script can be run.   
+DESC='''
+Usage:
+Move all project folders into one folder, copy this script into the folder, initialize proxy and run it.
+It will run "crab status -d" for all the project folders, put printouts in "output_crab_status_data" folder, and parse the printouts to write a summary file
+If "--report" is enabled, it will also run "crab report -d" on all folders and put printouts in "output_crab_status_data" folder
+Currently it only checks if results/notFinishedLumis.json exists in the project folders, and gives a warning if it does. But this may not guarantee 
+all lumis are processed, since different Data.splitting mode seems to generate the reports differently...
+suggest to look at the reports by something like "cat *.log"
+Then if some jobs fail in some datasets, it will create a resubmission script for all such datasets.
+After Checking from the status summary file that no job is in transition or still running (and other aspects), the script can be run.   
 
-#The new out folder and file/script will be named with 0,1,2 each time this python script is run      
+The new out folder and file/script will be named with 0,1,2 each time this python script is run      
+'''
 #=======================================
-processing=True
+parser = argparse.ArgumentParser(description=DESC, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument("--report", action="store_true", help="if provided, also run 'crab report'")
+parser.add_argument("--noprocessing", action="store_true", help="if provided, skip processing")
+parser.add_argument("--nowriting", action="store_true", help="if provided, skip writing output info file")
+parser.add_argument("--noresubmit", action="store_true", help="if provided, skip creating resubmit script")
+parser.add_argument("-d", "--outdir", default="output_crab_status_data", help="output status folder")
+parser.add_argument("-o", "--outname", default="status_info.txt", help="output info txt file name")
+parser.add_argument("dir", default="./", nargs="?", help="input directory to search for crab folders")
+args = parser.parse_args()
+
+if not args.outname.endswith(".txt"):
+    parser.error("invalid filetype for output file '%s'. must be .txt" % args.outname)
+if not os.path.isdir(args.dir):
+    parser.error("invalid input directory '%s'" % args.dir)
+
+crablist = [x.path for x in os.scandir(args.dir) if x.is_dir() and "/crab_" in x.path]
+if not crablist:
+    parser.error("no crab jobs found in input directory '%s'!" % args.dir)
+
 print("Running scripts. Don't forget to initialize proxy first.\nSee the latest folder/files with largest index.")
-parser=OptionParser()
-#parser.add_option("-f", dest="folder",help="Output Status folder")
-#parser.add_option("-o", dest="output",help="Output info file name")
-parser.add_option("--report", dest="report",help="Whether to run crab report",default=False,action="store_true")
-(options,args)=parser.parse_args()
 
-outputdir='output_crab_status_data'
-outputdir0='output_crab_status_data'
-#if options.folder:
-#    outputdir=options.folder
+if os.path.isdir(args.outdir):
+    status_idx = 0
+    while os.path.isdir("%s%i" % (args.outdir, status_idx)):
+        status_idx += 1
+    args.outdir = "%s%i" % (args.outdir, status_idx)
+    args.outname = "%s%i.txt" % (".".join(args.outname.split(".")[:-1]), status_idx)
+print("Creating new directory %s" % args.outdir) 
+os.mkdir(args.outdir)
 
-listname="folder_list.txt"
-#outname="status_info.txt"
-#if options.output:
-#    outname=options.output
+if not args.noprocessing:
+    count = 0
+    for folder in crablist:
+        command = "crab status -d %s > %s.txt 2>&1" % (folder, os.path.join(args.outdir, folder))
+        code = subprocess.call([command], shell=True)
+        if args.report:
+            command2 = "crab report -d %s > %s_Report.log 2>&1" % (folder, os.path.join(args.outdir, folder))
+            code2 = subprocess.call([command2], shell=True)
 
-subprocess.call("ls > %s"%listname,shell=True)
-
-folderind = 0
-if os.path.isdir(outputdir):
-    
-    while os.path.isdir(outputdir):
-        print("folder %s already exists"%outputdir)
-        folderind+=1
-        outputdir = outputdir0 + str(folderind)
-    print("Creating new directory %s"%outputdir)
-    os.mkdir(outputdir)
-    
-else:
-    os.mkdir(outputdir)
-
-outname = "status_info%s.txt"%(folderind)
-if processing:
-    with open(listname) as fin:
-        #pdb.set_trace()
-        count = 0
-        for line in fin:
-            if not 'UWVV' in line:
-                continue
-            folder=line.strip()
-
-            command = 'crab status -d '+folder+' > '+os.path.join(outputdir,folder+'.txt 2>&1')
-            command2 = 'crab report -d '+folder+' > '+os.path.join(outputdir,folder+'_Report.log 2>&1')
-            code = subprocess.call([command], shell=True)
-            if options.report:
-                code2 = subprocess.call([command2], shell=True)
-            if code == 0:
-                count +=1
-                print("Processed %s folders"%count)
-            else:
-                print("Error in %s"%folder)
-            
-            if os.path.exists(os.path.join(folder,"results","notFinishedLumis.json")):
-                print("==========WARNING: %s has not-yet-processed lumi=========="%folder)
-
-fout = open(outname, 'w')
-
-with open(listname) as flist:
-    for line in flist:
-        if not "UWVV" in line:
-            continue
-        fname = line.strip()
+        if code == 0:
+            count +=1
+            print("Processed %s folders" % count)
+        else:
+            print("Error in %s" % folder)
         
-        with open(os.path.join(outputdir,fname+'.txt')) as fc:
-            linecount=0
-            wrong=True
-            record = False
-            for linec in fc:
-                if 'Jobs status:' in linec:
-                    record = True
-                    wrong=False
-                    fout.write(fname+':\n')
-                if record and linecount<3:
-                    if not "No publication information (publication has been disabled in the CRAB configuration file)" in linec:
-                        fout.write(linec)
-                    linecount +=1
-                if linecount >=3:
-                    record = False
-                    linecount = 0
-                    fout.write("\n")
-                
-            if wrong:
-                fout.write('\nSomething wrong with %s\n\n'%fname)
+        if os.path.exists(os.path.join(folder,"results","notFinishedLumis.json")):
+            print("==========WARNING: %s has not-yet-processed lumi=========="%folder)
 
-fout.close()
-print("Info output saved as %s"%outname)    
+if not args.nowriting:
+    with open(args.outname, "w") as fout:
+        for entry in crablist:
+            fname = os.path.join(args.outdir,entry+".txt")
+            if not os.path.isfile(fname):
+                print("Cannot find status file '%s'" % fname)
+                continue
+            with open(fname, "r") as status:
+                linecount=0
+                record = False
+                for line in status:
+                    if not record:
+                        if 'Jobs status:' in line:
+                            record = True
+                            fout.write("%s:\n" % entry)
+                        continue
 
-print("Writing resubmit script. Before running resubmission please check status txt to make sure no job is still running or in transition")
-fstat = open(outname)
-fre = open(outname.replace("status_info","resubmit").replace(".txt",".sh"),"w")
-relist = []
-current = ""
-for line in fstat:
-    if "crab_" in line:
-        current = line.strip()
+                    if linecount < 3:
+                        if not "No publication information (publication has been disabled in the CRAB configuration file)" in line:
+                            fout.write(line)
+                        linecount += 1
+                    else:
+                        fout.write("\n")
+                        break
+                else:
+                    fout.write('\nSomething wrong with %s\n\n' % entry)
+    print("Info output saved as %s" % args.outname)
 
-    if "failed" in line:
-        relist.append(current)
+if not args.noresubmit:
+    print("Writing resubmit script. Before running resubmission please check status txt to make sure no job is still running or in transition")
+    if not os.path.isfile(args.outname):
+        print("Cannot find output file '%s'" % args.outname)
+    else:
+        relist = []
+        with open(args.outname) as fstat:
+            current = ""
+            for line in fstat:
+                if "crab_" in line:
+                    current = line.strip()[:-1]
+                if "failed" in line:
+                    relist.append(current)
 
-for entry in relist:
-    fre.write("crab resubmit -d "+entry.replace(":","")+"\n")
+        with open("%s-resubmit.sh" % ".".join(args.outname.split(".")[-1])) as fre:
+            for entry in relist:
+                fre.write("crab resubmit -d %s\n" % entry)
