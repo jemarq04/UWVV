@@ -4,6 +4,7 @@
 campaign: UWVVNtuples18_$DATE
 outLFNDirBase: /store/user/$USER/UWVVNtuples18_$DATE/
 storageSite: T2_US_Wisconsin
+isUL: 1
 channels: zz
 year: 2018
 eCalib: 1
