@@ -25,7 +25,7 @@ if gitStatus != "":
     gitDescription += "*"
 print "Git status is %s" % gitDescription
 # We have to hack our way around how crab parses command line arguments :<
-if "dataset" not in localSettings["local"]:
+if not localSettings.has_option("local", "dataset"):
     raise Exception("Must pass dataset argument as Data.inputDataset=...")
 dataset = localSettings.get("local", "dataset") #"/qqZZSpecTest2018/102X_upgrade2018_realistic_v20/MINIAODSIM"
 
