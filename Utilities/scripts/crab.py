@@ -45,14 +45,16 @@ else:
     raise Exception("Dataset malformed? Couldn't deduce isMC parameter")
 
 isUL = 0
-isAPV = 0
 if "Summer20UL" in conditions:
     isUL = 1
+elif localSettings.has_option("local", "isUL"):
+    isUL = int(localSettings.get("local", "isUL"))
 else:
     isUL = 0
 print("isUL:%s"%isUL)
 
 year = localSettings.get("local", "year")
+isAPV = 0
 if year == "2016":
     isAPV = int(localSettings.get("local", "isAPV"))
 print("isAPV:%s"%isAPV)
