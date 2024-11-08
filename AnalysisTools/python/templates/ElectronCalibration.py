@@ -34,7 +34,6 @@ class ElectronCalibration(AnalysisFlowBase):
             #TODO: Determine Run3 Electron Calibrations
             # At the moment, EgammaPostRecoTools does not support above CMSSW 12
             # (even though they recommend using >= CMSSW_13_X ...)
-            '''
             if not hasattr(self.process, 'RandomNumberGeneratorService'):
                 self.process.RandomNumberGeneratorService = cms.Service(
                     'RandomNumberGeneratorService',
@@ -46,16 +45,13 @@ class ElectronCalibration(AnalysisFlowBase):
 
             if LeptonSetup == "2022":
                 setupEgammaPostRecoSeq(self.process,
-                    runEnergyCorrections=True,
+                    runEnergyCorrections=False, #TODO: Add in soon!
                     runVID=True,
                     era="2022-Prompt",
-                    eleIDModules=_defaultEleIDModules \
-                        + ['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter22_iso_V1_cff',
-                           'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter22_noIso_V1_cff',
-                           'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Winter22_122X_V1_cff']
+                    #era="2018-UL",
+                    eleIDModules=_defaultEleIDModules + ["RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff"]
                 )
             step.addModule('egammaPostRecoSeq',self.process.egammaPostRecoSeq)
-            '''
 
         if stepName == 'selection':
             # need to re-sort now that we're calibrated

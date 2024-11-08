@@ -22,10 +22,11 @@ class ZZID(AnalysisFlowBase):
                     src = step.getObjTag('e'),
                     idLabel = cms.string(self.getZZIDLabel()),
                     vtxSrc = step.getObjTag('v'),
-                    mvaLabel = cms.string("mvaEleID-RunIIIWinter22-iso-V1-wp90"),
+                    mvaLabel = cms.string("mvaEleID-Winter22-HZZ-V1"),
+                    #mvaLabel = cms.string("mvaEleID-RunIIIWinter22-iso-V1-wp90"),
                     #bdtLabel=cms.string("ElectronMVAEstimatorRun2RunIIIWinter22IsoV1Values"),
                     missingHitsCut = cms.int32(999),
-                    ptCut = cms.double(5.), 
+                    ptCut = cms.double(7.), 
                     etaCut = cms.double(2.5),
                 )
                 #HZZWP = cms.string("mvaEleID-Fall17-iso-V2-wpHZZ"),#2018 version
