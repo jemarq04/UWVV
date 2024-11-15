@@ -39,6 +39,7 @@ class JetBaseFlow(AnalysisFlowBase):
                            'puID', puID='fullId')
 
             # Jet energy corrections
+            # TODO: Check how this is done - does this need to move to correctionlib to have finer control over the corrections?
             corrections = ['L1FastJet', 'L2Relative', 'L3Absolute',]
             if not self.isMC:
                 corrections.append('L2L3Residual')
