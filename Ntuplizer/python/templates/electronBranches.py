@@ -27,6 +27,25 @@ electronBranches = cms.PSet(
                            'userFloat("uncorrected_pt") : '
                            '1.'),
 
+        ScaleValue = cms.string('? hasUserFloat("energyScaleValue") ? '
+                            'userFloat("energyScaleValue") : '
+                            '1.'),
+        ScaleUp = cms.string('? hasUserFloat("energyScaleUp") ? '
+                            'userFloat("energyScaleUp") : '
+                            '1.'),
+        ScaleDn = cms.string('? hasUserFloat("energyScaleDn") ? '
+                            'userFloat("energyScaleDn") : '
+                            '1.'),
+        SmearValue = cms.string('? hasUserFloat("energySmearValue") ? '
+                            'userFloat("energySmearValue") : '
+                            '0.'),
+        SmearUp = cms.string('? hasUserFloat("energySmearUp") ? '
+                            'userFloat("energySmearUp") : '
+                            '0.'),
+        SmearDn = cms.string('? hasUserFloat("energySmearDn") ? '
+                            'userFloat("energySmearDn") : '
+                            '0.'),
+
         ScaleTotUp = cms.string('? hasUserFloat("scale_total_up") ? '
                                     'userFloat("scale_total_up") : 0.'),
         ScaleSystUp = cms.string('? hasUserFloat("scale_syst_up") ? '

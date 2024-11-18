@@ -2,6 +2,8 @@ from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 
 import FWCore.ParameterSet.Config as cms
 
+from os import path
+
 class ElectronCalibration(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
         if not hasattr(self, 'isMC'):
@@ -49,6 +51,34 @@ class ElectronCalibration(AnalysisFlowBase):
                     eleIDModules=_defaultEleIDModules + ["RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff"]
                 )
             step.addModule('egammaPostRecoSeq',self.process.egammaPostRecoSeq)
+
+            seedGainEle = cms.EDProducer(
+                "ElectronSeedGainProducer",
+                src = step.getObjTag('e')
+                )
+            step.addModule("seedGainEle", seedGainEle)
+
+            embedSeedGain = cms.EDProducer(
+                "PATElectronValueMapEmbedder",
+                src = step.getObjTag('e'),
+                intLabels = cms.untracked.vstring("seedGain"),
+                intVals = cms.untracked.VInputTag("seedGainEle")
+                )
+            step.addModule("seedGainEmbedding", embedSeedGain, 'e')
+
+            yearstring = ""
+            if LeptonSetup == "2022":
+                yearstring = "2022_Summer22%s" % ("" if self.calibEEera22 == "preEE" else "EE")
+            scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/EGM",
+                                    yearstring, "electronSS.json.gz")
+            eCorr = cms.EDProducer(
+                "PATElectronCorrector",
+                src = step.getObjTag('e'),
+                seedGainSrc = cms.InputTag("seedGainEle"),
+                scaleFile = cms.string(scaleFileP),
+                isMC = cms.bool(self.isMC)
+                )
+            step.addModule("calibratedPatElectrons", eCorr, 'e')
 
         if stepName == 'selection':
             # need to re-sort now that we're calibrated
