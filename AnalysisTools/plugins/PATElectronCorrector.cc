@@ -88,8 +88,8 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
       err_rho = scaleFile_->at("Smearing")->evaluate({"err_rho", ei->eta(), ei->r9()});
     }
     else{
-      scale     = scaleFile_->at("Scale")->evaluate({"total_correction", ei->userInt("seedGain"), (int)iEvent.run(), ei->eta(), ei->r9(), ei->pt()});
-      err_scale = scaleFile_->at("Scale")->evaluate({"total_uncertainty", ei->userInt("seedGain"), (int)iEvent.run(), ei->eta(), ei->r9(), ei->pt()});
+      scale     = scaleFile_->at("Scale")->evaluate({"total_correction", ei->userInt("seedGain"), (double)iEvent.run(), ei->eta(), ei->r9(), ei->pt()});
+      err_scale = scaleFile_->at("Scale")->evaluate({"total_uncertainty", ei->userInt("seedGain"), (double)iEvent.run(), ei->eta(), ei->r9(), ei->pt()});
     }
     float uncorrected_pt = ei->pt();
 
