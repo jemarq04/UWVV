@@ -61,6 +61,7 @@ PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig):
 {
   try{
     scaleFile_ = correction::CorrectionSet::from_file(scaleFileName_);
+    if (scaleFile_ == nullptr) throw cms::Exception("Invalid POG file");
   }
   catch (...){
     throw cms::Exception("Invalid POG file") << "Filepath: " << scaleFileName_;

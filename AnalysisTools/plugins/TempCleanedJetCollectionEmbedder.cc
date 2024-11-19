@@ -120,6 +120,7 @@ TempCleanedJetCollectionEmbedder::TempCleanedJetCollectionEmbedder(const edm::Pa
     // Define correction set here
     try{
       scaleFile_ = correction::CorrectionSet::from_file(scaleFileN_);
+      if (scaleFile_ == nullptr) throw cms::Exception("Invalid POG file");
     }
     catch (...){
       throw cms::Exception("Invalid POG file") << "Filepath: " << scaleFileN_;
