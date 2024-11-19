@@ -136,8 +136,6 @@ void PATMuonZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       out->back().addUserFloat(idLabel_+"HighPtNoVtx", float(idResultNoVtx && trackerHighPtID));
 
       // PAS2019 version of TightMuonID (both PASID and Tight store the same result)
-      out->back().addUserFloat(idLabel_+"PASID", float(idResult && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
-      out->back().addUserFloat(idLabel_+"PASIDNoVtx", float(idResultNoVtx && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
       out->back().addUserFloat(idLabel_+"Tight", float(idResult && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
       out->back().addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
       
