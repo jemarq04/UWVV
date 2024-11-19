@@ -1,35 +1,20 @@
 if [[ $# -lt 2 ]]; then
-	echo "usage: ./runMCUL.sh FILE YEAR [LHE]"
+  echo "usage: $0 FILE YEAR [EXTRA...]"
   echo 
   echo "FILE: input file listing input miniAOD ROOT files, 1 per line."
-  echo "YEAR: any year between 2016-2018 for UL analysis"
-  echo "LHE: optional argument to provide lheWeights variable to config file. (default: 0)"
+  echo "YEAR: any year in Run 2 for UL analysis"
+  echo "EXTRA: optional argument(s) passed directly to cmsRun"
 	exit 1
 fi
 
-if [[ ! -f "${1}" ]]; then
-	echo "input file ${1} not found"
+infile=$1
+year=$2
+shift 2
+
+if [[ ! -f $infile ]]; then
+	echo "input file $infile not found"
 	exit 2
 fi
 
-lhe=$3
-if [[ -z $lhe ]]; then
-  lhe=0
-elif [[ ! $lhe =~ ^[0-9]+$ ]]; then
-  echo "invalid lheWeights value"
-  exit 3
-fi
-
-if [[ $2 == "2016"* ]]; then
-  echo "Running 2016 signal MC"
-  cmsRun ntuplize_cfg_UL.py channels=zz isMC=1 eCalib=1 muCalib=1 isSync=0 year=2016 genInfo=1 globalTag=106X_mcRun2_asymptotic_v17 lheWeights=$lhe inputFileList=$1
-elif [[ $2 == "2017"* ]]; then
-  echo "Running 2017 signal MC"
-  cmsRun ntuplize_cfg_UL.py channels=zz isMC=1 eCalib=1 muCalib=1 isSync=0 year=2017 genInfo=1 globalTag=106X_mc2017_realistic_v10 lheWeights=$lhe inputFileList=$1
-elif [[ $2 == "2018"* ]]; then
-  echo "Running 2018 signal MC"
-  cmsRun ntuplize_cfg_UL.py channels=zz isMC=1 eCalib=1 muCalib=1 isSync=0 year=2018 genInfo=1 globalTag=106X_upgrade2018_realistic_v16_L1v1 lheWeights=$lhe inputFileList=$1
-else
-  echo "invalid year provided: must be 2016-2018"
-  exit 4
-fi
+echo "Running $year signal MC"
+cmsRun ntuplize_cfg_UL.py inputFileList=$infile year=$year channels=zz isMC=1 eCalib=1 muCalib=1 isSync=0 genInfo=1 $@
