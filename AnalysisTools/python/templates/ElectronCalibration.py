@@ -33,7 +33,6 @@ class ElectronCalibration(AnalysisFlowBase):
         step = super(ElectronCalibration, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == 'preliminary':
-            #TODO: Implement Run3 Electron Calibrations using correctionlib
             if not hasattr(self.process, 'RandomNumberGeneratorService'):
                 self.process.RandomNumberGeneratorService = cms.Service(
                     'RandomNumberGeneratorService',
