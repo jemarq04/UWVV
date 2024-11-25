@@ -44,7 +44,10 @@ else:
 postEE = 0
 year = localSettings.get("local", "year")
 if year == "2022":
-    postEE = int(localSettings.get("local", "postEE"))
+    if "postEE" in localSettings["local"]:
+        postEE = int(localSettings.get("local", "postEE"))
+    elif not isMC:
+        postEra = 1 if any("Run2022%s" % subera in conditions for subera in ["E", "F", "G"]) else 0
     print("postEE:%s"%postEE)
 
 def getUnitsPerJob(ds):
