@@ -105,9 +105,8 @@ options.parseArguments()
 # Error checking
 if options.year == "2022":
     print("Running 2022")
-    if options.isMC:
-        print("postEE: %i" % options.postEE)
-    else:
+    print("postEE: %i" % options.postEE)
+    if not options.isMC:
         print("isPrompt: %i" % options.isPrompt)
     options.outputFile = "ntuple2022.root"
 else:
@@ -122,8 +121,8 @@ if options.genLeptonType not in genLepChoices:
     print("Default: %s" % genLepDefault)
     exit(1)
 
-if (options.isMC and options.isPrompt) or (not options.isMC and options.postEE):
-    print("ERROR: option mismatch. isPrompt is for data and postEE is for MC")
+if (options.isMC and options.isPrompt):
+    print("ERROR: option mismatch. isPrompt is for data.")
     exit(1)
 
 if not options.isMC:
