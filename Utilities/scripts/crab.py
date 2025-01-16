@@ -156,15 +156,17 @@ else:
     #config.Data.splitting = 'LumiBased'
     #config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
 #CRAB server blows up if we run "Automatic splitting" on these DY Datasets so require them to be split "FileBased"
-if "DYJetsToLL_M-50" not in primaryDS:
-    config.Data.splitting = 'Automatic'
-    #config.Data.unitsPerJob = 180
-    config.Data.unitsPerJob = 540
-else:
-    print("Its a DYJetsToLL_M-50 dataset")
-    config.Data.splitting = 'FileBased'
-    config.Data.unitsPerJob = 1
-    
+#if "DYJetsToLL_M-50" not in primaryDS:
+#    config.Data.splitting = 'Automatic'
+#    #config.Data.unitsPerJob = 180
+#    config.Data.unitsPerJob = 540
+#else:
+#    print("Its a DYJetsToLL_M-50 dataset")
+#    config.Data.splitting = 'FileBased'
+#    config.Data.unitsPerJob = 1
+
+config.Data.splitting = 'FileBased'
+config.Data.unitsPerJob = 1
 config.Data.totalUnits = -1
 
 # Max requestName is 100 characters
