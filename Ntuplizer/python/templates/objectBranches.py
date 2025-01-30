@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 objectBranches = cms.PSet(
     floats = cms.PSet(
+        P = cms.string('p'),
         Pt = cms.string('pt'),
         Eta = cms.string('eta'),
         Phi = cms.string('phi'),
