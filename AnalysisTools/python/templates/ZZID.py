@@ -35,7 +35,8 @@ class ZZID(AnalysisFlowBase):
                 vtxSrc = step.getObjTag('v'),
                 rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
                 setup = cms.int32(int(self.year)),
-                ptCut = cms.double(3.),
+                ptCut = cms.double(5.),
+                etaCut = cms.double(2.4),
                 idLabel = cms.string(self.getZZIDLabel()),
                 )
             step.addModule("mZZIDEmbedder", mIDEmbedder, 'm')
