@@ -166,8 +166,9 @@ bool PATMuonZZIDEmbedder::passVertex(const edm::Ptr<pat::Muon>& mu) const
     return false;
 
   return fabs(mu->dB(pat::Muon::PV3D))/mu->edB(pat::Muon::PV3D) < sipCut &&
-	  (fabs(mu->muonBestTrack()->dxy(vertices->at(0).position())) < pvDXYCut &&
-	  fabs(mu->muonBestTrack()->dz(vertices->at(0).position())) < pvDZCut);
+    fabs(mu->dB(pat::Muon::PV2D)) < pvDXYCut && fabs(mu->dB(pat::Muon::PVDZ)) < pvDZCut;
+	  //(fabs(mu->muonBestTrack()->dxy(vertices->at(0).position())) < pvDXYCut &&
+	  //fabs(mu->muonBestTrack()->dz(vertices->at(0).position())) < pvDZCut);
 }
 
 
