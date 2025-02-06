@@ -19,9 +19,6 @@ class JetBaseFlow(AnalysisFlowBase):
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(JetBaseFlow, self).makeAnalysisStep(stepName, **inputs)
         
-        LeptonSetup = cms.string(self.year)
-        cmsswversion=os.environ['CMSSW_VERSION']
-
         if stepName == 'preliminary':
             # Pileup veto
             # This puts the IDs in the event stream, not an updated
