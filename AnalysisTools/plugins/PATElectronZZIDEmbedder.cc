@@ -95,7 +95,7 @@ PATElectronZZIDEmbedder::PATElectronZZIDEmbedder(const edm::ParameterSet& iConfi
   vtxSrcToken_(consumes<reco::VertexCollection>(iConfig.exists("vtxSrc") ? iConfig.getParameter<edm::InputTag>("vtxSrc") : edm::InputTag("selectedPrimaryVertex"))),
   ptCut(iConfig.exists("ptCut") ? iConfig.getParameter<double>("ptCut") : 7.),
   etaCut(iConfig.exists("etaCut") ? iConfig.getParameter<double>("etaCut") : 2.5),
-  sipCut(iConfig.exists("sipCut") ? iConfig.getParameter<double>("sipCut") : 10.),
+  sipCut(iConfig.exists("sipCut") ? iConfig.getParameter<double>("sipCut") : 4.),
   pvDXYCut(iConfig.exists("pvDXYCut") ? iConfig.getParameter<double>("pvDXYCut") : 0.5),
   pvDZCut(iConfig.exists("pvDZCut") ? iConfig.getParameter<double>("pvDZCut") : 1.),
   idPtThr(iConfig.exists("idPtThr") ? iConfig.getParameter<double>("idPtThr") : 10.),
