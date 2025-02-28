@@ -23,13 +23,14 @@ class ZZID(AnalysisFlowBase):
                     vtxSrc = step.getObjTag('v'),
                     #Cuts and IDs differ by year: https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsZZ4lRunIILegacy#Electrons
                     #New: Current UL 3 years cuts use https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#HZZ_MVA_training_details_and_wor
-                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer16ULIdIsoRawValues"),#Old comments:use fall17v2 instead of custom https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#ID_information
-                    idCutLowPtLowEta = cms.double(1.8949071018), 
-                    idCutLowPtMedEta = cms.double(1.80714210202),
-                    idCutLowPtHighEta = cms.double(1.64751528517),
-                    idCutHighPtLowEta = cms.double(0.339697782473),
-                    idCutHighPtMedEta = cms.double(0.252039219555),
-                    idCutHighPtHighEta = cms.double(-0.686263559006),
+                    # The raw BDT cuts have been normalized so they can be used with the normalized values from the BDT using f(x) = 2.0/(1.0 + exp(-2*x)) - 1
+                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer16ULIdIsoValues"),#Old comments:use fall17v2 instead of custom https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#ID_information
+                    idCutLowPtLowEta = cms.double(0.955799325575), 
+                    idCutLowPtMedEta = cms.double(0.947540657027),
+                    idCutLowPtHighEta = cms.double(0.928515872106),
+                    idCutHighPtLowEta = cms.double(0.327207560829),
+                    idCutHighPtMedEta = cms.double(0.246834599508),
+                    idCutHighPtHighEta = cms.double(-0.595576281354),
                     missingHitsCut = cms.int32(999),
                 )
             if LeptonSetup=="2017":
@@ -38,13 +39,13 @@ class ZZID(AnalysisFlowBase):
                     src = step.getObjTag('e'),
                     idLabel = cms.string(self.getZZIDLabel()),
                     vtxSrc = step.getObjTag('v'),
-                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer17ULIdIsoRawValues"),
-                    idCutLowPtLowEta = cms.double(1.54440585808),
-                    idCutLowPtMedEta = cms.double(1.50294621563),
-                    idCutLowPtHighEta = cms.double(1.77306202112),
-                    idCutHighPtLowEta = cms.double(0.157262554087),
-                    idCutHighPtMedEta = cms.double(0.0273932225081),
-                    idCutHighPtHighEta = cms.double(-0.623050463489),
+                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer17ULIdIsoValues"),
+                    idCutLowPtLowEta = cms.double(0.912857745833),
+                    idCutLowPtMedEta = cms.double(0.905679236827),
+                    idCutLowPtHighEta = cms.double(0.943944057497),
+                    idCutHighPtLowEta = cms.double(0.155978805354),
+                    idCutHighPtMedEta = cms.double(0.0273863727098),
+                    idCutHighPtHighEta = cms.double(-0.553248366549),
                     missingHitsCut = cms.int32(999),
                 )
             if LeptonSetup=="2018":
@@ -54,13 +55,13 @@ class ZZID(AnalysisFlowBase):
                     src = step.getObjTag('e'),
                     idLabel = cms.string(self.getZZIDLabel()),
                     vtxSrc = step.getObjTag('v'),
-                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer18ULIdIsoRawValues"),
-                    idCutLowPtLowEta = cms.double(1.49603193295), 
-                    idCutLowPtMedEta = cms.double(1.52414154008),
-                    idCutLowPtHighEta = cms.double(1.77694249574),
-                    idCutHighPtLowEta = cms.double(0.199463934736),
-                    idCutHighPtMedEta = cms.double(0.076063564084),
-                    idCutHighPtHighEta = cms.double(-0.572118857519),
+                    bdtLabel=cms.string("ElectronMVAEstimatorRun2Summer18ULIdIsoValues"),
+                    idCutLowPtLowEta = cms.double(0.90442861665), 
+                    idCutLowPtMedEta = cms.double(0.909416688565),
+                    idCutLowPtHighEta = cms.double(0.944365365981),
+                    idCutHighPtLowEta = cms.double(0.196860083999),
+                    idCutHighPtMedEta = cms.double(0.0759172099904),
+                    idCutHighPtHighEta = cms.double(-0.516913677482),
                     missingHitsCut = cms.int32(999),
                 )
                 #HZZWP = cms.string("mvaEleID-Fall17-iso-V2-wpHZZ"),#2018 version
