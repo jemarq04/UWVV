@@ -36,6 +36,10 @@ options = VarParsing.VarParsing("analysis")
 options.maxEvents = -1
 options.inputFiles = []
 
+options.register("debug", 0,
+        VarParsing.VarParsing.multiplicity.singleton,
+        VarParsing.VarParsing.varType.bool,
+        "1: extra print statements for debugging")
 options.register("inputFileList", "",
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.string,
@@ -127,6 +131,9 @@ if (options.isMC and options.isPrompt):
 
 if not options.isMC:
     options.lheWeights = 0
+
+if options.debug:
+    print("Debug flag on")
 
 # Load CMS CFIs
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -314,6 +321,7 @@ flowOpts = {
     "isMC": bool(options.isMC),
     "year": options.year,
     "calibEEera22": "%sEE" % ("post" if options.postEE else "pre"),
+    "debug": options.debug,
 }
 
 # Turn all these into a single flow class
