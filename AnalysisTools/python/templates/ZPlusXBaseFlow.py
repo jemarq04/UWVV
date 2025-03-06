@@ -5,6 +5,8 @@ import FWCore.ParameterSet.Config as cms
 
 class ZPlusXBaseFlow(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
+        if not hasattr(self, 'debug'):
+            self.debug = kwargs.pop('debug', False)
         super(ZPlusXBaseFlow, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
@@ -43,6 +45,9 @@ class ZPlusXBaseFlow(AnalysisFlowBase):
 
         step.addModule("zEECreation", zEEMod, 'ee')
         step.addModule("zMuMuCreation", zMuMuMod, 'mm')
+        if self.debug:
+            step.addBasicCounter('ee', nEleZs="")
+            step.addBasicCounter('mm', nMuZs="")
     
     #This is added to run cleaned Jet Collection for channels=z  
     #def embedCleanedJets(self, step):

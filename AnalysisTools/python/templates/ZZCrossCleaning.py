@@ -6,6 +6,8 @@ class ZZCrossCleaning(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
         if not hasattr(self, 'isMC'):
             self.isMC = kwargs.pop('isMC', True)
+        if not hasattr(self, 'debug'):
+            self.debug = kwargs.pop('debug', False)
         super(ZZCrossCleaning, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
@@ -21,6 +23,8 @@ class ZZCrossCleaning(AnalysisFlowBase):
                     'selection' : 'userFloat("{}Tight") > 0.5'.format(self.getZZIDLabel()),
                     }
                 )
+            if self.debug:
+                step.addBasicCounter('e', "crossCleaningCounting", nCrossCleanedElectrons="")
 
             # remove jets close to tight, isolated electrons and muons
             step.addCrossSelector(

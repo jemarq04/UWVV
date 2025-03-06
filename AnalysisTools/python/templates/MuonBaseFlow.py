@@ -5,13 +5,18 @@ import FWCore.ParameterSet.Config as cms
 
 class MuonBaseFlow(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
+        if not hasattr(self, 'debug'):
+            self.debug = kwargs.pop('debug', False)
         super(MuonBaseFlow, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(MuonBaseFlow, self).makeAnalysisStep(stepName, **inputs)
         
         if stepName == 'preselection':
-            step.addBasicSelector('m', 'pt > 5 && (isGlobalMuon || isTrackerMuon)')
+            if self.debug:
+                step.addBasicCounter('m', nMuons="")
+                step.addBasicCounter('m', "preselcounting", nMuonsPresel="pt > 5 && (isGlobalMuon || isTrackerMuon)")
+            step.addBasicSelector('m', 'pt > 5 && (isGlobalMuon || isTrackerMuon)', "preselection")
         elif stepName == 'embedding':
             self.addMuonPOGIDs(step)
 
