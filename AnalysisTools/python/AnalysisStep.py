@@ -126,6 +126,26 @@ class AnalysisStep(object):
                                 self.name]).replace('_',''),
                        mod, collection)
 
+    def addBasicCounter(self, obj, name='', **cuts):
+        inferTypeFrom = obj.split('_')[0]
+        if len(inferTypeFrom) > 1:
+            inferTypeFrom = 'CompositeCandidate'
+        if len(inferTypeFrom) == 1:
+            typeName = getObjName(inferTypeFrom, True)
+        else:
+            typeName = inferTypeFrom
+        modName = 'PAT{}Counter'.format(typeName)
+
+        mod = cms.EDProducer(
+           "PAT{}Counter".format(typeName),
+           src = self.getObjTag(obj),
+           labels = cms.vstring(*[label for label in cuts.keys()]),
+           cuts = cms.vstring(*[cut for _,cut in cuts.items()]),
+           verbose = cms.bool(True),
+        )
+
+        self.addModule(''.join([obj, name if name else "counting", self.name]).replace('_',''), mod)
+
 
     def addCrossSelector(self, obj, selection, name='', **otherObjects):
         '''
