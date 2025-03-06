@@ -72,6 +72,7 @@ private:
   const double idCutHighPtHighEta;
   const std::string bdtLabel;
   const std::string mvaLabel;
+  const bool useMVA;
   const std::string cutBasedLabel;
   //const std::string HZZWP;
   const int missingHitsCut;
@@ -101,14 +102,15 @@ PATElectronZZIDEmbedder::PATElectronZZIDEmbedder(const edm::ParameterSet& iConfi
   idPtThr(iConfig.exists("idPtThr") ? iConfig.getParameter<double>("idPtThr") : 10.),
   idEtaThrLow(iConfig.exists("idEtaThrLow") ? iConfig.getParameter<double>("idEtaThrLow") : 0.8),
   idEtaThrHigh(iConfig.exists("idEtaThrHigh") ? iConfig.getParameter<double>("idEtaThrHigh") : 1.479),
-  idCutLowPtLowEta(iConfig.exists("idCutLowPtLowEta") ? iConfig.getParameter<double>("idCutLowPtLowEta") : -0.586),
-  idCutLowPtMedEta(iConfig.exists("idCutLowPtMedEta") ? iConfig.getParameter<double>("idCutLowPtMedEta") : -0.712),
-  idCutLowPtHighEta(iConfig.exists("idCutLowPtHighEta") ? iConfig.getParameter<double>("idCutLowPtHighEta") : -0.662),
-  idCutHighPtLowEta(iConfig.exists("idCutHighPtLowEta") ? iConfig.getParameter<double>("idCutHighPtLowEta") : 0.652),
-  idCutHighPtMedEta(iConfig.exists("idCutHighPtMedEta") ? iConfig.getParameter<double>("idCutHighPtMedEta") : 0.701),
-  idCutHighPtHighEta(iConfig.exists("idCutHighPtHighEta") ? iConfig.getParameter<double>("idCutHighPtHighEta") : 0.350),
-  bdtLabel(iConfig.exists("bdtLabel") ? iConfig.getParameter<std::string>("bdtLabel") : "ElectronMVAEstimatorRun2Fall17IsoV2Values"),
-  mvaLabel(iConfig.exists("mvaLabel") ? iConfig.getParameter<std::string>("mvaLabel") : "mvaEleID-RunIIIWinter22-iso-V1-wp90"),
+  idCutLowPtLowEta(iConfig.exists("idCutLowPtLowEta") ? iConfig.getParameter<double>("idCutLowPtLowEta") : 0.9044286167), //EB1_5
+  idCutLowPtMedEta(iConfig.exists("idCutLowPtMedEta") ? iConfig.getParameter<double>("idCutLowPtMedEta") : 0.9094166886), //EB2_5
+  idCutLowPtHighEta(iConfig.exists("idCutLowPtHighEta") ? iConfig.getParameter<double>("idCutLowPtHighEta") : 0.9443653660), //EE_5
+  idCutHighPtLowEta(iConfig.exists("idCutHighPtLowEta") ? iConfig.getParameter<double>("idCutHighPtLowEta") : 0.1968600840), //EB1_10
+  idCutHighPtMedEta(iConfig.exists("idCutHighPtMedEta") ? iConfig.getParameter<double>("idCutHighPtMedEta") : 0.0759172100), //EB2_10
+  idCutHighPtHighEta(iConfig.exists("idCutHighPtHighEta") ? iConfig.getParameter<double>("idCutHighPtHighEta") : -0.5169136775), //EE_10
+  bdtLabel(iConfig.exists("bdtLabel") ? iConfig.getParameter<std::string>("bdtLabel") : "ElectronMVAEstimatorRun2Summer18ULIdIsoValues"),
+  mvaLabel(iConfig.exists("mvaLabel") ? iConfig.getParameter<std::string>("mvaLabel") : "mvaEleID-Winter22-HZZ-V1"),
+  useMVA(iConfig.exists("useMVA") ? iConfig.getParameter<bool>("useMVA") : true),
   cutBasedLabel(iConfig.exists("cutBasedLabel") ? iConfig.getParameter<std::string>("cutBasedLabel") : "cutBasedElectronID-RunIIIWinter22-V1"),
   missingHitsCut(iConfig.exists("missingHitsCut") ? iConfig.getParameter<int>("missingHitsCut") : 1),
   selector(iConfig.exists("selection") ?
@@ -144,8 +146,7 @@ void PATElectronZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup&
       out->back().addUserFloat(idLabel_+"NoVtx", float(idResultNoVtx)); // 1 for true, 0 for false
       out->back().addUserFloat(idLabel_, float(idResult)); // 1 for true, 0 for false
 
-      //bool bdtID = passBDT(eptr);
-      bool bdtID = ei->electronID(mvaLabel);
+      bool bdtID = useMVA? ei->electronID(mvaLabel) : passBDT(eptr);
       out->back().addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && bdtID)); // 1 for true, 0 for false
       out->back().addUserFloat(idLabel_+"Tight", float(idResult && bdtID)); // 1 for true, 0 for false
 
