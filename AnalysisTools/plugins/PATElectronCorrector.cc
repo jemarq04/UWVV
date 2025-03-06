@@ -6,7 +6,7 @@
 //       (1 for true, 0 for false), for use in other modules using          //
 //       HZZ4l2015 definitions.                                             //
 //                                                                          //
-//   Author: Nate Woods, U. Wisconsin                                       //
+//   Author: Justin Marquez, U. Wisconsin                                   //
 //                                                                          //
 //////////////////////////////////////////////////////////////////////////////
 
