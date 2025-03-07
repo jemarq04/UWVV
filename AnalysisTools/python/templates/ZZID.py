@@ -7,6 +7,8 @@ class ZZID(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
         if not hasattr(self, 'year'):
             self.year = kwargs.pop('year', '2016')
+        if not hasattr(self, 'debug'):
+            self.debug = kwargs.pop('debug', False)
 
         super(ZZID, self).__init__(*args, **kwargs)
 
@@ -62,6 +64,12 @@ class ZZID(AnalysisFlowBase):
                     idCutHighPtLowEta = cms.double(0.196860083999),
                     idCutHighPtMedEta = cms.double(0.0759172099904),
                     idCutHighPtHighEta = cms.double(-0.516913677482),
+                    #idCutLowPtLowEta = cms.double(1.49603193295), # EB1_5
+                    #idCutLowPtMedEta = cms.double(1.52414154008), # EB2_5
+                    #idCutLowPtHighEta = cms.double(1.77694249574), # EE_5
+                    #idCutHighPtLowEta = cms.double(0.199463934736), # EB1_10
+                    #idCutHighPtMedEta = cms.double(0.076063564084), # EB2_10
+                    #idCutHighPtHighEta = cms.double(-0.572118857519), # EE_10
                     missingHitsCut = cms.int32(999),
                 )
                 #HZZWP = cms.string("mvaEleID-Fall17-iso-V2-wpHZZ"),#2018 version
@@ -77,6 +85,13 @@ class ZZID(AnalysisFlowBase):
 
             step.addModule("eZZIDEmbedder", eIDEmbedder, 'e')
             step.addModule("mZZIDEmbedder", mIDEmbedder, 'm')
+            if self.debug:
+                step.addBasicCounter('e', "preselectedElectronCounting", nElectrons="")
+                step.addBasicCounter('e', "looseElectronCounting", nLooseElectrons='userFloat("%s") > 0.5' % self.getZZIDLabel())
+                step.addBasicCounter('e', "tightElectronCounting", nTightElectrons='userFloat("%sTight") > 0.5' % self.getZZIDLabel())
+                step.addBasicCounter('m', "preselectedMuonCounting", nMuons="")
+                step.addBasicCounter('m', "looseMuonCounting", nLooseMuons='userFloat("%s") > 0.5' % self.getZZIDLabel())
+                step.addBasicCounter('m', "tightMuonCounting", nTightMuons='userFloat("%sTight") > 0.5' % self.getZZIDLabel())
 
         return step
 
