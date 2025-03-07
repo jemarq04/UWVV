@@ -42,6 +42,10 @@ options.maxEvents = -1
 
 #print options.inputFiles
 #options.register('inputFiles', '', VarParsing.VarParsing.multiplicity.list,VarParsing.VarParsing.varType.string, 'Manual file list input, will query DAS if empty')
+options.register('debug', 0,
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.int,
+                "1: extra print statements for debugging")
 options.register('inputFileList', '', VarParsing.VarParsing.multiplicity.singleton, 
                  VarParsing.VarParsing.varType.string, 'Manual file list input, will query DAS if empty')
 options.register('channels', "zz",
@@ -139,6 +143,9 @@ options.register('calibVFP', '', #allowed = 'pre' or 'post'
                 "If the year provided is 2016 (default) you must specify "
                 "if this is preVFP or postVFP by providing 'pre' or 'post'.")
 options.parseArguments()
+
+if options.debug:
+    print("Debug flag is on")
 
 if options.year == "2016":
     #options.inputFiles = '/store/mc/RunIISummer16MiniAODv2/GluGluHToZZTo4L_M125_13TeV_powheg2_JHUGenV709_pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/20000/1A5C54BE-BED3-E711-B0A4-44A84224053C.root'
@@ -518,6 +525,7 @@ flowOpts = {
     'electronPhiResShift' : options.ePhiResShift,
     'muonClosureShift' : options.mClosureShift,
     'CalibULera16' : CalibULera16,
+    'debug' : options.debug,
     }
 
 # Turn all these into a single flow class
