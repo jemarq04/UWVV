@@ -45,6 +45,7 @@ private:
   const edm::EDGetTokenT<edm::View<T> > srcToken_;
   const std::vector<std::string> cut_strings_;
   const std::vector<std::string> labels_;
+  const bool verbose_;
   std::vector<StringCutObjectSelector<T>> cuts_;
 };
 
@@ -57,7 +58,10 @@ PATObjectCounter<T>::PATObjectCounter(const edm::ParameterSet& iConfig) :
              std::vector<std::string>()),
   labels_(iConfig.exists("labels") ?
              iConfig.getParameter<std::vector<std::string> >("labels") :
-             std::vector<std::string>())
+             std::vector<std::string>()),
+  verbose_(iConfig.exists("verbose") ?
+             iConfig.getParameter<bool>("verbose") :
+             false)
 {
   if(cut_strings_.size() != labels_.size())
       throw cms::Exception("InvalidParams")
@@ -96,6 +100,7 @@ void PATObjectCounter<T>::produce(edm::Event& iEvent,
         }
       else
           *num = in->size();
+      if (verbose_) std::cout << "Count: " << labels_[i] << " = " << *num << std::endl;
       iEvent.put(std::move(num), labels_[i]);
     }
 }
