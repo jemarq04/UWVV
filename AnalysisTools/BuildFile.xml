@@ -1,3 +1,5 @@
+<use   name="root"/>
+<use   name="rootrflx"/>
 <use   name="correctionlib"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/Common"/>
