@@ -108,7 +108,7 @@ options.parseArguments()
 
 # Error checking
 if options.year == "2022":
-    print("Running 2022")
+    print("Running 2022", "MC" if options.isMC else "Data")
     print("postEE: %i" % options.postEE)
     if not options.isMC:
         print("isPrompt: %i" % options.isPrompt)
