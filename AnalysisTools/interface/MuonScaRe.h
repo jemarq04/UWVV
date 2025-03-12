@@ -1,3 +1,5 @@
+#ifndef MUONSCAREKIT_H
+#define MUONSCAREKIT_H
 /*  
  * This file and the .cc file were both taken from cms-cat/nanoaod-tools-modules on github. Notes are below.
  *
@@ -31,3 +33,5 @@ private:
   std::unique_ptr<correction::CorrectionSet> cset;
   TRandom3 rng;
 };
+
+#endif//MUONSCAREKIT_H
