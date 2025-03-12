@@ -106,7 +106,7 @@ double PATMuonCorrector::getCorrectedPt(const edm::Ptr<pat::Muon>& muon, std::st
     return muon->pt();
 
   double corr_pt = corrector_.pt_scale(!isMC_, muon->pt(), muon->eta(), muon->phi(), muon->charge(), var);
-  if (isMC_) corr_pt = corrector_.pt_resol(corr_pt, muon->eta(), muon->innerTrack()->hitPattern().trackerLayersWithMeasurement(), var);
+  if (isMC_) corr_pt = corrector_.pt_resol(corr_pt, muon->eta(), muon->innerTrack().isNonnull()? muon->innerTrack()->hitPattern().trackerLayersWithMeasurement() : 0, var);
 
   return corr_pt;
 }
