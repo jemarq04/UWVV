@@ -81,13 +81,17 @@ void PATMuonCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   {
     const edm::Ptr<pat::Muon> mptr(muonsIn, mi - muonsIn->begin());
     out->push_back(*mi); // copy muon to save correctly in event
+    
+    double uncorr_pt = mi->pt();
+    double corr_pt   = getCorrectedPt(mptr);
+    double syst_pt   = getCorrectedPt(mptr, "syst");
+    double stat_pt   = getCorrectedPt(mptr, "stat");
 
-    out->back().addUserFloat("uncorrected_pt", mi->pt());
-    //TODO: Also correct mass?
-
-    out->back().setP4(reco::Particle::PolarLorentzVector(getCorrectedPt(mptr), mi->eta(), mi->phi(), mi->mass()));
-    out->back().addUserFloat("syst_pt", getCorrectedPt(mptr, "syst"));
-    out->back().addUserFloat("stat_pt", getCorrectedPt(mptr, "stat"));
+    out->back().setP4(reco::Particle::PolarLorentzVector(corr_pt, mi->eta(), mi->phi(), mi->mass()));
+    out->back().addUserFloat("uncorrected_pt", uncorr_pt);
+    out->back().addUserFloat("ptScaleFactor", corr_pt/uncorr_pt);
+    out->back().addUserFloat("syst_pt", syst_pt);
+    out->back().addUserFloat("stat_pt", stat_pt);
   }
 
   iEvent.put(std::move(out));
