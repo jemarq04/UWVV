@@ -90,7 +90,6 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
       err_scale = scaleFile_->at("Scale")->evaluate({"total_uncertainty", ei->userInt("seedGain"), (double)iEvent.run(), ei->eta(), ei->r9(), ei->pt()});
     }
     float uncorrected_pt = ei->pt();
-    float uncorrected_mass = ei->mass();
 
     TRandom3 rand;
     rand.SetSeed(std::abs(static_cast<int>(std::sin(ei->phi())*100000)));
@@ -99,8 +98,7 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
     float smear_dn = rand.Gaus(1., rho-err_rho);
 
     out->back().addUserFloat("uncorrected_pt", uncorrected_pt);
-    out->back().addUserFloat("uncorrected_mass", uncorrected_mass);
-    out->back().setP4(reco::Particle::PolarLorentzVector(uncorrected_pt*smear*scale, ei->eta(), ei->phi(), uncorrected_mass*smear*scale));
+    out->back().setP4(reco::Particle::PolarLorentzVector(uncorrected_pt*smear*scale, ei->eta(), ei->phi(), ei->mass()));
 
     // Custom user floats to save scale and smearing
     out->back().addUserFloat("energyScaleValue", scale);

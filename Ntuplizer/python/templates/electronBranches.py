@@ -26,8 +26,6 @@ electronBranches = cms.PSet(
         UnCorrPt = cms.string('? hasUserFloat("uncorrected_pt") ? '
                            'userFloat("uncorrected_pt") : '
                            '1.'),
-        UnCorrMass = cms.string('? hasUserFloat("uncorrected_mass") ? '
-                                'userFloat("uncorrected_mass") : 1.'),
 
         ScaleValue = cms.string('? hasUserFloat("energyScaleValue") ? '
                             'userFloat("energyScaleValue") : '
