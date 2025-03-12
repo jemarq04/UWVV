@@ -1,4 +1,5 @@
 from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
+from UWVV.Utilities.helpers import UWVV_BASE_PATH
 
 import FWCore.ParameterSet.Config as cms
 
@@ -20,53 +21,19 @@ class MuonCalibration(AnalysisFlowBase):
         step = super(MuonCalibration, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == 'preliminary':
-            pass
-            #TODO: Determine Run3 Muon Calibrations
-            '''
-            LeptonSetup = cms.string(self.year)
+            yearstring = ""
+            if self.year == "2022":
+                yearstring = "2022_Summer22%s" % ("" if self.calibEEera22 == "preEE" else "EE")
+            scaleFile = "%s/data/MuonCorrections/%s.json" % (UWVV_BASE_PATH, yearstring)
 
-            if "preVFP" in self.CalibULera16:
-                fRocstring16 = "RoccoR2016aUL"
-            else:
-                fRocstring16 = "RoccoR2016bUL"
-
-            if LeptonSetup=="2016":
+            if yearstring:
                 muCalibrator = cms.EDProducer(
-                    "RochesterPATMuonCorrector",
+                    "PATMuonCorrector",
                     src = step.getObjTag('m'),
-                    identifier = cms.string(fRocstring16),
                     isMC = cms.bool(self.isMC),
-                    isSync = cms.bool(self.isSync),
-                    maxPt = cms.double(200),
-                    #relics of the old KalmanCorrector 
-                    #calibType = cms.string(calibType),
-                    #closureShift = cms.int32(self.muonClosureShift),
-                    )
-            if LeptonSetup=="2017":
-                muCalibrator = cms.EDProducer(
-                    "RochesterPATMuonCorrector",
-                    src = step.getObjTag('m'),
-                    identifier = cms.string("RoccoR2017UL"),
-                    isMC = cms.bool(self.isMC),
-                    isSync = cms.bool(self.isSync),
-                    maxPt = cms.double(200),
-                    #relics of the old KalmanCorrector 
-                    #calibType = cms.string(calibType),
-                    #closureShift = cms.int32(self.muonClosureShift),
-                    )
-            if LeptonSetup=="2018":
-                muCalibrator = cms.EDProducer(
-                    "RochesterPATMuonCorrector",
-                    src = step.getObjTag('m'),
-                    identifier = cms.string("RoccoR2018UL"),
-                    isMC = cms.bool(self.isMC),
-                    isSync = cms.bool(self.isSync),
-                    maxPt = cms.double(200),
-                    #relics of the old KalmanCorrector 
-                    #calibType = cms.string(calibType),
-                    #closureShift = cms.int32(self.muonClosureShift),
-                    )
-            step.addModule('calibratedPatMuons', muCalibrator, 'm')
+                    scaleFile = cms.string(scaleFile),
+                )
+                step.addModule('calibratedPatMuons', muCalibrator, 'm')
 
             # need to re-sort now that we're calibrated
             mSort = cms.EDProducer(
@@ -75,7 +42,6 @@ class MuonCalibration(AnalysisFlowBase):
                 function = cms.string('pt'),
                 )
             step.addModule('muonSorting', mSort, 'm')
-        '''
 
         return step
 
