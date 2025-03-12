@@ -2,9 +2,7 @@
 //                                                                          //
 //   PATElectronCorrector.cc                                                //
 //                                                                          //
-//   Embeds electron ID decisions as userfloats                             //
-//       (1 for true, 0 for false), for use in other modules using          //
-//       HZZ4l2015 definitions.                                             //
+//   Applies scale/smear corrections to electrons.                          //
 //                                                                          //
 //   Author: Justin Marquez, U. Wisconsin                                   //
 //                                                                          //
@@ -27,7 +25,6 @@
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/TrackReco/interface/HitPattern.h"
 
 #include "TRandom3.h"
 #include "correction.h"
