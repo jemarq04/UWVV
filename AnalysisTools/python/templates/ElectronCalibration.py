@@ -70,14 +70,15 @@ class ElectronCalibration(AnalysisFlowBase):
                 yearstring = "2022_Summer22%s" % ("" if self.calibEEera22 == "preEE" else "EE")
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/EGM",
                                     yearstring, "electronSS.json.gz")
-            eCorr = cms.EDProducer(
-                "PATElectronCorrector",
-                src = step.getObjTag('e'),
-                seedGainSrc = cms.InputTag("seedGainEle"),
-                scaleFile = cms.string(scaleFileP),
-                isMC = cms.bool(self.isMC)
-                )
-            step.addModule("calibratedPatElectrons", eCorr, 'e')
+            if yearstring:
+                eCorr = cms.EDProducer(
+                    "PATElectronCorrector",
+                    src = step.getObjTag('e'),
+                    seedGainSrc = cms.InputTag("seedGainEle"),
+                    scaleFile = cms.string(scaleFileP),
+                    isMC = cms.bool(self.isMC)
+                    )
+                step.addModule("calibratedPatElectrons", eCorr, 'e')
 
         if stepName == 'selection':
             # need to re-sort now that we're calibrated
