@@ -15,6 +15,7 @@
 <use name="UWVV/DataFormats"/>
 <use name="EgammaAnalysis/ElectronTools"/>
 <use name="UWVV/Utilities"/>
+<use name="PhysicsTools/NATModules"/>
 
 <library file="*.cc" name="UWVVAnalysisToolsPlugins">
   <flags EDM_PLUGIN="1"/>
