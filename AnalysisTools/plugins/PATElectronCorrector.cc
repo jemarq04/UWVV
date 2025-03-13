@@ -81,24 +81,26 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
     
     float rho = 0, err_rho = 0;
     float scale = 1, err_scale = 0;
+    float smear = 1, smear_up = 1, smear_dn = 1;
     if (isMC_){
-      rho     = scaleFile_->at("Smearing")->evaluate({"rho", ei->eta(), ei->r9()});
-      err_rho = scaleFile_->at("Smearing")->evaluate({"err_rho", ei->eta(), ei->r9()});
-    }
-    else{
-      scale     = scaleFile_->at("Scale")->evaluate({"total_correction", ei->userInt("seedGain"), (double)iEvent.run(), ei->eta(), ei->r9(), ei->pt()});
+      rho       = scaleFile_->at("Smearing")->evaluate({"rho", ei->eta(), ei->r9()});
+      err_rho   = scaleFile_->at("Smearing")->evaluate({"err_rho", ei->eta(), ei->r9()});
       err_scale = scaleFile_->at("Scale")->evaluate({"total_uncertainty", ei->userInt("seedGain"), (double)iEvent.run(), ei->eta(), ei->r9(), ei->pt()});
-    }
-    float uncorrected_pt = ei->pt();
 
-    TRandom3 rand;
-    rand.SetSeed(std::abs(static_cast<int>(std::sin(ei->phi())*100000)));
-    float smear = rand.Gaus(1., rho);
-    float smear_up = rand.Gaus(1., rho+err_rho);
-    float smear_dn = rand.Gaus(1., rho-err_rho);
+      TRandom3 rand;
+      rand.SetSeed(std::abs(static_cast<int>(std::sin(ei->phi())*100000)));
+      smear = rand.Gaus(1., rho);
+      smear_up = rand.Gaus(1., rho+err_rho);
+      smear_dn = rand.Gaus(1., rho-err_rho);
+    }
+    else
+      scale = scaleFile_->at("Scale")->evaluate({"total_correction", ei->userInt("seedGain"), (double)iEvent.run(), ei->eta(), ei->r9(), ei->pt()});
+    
+    float uncorrected_pt = ei->pt();
+    float corrected_pt = uncorrected_pt * (isMC_? smear : scale);
 
     out->back().addUserFloat("uncorrected_pt", uncorrected_pt);
-    out->back().setP4(reco::Particle::PolarLorentzVector(uncorrected_pt*smear*scale, ei->eta(), ei->phi(), ei->mass()));
+    out->back().setP4(reco::Particle::PolarLorentzVector(corrected_pt, ei->eta(), ei->phi(), ei->mass()));
 
     // Custom user floats to save scale and smearing
     out->back().addUserFloat("energyScaleValue", scale);
