@@ -14,8 +14,6 @@ class JetBaseFlow(AnalysisFlowBase):
             self.year = kwargs.pop('year', '2022')
         if not hasattr(self, 'runningLocal'):
             self.runningLocal = kwargs.pop('runningLocal', False)
-        if not hasattr(self, 'debug'):
-            self.debug = kwargs.pop('debug', False)
         super(JetBaseFlow, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
@@ -189,25 +187,10 @@ class JetBaseFlow(AnalysisFlowBase):
                                'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
 
             if self.isMC:
-                if self.debug:
-                    step.addBasicCounter('j', nJets="")
-                    step.addBasicCounter('j', "preselcounting", nJetsPresel=selectionString)
                 step.addBasicSelector('j', selectionString) #not apply PU id here in order to calculate PU SF multiplication factor
             else:
-                if self.debug:
-                    step.addBasicCounter('j', nJets="")
-                    step.addBasicCounter('j', "preselcounting", nJetsPresel=selectionString2)
                 step.addBasicSelector('j', selectionString2)
             if self.isMC:
-                if self.debug:
-                    step.addBasicCounter('j_jesUp', nJetsJesUp="")
-                    step.addBasicCounter('j_jesDown', nJetsJesDown="")
-                    step.addBasicCounter('j_jerUp', nJetsJerUp="")
-                    step.addBasicCounter('j_jerDown', nJetsJerDown="")
-                    step.addBasicCounter('j_jesUp', "preselcounting", nJetsJesUpPresel=selectionString2)
-                    step.addBasicCounter('j_jesDown', "preselcounting", nJetsJesDownPresel=selectionString2)
-                    step.addBasicCounter('j_jerUp', "preselcounting", nJetsJerUpPresel=selectionString2)
-                    step.addBasicCounter('j_jerDown', "preselcounting", nJetsJerDownPresel=selectionString2)
                 step.addBasicSelector('j_jesUp', selectionString2)
                 step.addBasicSelector('j_jesDown', selectionString2)
                 step.addBasicSelector('j_jerUp', selectionString2)
