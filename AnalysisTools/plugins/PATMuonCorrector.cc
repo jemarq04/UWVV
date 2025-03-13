@@ -26,7 +26,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "TRandom3.h"
 #include "correction.h"
 #include "PhysicsTools/NATModules/interface/MuonScaRe.h"
 
