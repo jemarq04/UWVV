@@ -37,9 +37,6 @@ class ZZID(AnalysisFlowBase):
                     etaCut = cms.double(2.5),
                 )
             step.addModule("eZZIDEmbedder", eIDEmbedder, 'e')
-            if self.debug:
-                step.addBasicCounter('e', 'looseZZIDCounting', nLooseElectrons='userFloat("%s") > 0.5' % self.getZZIDLabel())
-                step.addBasicCounter('e', 'tightZZIDCounting', nTightElectrons='userFloat("%sTight") > 0.5' % self.getZZIDLabel())
 
             mIDEmbedder = cms.EDProducer(
                 "PATMuonZZIDEmbedder",
@@ -53,8 +50,16 @@ class ZZID(AnalysisFlowBase):
                 )
             step.addModule("mZZIDEmbedder", mIDEmbedder, 'm')
             if self.debug:
-                step.addBasicCounter('m', "looseZZIDCounting", nLooseMuons='userFloat("%s") > 0.5' % self.getZZIDLabel())
-                step.addBasicCounter('m', "tightZZIDCounting", nTightMuons='userFloat("%sTight") > 0.5' % self.getZZIDLabel())
+                step.addBasicCounter('e', "ZZIDElectronCounting",
+                    nElectrons="",
+                    nLooseElectrons='userFloat("%s") > 0.5' % self.getZZIDLabel(),
+                    nTightElectrons='userFloat("%sTight") > 0.5' % self.getZZIDLabel(),
+                )
+                step.addBasicCounter('m', "ZZIDMuonCounting",
+                    nMuons="",
+                    nLooseMuons='userFloat("%s") > 0.5' % self.getZZIDLabel(),
+                    nTightMuons='userFloat("%sTight") > 0.5' % self.getZZIDLabel(),
+                )
 
         return step
 

@@ -14,8 +14,10 @@ class MuonBaseFlow(AnalysisFlowBase):
         
         if stepName == 'preselection':
             if self.debug:
-                step.addBasicCounter('m', nMuons="")
-                step.addBasicCounter('m', "preselcounting", nMuonsPresel="pt > 5 && (isGlobalMuon || isTrackerMuon)")
+                step.addBasicCounter('m', 
+                    nMuons="",
+                    nPreselMuons="pt > 5 && (isGlobalMuon || isTrackerMuon)",
+                )
             step.addBasicSelector('m', 'pt > 5 && (isGlobalMuon || isTrackerMuon)', "preselection")
         elif stepName == 'embedding':
             self.addMuonPOGIDs(step)

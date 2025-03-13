@@ -13,8 +13,10 @@ class ElectronBaseFlow(AnalysisFlowBase):
 
         if stepName == 'preselection':
             if self.debug:
-                step.addBasicCounter('e', nElectrons="")
-                step.addBasicCounter('e', "preselcounting", nElectronsPresel="pt> 5 && abs(eta) < 2.6")
+                step.addBasicCounter('e',
+                    nElectrons="",
+                    nElectronsPresel="pt> 5 && abs(eta) < 2.6",
+                )
             step.addBasicSelector('e', 'pt > 5 && abs(eta) < 2.6', 'preselection')
 
         if stepName == 'embedding':
