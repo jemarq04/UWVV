@@ -42,6 +42,7 @@ public:
 private:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
+  const edm::InputTag srcTag_;
   const edm::EDGetTokenT<edm::View<T> > srcToken_;
   const std::vector<std::string> cut_strings_;
   const std::vector<std::string> labels_;
@@ -52,7 +53,8 @@ private:
 
 template<typename T>
 PATObjectCounter<T>::PATObjectCounter(const edm::ParameterSet& iConfig) :
-  srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
+  srcTag_(iConfig.getParameter<edm::InputTag>("src")),
+  srcToken_(consumes<edm::View<T> >(srcTag_)),
   cut_strings_(iConfig.exists("cuts") ?
              iConfig.getParameter<std::vector<std::string> >("cuts") :
              std::vector<std::string>()),
@@ -100,8 +102,7 @@ void PATObjectCounter<T>::produce(edm::Event& iEvent,
         }
       else
           *num = in->size();
-      if (verbose_)
-        std::cout << "Print Count: " << labels_[i] << " " << *num << std::endl;
+      if (verbose_) std::cout << srcTag_.label() << " Count: " << labels_[i] << " = " << *num << std::endl;
       iEvent.put(std::move(num), labels_[i]);
     }
 }
