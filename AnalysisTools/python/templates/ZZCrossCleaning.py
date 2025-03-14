@@ -14,6 +14,8 @@ class ZZCrossCleaning(AnalysisFlowBase):
         step = super(ZZCrossCleaning, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == 'selection':
+            if self.debug:
+                step.addBasicCounter('e', "preCrossCleaningCounting", nPreCrossCleanedElectrons="")
             # remove electrons near tight muons
             step.addCrossSelector(
                 'e', 
