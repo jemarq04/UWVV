@@ -42,11 +42,13 @@ public:
 private:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
+  void printInfo(edm::Ptr<T> obj, int index=0);
+
   const edm::InputTag srcTag_;
   const edm::EDGetTokenT<edm::View<T> > srcToken_;
   const std::vector<std::string> cut_strings_;
   const std::vector<std::string> labels_;
-  const bool verbose_;
+  const bool verbose_, doPrintInfo_;
   std::vector<StringCutObjectSelector<T>> cuts_;
 };
 
@@ -63,6 +65,9 @@ PATObjectCounter<T>::PATObjectCounter(const edm::ParameterSet& iConfig) :
              std::vector<std::string>()),
   verbose_(iConfig.exists("verbose") ? 
              iConfig.getParameter<bool>("verbose") : 
+             false),
+  doPrintInfo_(iConfig.exists("printInfo") ?
+             iConfig.getParameter<bool>("printInfo") :
              false)
 {
   if(cut_strings_.size() != labels_.size())
@@ -105,6 +110,30 @@ void PATObjectCounter<T>::produce(edm::Event& iEvent,
       if (verbose_) std::cout << srcTag_.label() << " Count: " << labels_[i] << " = " << *num << std::endl;
       iEvent.put(std::move(num), labels_[i]);
     }
+  if (doPrintInfo_){
+    for (size_t j=0; j<in->size(); j++){
+      edm::Ptr<T> obj(in, j);
+      printInfo(obj, j);
+    }
+  }
+}
+
+template <typename T>
+void PATObjectCounter<T>::printInfo(edm::Ptr<T> obj, int index){}
+template <>
+void PATObjectCounter<pat::Muon>::printInfo(edm::Ptr<pat::Muon> muon, int index){
+  std::cout << "  Object " << index << std::endl;
+  std::cout << "    pT = " << muon->pt() << std::endl;
+  std::cout << "    eta = " << muon->eta() << std::endl;
+  std::cout << "    phi = " << muon->phi() << std::endl;
+  //std::cout << "    type = " << muon->type() << std::endl;
+}
+template <>
+void PATObjectCounter<pat::Electron>::printInfo(edm::Ptr<pat::Electron> elec, int index){
+  std::cout << "  Object " << index << std::endl;
+  std::cout << "    pT = " << elec->pt() << std::endl;
+  std::cout << "    eta = " << elec->eta() << std::endl;
+  std::cout << "    phi = " << elec->phi() << std::endl;
 }
 
 typedef PATObjectCounter<pat::Electron> PATElectronCounter;
