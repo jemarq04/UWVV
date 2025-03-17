@@ -86,12 +86,16 @@ class ZZID(AnalysisFlowBase):
             step.addModule("eZZIDEmbedder", eIDEmbedder, 'e')
             step.addModule("mZZIDEmbedder", mIDEmbedder, 'm')
             if self.debug:
-                step.addBasicCounter('e', "preselectedElectronCounting", nElectrons="")
-                step.addBasicCounter('e', "looseElectronCounting", nLooseElectrons='userFloat("%s") > 0.5' % self.getZZIDLabel())
-                step.addBasicCounter('e', "tightElectronCounting", nTightElectrons='userFloat("%sTight") > 0.5' % self.getZZIDLabel())
-                step.addBasicCounter('m', "preselectedMuonCounting", nMuons="")
-                step.addBasicCounter('m', "looseMuonCounting", nLooseMuons='userFloat("%s") > 0.5' % self.getZZIDLabel())
-                step.addBasicCounter('m', "tightMuonCounting", nTightMuons='userFloat("%sTight") > 0.5' % self.getZZIDLabel())
+                step.addBasicCounter('e', "ZZIDElectronCounting", 
+                    nElectrons="",
+                    nLooseElectrons='userFloat("%s") > 0.5' % self.getZZIDLabel(),
+                    nTightElectrons='userFloat("%sTight") > 0.5' % self.getZZIDLabel(),
+                )
+                step.addBasicCounter('m', "ZZIDMuonCounting", 
+                    nZZIDMuons="",
+                    nLooseMuons='userFloat("%s") > 0.5' % self.getZZIDLabel(),
+                    nTightMuons='userFloat("%sTight") > 0.5' % self.getZZIDLabel(),
+                )
 
         return step
 
