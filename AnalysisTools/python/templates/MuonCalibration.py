@@ -1,5 +1,6 @@
 from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 from UWVV.Utilities.helpers import UWVV_BASE_PATH
+import os
 
 import FWCore.ParameterSet.Config as cms
 
@@ -24,7 +25,7 @@ class MuonCalibration(AnalysisFlowBase):
             yearstring = ""
             if self.year == "2022":
                 yearstring = "2022_Summer22%s" % ("" if self.calibEEera22 == "preEE" else "EE")
-            scaleFile = "%s/data/MuonCorrections/%s.json" % (UWVV_BASE_PATH, yearstring)
+            scaleFile = os.path.join(UWVV_BASE_PATH, "data", "MuonCorrections", "%s.json" % yearstring)
 
             if yearstring:
                 muCalibrator = cms.EDProducer(
