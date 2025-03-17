@@ -17,4 +17,4 @@ if [[ ! -f $infile ]]; then
 fi
 
 echo "Running $year signal MC"
-cmsRun ntuplize_cfg_UL.py inputFileList=$infile year=$year channels=zz isMC=1 eCalib=1 muCalib=1 isSync=0 genInfo=1 $@
+cmsRun ntuplize_cfg_UL.py inputFileList=$infile year=$year channels=zz isMC=1 genInfo=1 $@
