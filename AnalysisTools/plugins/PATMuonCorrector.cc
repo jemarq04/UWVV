@@ -13,6 +13,7 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 // CMS includes
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -33,7 +34,7 @@ class PATMuonCorrector : public edm::stream::EDProducer<>
 {
 public:
   explicit PATMuonCorrector(const edm::ParameterSet&);
-  ~PATMuonCorrector() {}
+  ~PATMuonCorrector() {if (corrector_ != nullptr) delete corrector_;}
 
 
 private:
@@ -49,7 +50,7 @@ private:
   double maxPt_;
   std::string scaleFileName_;
   std::unique_ptr<correction::CorrectionSet> scaleFile_;
-  MuonScaRe corrector_;
+  MuonScaRe *corrector_;
 };
 
 
@@ -61,9 +62,18 @@ PATMuonCorrector::PATMuonCorrector(const edm::ParameterSet& iConfig):
         edm::InputTag("slimmedMuons"))),
   isMC_(iConfig.getParameter<bool>("isMC")),
   maxPt_(iConfig.exists("maxPt") ? iConfig.getParameter<double>("maxPt") : 200.0),
-  scaleFileName_(iConfig.getParameter<std::string>("scaleFile")),
-  corrector_(scaleFileName_)
+  scaleFileName_(iConfig.getParameter<std::string>("scaleFile"))
 {
+  std::ifstream checkfile(scaleFileName_);
+  if (!checkfile.good()) scaleFileName_ = scaleFileName_.substr(scaleFileName_.find("/UWVV/") + 6);
+  else checkfile.close();
+  try{
+    corrector_ = new MuonScaRe(scaleFileName_);
+  }
+  catch(...){
+    throw cms::Exception("InvalidFile") << "Cannot find muon correction file: "
+      << scaleFileName_ << std::endl;
+  }
   produces<std::vector<pat::Muon> >();
 }
 
@@ -104,8 +114,8 @@ double PATMuonCorrector::getCorrectedPt(const edm::Ptr<pat::Muon>& muon, std::st
   if (muon->pt() > maxPt_)
     return muon->pt();
 
-  double corr_pt = corrector_.pt_scale(!isMC_, muon->pt(), muon->eta(), muon->phi(), muon->charge(), var);
-  if (isMC_) corr_pt = corrector_.pt_resol(corr_pt, muon->eta(), muon->innerTrack().isNonnull()? muon->innerTrack()->hitPattern().trackerLayersWithMeasurement() : 0, var);
+  double corr_pt = corrector_->pt_scale(!isMC_, muon->pt(), muon->eta(), muon->phi(), muon->charge(), var);
+  if (isMC_) corr_pt = corrector_->pt_resol(corr_pt, muon->eta(), muon->innerTrack().isNonnull()? muon->innerTrack()->hitPattern().trackerLayersWithMeasurement() : 0, var);
 
   return corr_pt;
 }
