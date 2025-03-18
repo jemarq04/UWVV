@@ -41,8 +41,10 @@ private:
   // Data
   edm::EDGetTokenT<edm::View<pat::Electron> > electronCollectionToken_;
 
-  bool isMC_;
+  const bool isMC_;
   std::string scaleFileName_;
+  const bool hasSeed_;
+  const ULong64_t seed_;
   std::unique_ptr<correction::CorrectionSet> scaleFile_;
 };
 
@@ -54,7 +56,9 @@ PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig):
                                                                iConfig.getParameter<edm::InputTag>("src") :
                                                                edm::InputTag("slimmedElectrons"))),
   isMC_(iConfig.getParameter<bool>("isMC")),
-  scaleFileName_(iConfig.getParameter<std::string>("scaleFile"))
+  scaleFileName_(iConfig.getParameter<std::string>("scaleFile")),
+  hasSeed_(iConfig.exists("seed")),
+  seed_(hasSeed_? iConfig.getParameter<ULong64_t>("seed") : 0)
 {
   try{
     scaleFile_ = correction::CorrectionSet::from_file(scaleFileName_);
@@ -88,7 +92,7 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
       err_scale = scaleFile_->at("Scale")->evaluate({"total_uncertainty", ei->userInt("seedGain"), (double)iEvent.run(), ei->eta(), ei->r9(), ei->pt()});
 
       TRandom3 rand;
-      rand.SetSeed(std::abs(static_cast<int>(std::sin(ei->phi())*100000)));
+      rand.SetSeed(hasSeed_? seed_ : std::abs(static_cast<int>(std::sin(ei->phi())*100000)));
       smear = rand.Gaus(1., rho);
       smear_up = rand.Gaus(1., rho+err_rho);
       smear_dn = rand.Gaus(1., rho-err_rho);

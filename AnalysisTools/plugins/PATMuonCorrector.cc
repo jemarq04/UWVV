@@ -46,10 +46,12 @@ private:
   // Data
   edm::EDGetTokenT<edm::View<pat::Muon> > muonCollectionToken_;
 
-  bool isMC_;
-  double maxPt_;
+  const bool isMC_;
+  const double maxPt_;
   std::string scaleFileName_;
   std::unique_ptr<correction::CorrectionSet> scaleFile_;
+  const bool hasSeed_;
+  const ULong64_t seed_;
   MuonScaRe *corrector_;
 };
 
@@ -62,13 +64,16 @@ PATMuonCorrector::PATMuonCorrector(const edm::ParameterSet& iConfig):
         edm::InputTag("slimmedMuons"))),
   isMC_(iConfig.getParameter<bool>("isMC")),
   maxPt_(iConfig.exists("maxPt") ? iConfig.getParameter<double>("maxPt") : 200.0),
-  scaleFileName_(iConfig.getParameter<std::string>("scaleFile"))
+  scaleFileName_(iConfig.getParameter<std::string>("scaleFile")),
+  hasSeed_(iConfig.exists("seed")),
+  seed_(hasSeed_? iConfig.getParameter<ULong64_t>("seed") : 0)
 {
   std::ifstream checkfile(scaleFileName_);
   if (!checkfile.good()) scaleFileName_ = scaleFileName_.substr(scaleFileName_.find("/UWVV/") + 6);
   else checkfile.close();
   try{
     corrector_ = new MuonScaRe(scaleFileName_);
+    if (hasSeed_) corrector_->setSeed(seed_);
   }
   catch(...){
     throw cms::Exception("InvalidFile") << "Cannot find muon correction file: "
