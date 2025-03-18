@@ -30,7 +30,7 @@ class ZZIso(AnalysisFlowBase):
                 #Isolation and SIP cuts are no longer needed since these variables are included in the new Muon BDT
                 #But I'm keeping this cut for now in case its needed for HighPtMuons(pt>200) with HighPtTrkID though its unlikely
                 isoCutMu = cms.double(0.35),
-                )
+            )
             step.addModule('leptonIsoEmbedding', leptonIsoEmbedding,
                            'e', 'm', e='electrons', m='muons')
             #The isolation cut is applied after recovered FSR photons are subtracted 

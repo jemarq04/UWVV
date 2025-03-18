@@ -54,7 +54,7 @@ class ElectronCalibration(AnalysisFlowBase):
             seedGainEle = cms.EDProducer(
                 "ElectronSeedGainProducer",
                 src = step.getObjTag('e')
-                )
+            )
             step.addModule("seedGainEle", seedGainEle)
 
             embedSeedGain = cms.EDProducer(
@@ -62,7 +62,7 @@ class ElectronCalibration(AnalysisFlowBase):
                 src = step.getObjTag('e'),
                 intLabels = cms.untracked.vstring("seedGain"),
                 intVals = cms.untracked.VInputTag("seedGainEle")
-                )
+            )
             step.addModule("seedGainEmbedding", embedSeedGain, 'e')
 
             yearstring = ""
@@ -70,23 +70,22 @@ class ElectronCalibration(AnalysisFlowBase):
                 yearstring = "2022_Summer22%s" % ("" if self.calibEEera22 == "preEE" else "EE")
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/EGM",
                                     yearstring, "electronSS.json.gz")
-            if yearstring:
-                eCorr = cms.EDProducer(
-                    "PATElectronCorrector",
-                    src = step.getObjTag('e'),
-                    seedGainSrc = cms.InputTag("seedGainEle"),
-                    scaleFile = cms.string(scaleFileP),
-                    isMC = cms.bool(self.isMC)
-                    )
-                step.addModule("calibratedPatElectrons", eCorr, 'e')
+            eCorr = cms.EDProducer(
+                "PATElectronCorrector",
+                src = step.getObjTag('e'),
+                seedGainSrc = cms.InputTag("seedGainEle"),
+                scaleFile = cms.string(scaleFileP),
+                isMC = cms.bool(self.isMC)
+            )
+            step.addModule("calibratedPatElectrons", eCorr, 'e')
 
-        if stepName == 'selection':
+        elif stepName == 'selection':
             # need to re-sort now that we're calibrated
             eSort = cms.EDProducer(
                 "PATElectronCollectionSorter",
                 src = step.getObjTag('e'),
                 function = cms.string('pt'),
-                )
+            )
             step.addModule('electronSorting', eSort, 'e')
 
         return step

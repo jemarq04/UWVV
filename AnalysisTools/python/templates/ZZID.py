@@ -47,8 +47,9 @@ class ZZID(AnalysisFlowBase):
                 ptCut = cms.double(5.),
                 etaCut = cms.double(2.4),
                 idLabel = cms.string(self.getZZIDLabel()),
-                )
+            )
             step.addModule("mZZIDEmbedder", mIDEmbedder, 'm')
+
             if self.debug:
                 step.addBasicCounter('e', "ZZIDElectronCounting",
                     nElectrons="",

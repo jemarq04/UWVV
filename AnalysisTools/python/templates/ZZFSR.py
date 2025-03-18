@@ -42,10 +42,10 @@ class ZZFSR(AnalysisFlowBase):
                 chIsoVetoDR = cms.double(0.0001),
                 relIsoCut = cms.double(1.8),
                 eMuCrossCleaningDR = cms.double(0.05),
-                )
+            )
             step.addModule('fsrEmbedder', leptonFSREmbedder, 'e', 'm')
 
-        if stepName == 'selection':
+        elif stepName == 'selection':
             jetFSRCleaner = cms.EDProducer(
                 'PATJetFSRCleaner',
                 src = step.getObjTag('j'),
@@ -54,21 +54,21 @@ class ZZFSR(AnalysisFlowBase):
                 fsrLabel = cms.string(self.getFSRLabel()),
                 fsrElecSelection = cms.string('userFloat("%sTight") > 0.5 && userFloat("%s") > 0.5'%(self.getZZIDLabel(), self.getZZIsoLabel())),
                 fsrMuonSelection = cms.string('userFloat("%sTight") > 0.5 && userFloat("%s") > 0.5'%(self.getZZIDLabel(), self.getZZIsoLabel())),
-                )
+            )
             step.addModule('jetFSRCleaner', jetFSRCleaner, 'j')
 
 
             if self.isMC:
-                patJetGenJetMatch2 = cms.EDProducer("GenJetMatcher",  # cut on deltaR; pick best by deltaR
-                src         = step.getObjTag('j'),                    # RECO jets (any View<Jet> is ok)
-                matched     = cms.InputTag("slimmedGenJets"),        # GEN jets  (must be GenJetCollection)
-                mcPdgId     = cms.vint32(),                      # n/a
-                mcStatus    = cms.vint32(),                      # n/a
-                checkCharge = cms.bool(False),                   # n/a
-                maxDeltaR   = cms.double(0.4),                   # Minimum deltaR for the match
-                #maxDPtRel   = cms.double(3.0),                  # Minimum deltaPt/Pt for the match (not used in GenJetMatcher)
-                resolveAmbiguities    = cms.bool(True),          # Forbid two RECO objects to match to the same GEN object
-                resolveByMatchQuality = cms.bool(False),         # False = just match input in order; True = pick lowest deltaR pair first
+                patJetGenJetMatch2 = cms.EDProducer("GenJetMatcher", # cut on deltaR; pick best by deltaR
+                    src         = step.getObjTag('j'),               # RECO jets (any View<Jet> is ok)
+                    matched     = cms.InputTag("slimmedGenJets"),    # GEN jets  (must be GenJetCollection)
+                    mcPdgId     = cms.vint32(),                      # n/a
+                    mcStatus    = cms.vint32(),                      # n/a
+                    checkCharge = cms.bool(False),                   # n/a
+                    maxDeltaR   = cms.double(0.4),                   # Minimum deltaR for the match
+                    #maxDPtRel   = cms.double(3.0),                  # Minimum deltaPt/Pt for the match (not used in GenJetMatcher)
+                    resolveAmbiguities    = cms.bool(True),          # Forbid two RECO objects to match to the same GEN object
+                    resolveByMatchQuality = cms.bool(False),         # False = just match input in order; True = pick lowest deltaR pair first
                 )
                 
                 step.addModule("patJetGenJetMatch2",patJetGenJetMatch2) #store RECO/gen jet association in the event
@@ -88,18 +88,18 @@ class ZZFSR(AnalysisFlowBase):
                 jetFSRCleaner_jerDown = jetFSRCleaner.clone(src = step.getObjTag('j_jerDown'))
                 step.addModule('jetFSRCleanerJERDown', jetFSRCleaner_jerDown, 'j_jerDown')
 
-        if stepName == 'intermediateStateEmbedding':
+        elif stepName == 'intermediateStateEmbedding':
             if isinstance(self, ZPlusXBaseFlow):
                 zeFSREmbedder = cms.EDProducer(
                     'PATElectronCompositeUserCandPromoter',
                     src = step.getObjTag('ee'),
                     label = cms.string(self.getFSRLabel()),
-                    )
+                )
                 zmFSREmbedder = cms.EDProducer(
                     'PATMuonCompositeUserCandPromoter',
                     src = step.getObjTag('mm'),
                     label = cms.string(self.getFSRLabel()),
-                    )
+                )
 
                 step.addModule('zeFSREmbedder', zeFSREmbedder, 'ee')
                 step.addModule('zmFSREmbedder', zmFSREmbedder, 'mm')

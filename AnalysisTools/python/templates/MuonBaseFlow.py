@@ -19,20 +19,13 @@ class MuonBaseFlow(AnalysisFlowBase):
                     nPreselMuons="pt > 5 && (isGlobalMuon || isTrackerMuon)",
                 )
             step.addBasicSelector('m', 'pt > 5 && (isGlobalMuon || isTrackerMuon)', "preselection")
+
         elif stepName == 'embedding':
-            self.addMuonPOGIDs(step)
-
-        return step
-
-    def addMuonPOGIDs(self, step):
-        '''
-        Add Muon POG IDs as UserInts
-
-        '''
-        embedMuId = cms.EDProducer(
+            embedMuId = cms.EDProducer(
                 "MuonIdEmbedder",
                 src = step.getObjTag('m'),
                 vertexSrc = step.getObjTag('v')
             )
-        step.addModule("muonIDembedding", embedMuId, 'm')
+            step.addModule("muonIDembedding", embedMuId, 'm')
 
+        return step

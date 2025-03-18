@@ -23,8 +23,8 @@ class ZZCrossCleaning(AnalysisFlowBase):
                 m={
                     'deltaR' : 0.05,
                     'selection' : 'userFloat("{}Tight") > 0.5'.format(self.getZZIDLabel()),
-                    }
-                )
+                }
+            )
             if self.debug:
                 step.addBasicCounter('e', "crossCleaningCounting", nCrossCleanedElectrons="")
 
@@ -37,14 +37,14 @@ class ZZCrossCleaning(AnalysisFlowBase):
                     'selection' : ('userFloat("{}Tight") > 0.5 && '
                                    'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
                                                                    self.getZZIsoLabel()),
-                    },
+                },
                 m={
                     'deltaR' : 0.4,
                     'selection' : ('userFloat("{}Tight") > 0.5 && '
                                    'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
                                                                    self.getZZIsoLabel()),
-                    },
-                )
+                },
+            )
 
             if self.isMC:
                 step.addCrossSelector(
@@ -55,14 +55,14 @@ class ZZCrossCleaning(AnalysisFlowBase):
                         'selection' : ('userFloat("{}Tight") > 0.5 && '
                                        'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
                                                                        self.getZZIsoLabel()),
-                        },
+                    },
                     m={
                         'deltaR' : 0.4,
                         'selection' : ('userFloat("{}Tight") > 0.5 && '
                                        'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
                                                                        self.getZZIsoLabel()),
-                        },
-                    )
+                    },
+                )
                 step.addCrossSelector(
                     'j_jesDown',
                     '', # no further basic selection here
@@ -71,14 +71,14 @@ class ZZCrossCleaning(AnalysisFlowBase):
                         'selection' : ('userFloat("{}Tight") > 0.5 && '
                                        'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
                                                                        self.getZZIsoLabel()),
-                        },
+                    },
                     m={
                         'deltaR' : 0.4,
                         'selection' : ('userFloat("{}Tight") > 0.5 && '
                                        'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
                                                                        self.getZZIsoLabel()),
-                        },
-                    )
+                    },
+                )
                 step.addCrossSelector(
                     'j_jerUp',
                     '', # no further basic selection here
@@ -87,14 +87,14 @@ class ZZCrossCleaning(AnalysisFlowBase):
                         'selection' : ('userFloat("{}Tight") > 0.5 && '
                                        'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
                                                                        self.getZZIsoLabel()),
-                        },
+                    },
                     m={
                         'deltaR' : 0.4,
                         'selection' : ('userFloat("{}Tight") > 0.5 && '
                                        'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
                                                                        self.getZZIsoLabel()),
-                        },
-                    )
+                    },
+                )
                 step.addCrossSelector(
                     'j_jerDown',
                     '', # no further basic selection here
@@ -103,14 +103,14 @@ class ZZCrossCleaning(AnalysisFlowBase):
                         'selection' : ('userFloat("{}Tight") > 0.5 && '
                                        'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
                                                                        self.getZZIsoLabel()),
-                        },
+                    },
                     m={
                         'deltaR' : 0.4,
                         'selection' : ('userFloat("{}Tight") > 0.5 && '
                                        'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
                                                                        self.getZZIsoLabel()),
-                        },
-                    )
+                    },
+                )
 
         return step
 

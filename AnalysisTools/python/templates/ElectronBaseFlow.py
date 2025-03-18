@@ -19,30 +19,21 @@ class ElectronBaseFlow(AnalysisFlowBase):
                 )
             step.addBasicSelector('e', 'pt > 5 && abs(eta) < 2.6', 'preselection')
 
-        if stepName == 'embedding':
-            self.addElectronEAEmbedding(step)
-            self.addElectronRhoEmbedding(step)
+        elif stepName == 'embedding':
+            EAmod = cms.EDProducer(
+                'PATElectronEAEmbedder',
+                src = step.getObjTag('e'),
+                label = cms.string('EffectiveArea'),
+                configFile = cms.FileInPath('RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt'),
+            )
+            Rhomod = cms.EDProducer(
+                "PATElectronValueEmbedder",
+                src = step.getObjTag('e'),
+                doubleLabels = cms.vstring('rho_fastjet'),
+                doubleSrc = cms.VInputTag(cms.InputTag("fixedGridRhoFastjetAll")),
+            )
+
+            step.addModule('electronEAEmbedding', EAmod, 'e')
+            step.addModule('electronRhoEmbedding', Rhomod, 'e')
 
         return step
-
-
-    def addElectronEAEmbedding(self, step):
-        mod = cms.EDProducer(
-            'PATElectronEAEmbedder',
-            src = step.getObjTag('e'),
-            label = cms.string('EffectiveArea'),
-            configFile = cms.FileInPath('RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt'),
-            )
-
-        step.addModule('electronEAEmbedding', mod, 'e')
-
-    def addElectronRhoEmbedding(self, step):
-        mod = cms.EDProducer(
-            "PATElectronValueEmbedder",
-            src = step.getObjTag('e'),
-            doubleLabels = cms.vstring('rho_fastjet'),
-            doubleSrc = cms.VInputTag(cms.InputTag("fixedGridRhoFastjetAll")),
-            )
-
-        step.addModule('electronRhoEmbedding', mod, 'e')
-

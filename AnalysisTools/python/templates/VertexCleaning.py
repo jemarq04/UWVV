@@ -16,8 +16,7 @@ class VertexCleaning(AnalysisFlowBase):
                 src = step.getObjTag('v'),
                 cut = cms.string('!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2'),
                 filter = cms.bool(True),
-                )
-
+            )
             step.addModule("vertexCleaning", vtxCleaner, 'v')
 
         return step

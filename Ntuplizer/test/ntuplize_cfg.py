@@ -107,8 +107,8 @@ options.register("skipEvents", 0,
 options.parseArguments()
 
 # Error checking
+print("Running", options.year, "MC" if options.isMC else "Data")
 if options.year == "2022":
-    print("Running 2022", "MC" if options.isMC else "Data")
     print("postEE: %i" % options.postEE)
     if not options.isMC:
         print("isPrompt: %i" % options.isPrompt)
