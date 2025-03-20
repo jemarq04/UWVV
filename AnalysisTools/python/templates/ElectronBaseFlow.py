@@ -26,6 +26,8 @@ class ElectronBaseFlow(AnalysisFlowBase):
                 label = cms.string('EffectiveArea'),
                 configFile = cms.FileInPath('RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt'),
             )
+            step.addModule('electronEAEmbedding', EAmod, 'e')
+
             Rhomod = cms.EDProducer(
                 "PATElectronValueEmbedder",
                 src = step.getObjTag('e'),
@@ -33,7 +35,6 @@ class ElectronBaseFlow(AnalysisFlowBase):
                 doubleSrc = cms.VInputTag(cms.InputTag("fixedGridRhoFastjetAll")),
             )
 
-            step.addModule('electronEAEmbedding', EAmod, 'e')
             step.addModule('electronRhoEmbedding', Rhomod, 'e')
 
         return step
