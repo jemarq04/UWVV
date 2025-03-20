@@ -110,6 +110,6 @@ if not args.noresubmit:
                 if "failed" in line:
                     relist.append(current)
 
-        with open("%s-resubmit.sh" % ".".join(args.outname.split(".")[-1])) as fre:
+        with open("%s-resubmit.sh" % ".".join(args.outname.split(".")[:-1])) as fre:
             for entry in relist:
                 fre.write("crab resubmit -d %s\n" % entry)
