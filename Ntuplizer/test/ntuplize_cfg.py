@@ -183,7 +183,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.source = cms.Source(
     "PoolSource",
     # Avoid problem with excessive memory use in LHERunInfoProduct
-    inputCommands("keep *", "drop LHERunInfoProduct_*_*_*"),
+    inputCommands = cms.untracked.vstring("keep *", "drop LHERunInfoProduct_*_*_*"),
     fileNames = cms.untracked.vstring(options.inputFiles),
     skipEvents = cms.untracked.uint32(options.skipEvents),
     eventsToProcess = cms.untracked.VEventRange(options.eventsToProcess)
