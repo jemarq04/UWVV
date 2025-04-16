@@ -129,13 +129,23 @@ if (options.isMC and options.isPrompt):
     print("ERROR: option mismatch. isPrompt is for data.")
     exit(1)
 
-if not options.isMC:
+# Override inputs if input file list provided
+if options.inputFileList:
+    with open(options.inputFileList, "r") as f:
+        options.inputFiles = [line.strip() for line in f if line[0] != "#" and not line.isspace()]
+
+# Switch off LHE if (1) data or (2) matches a given MC generator
+if not options.isMC or all(any(x in fname.lower() for x in ["mcfm", "sherpa", "phantom"]) for fname in options.inputFiles):
     options.lheWeights = 0
 
 if options.debug:
     print("Debug flag on")
 
 # Load CMS CFIs
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+process.load("Configuration.StandardSequences.Services_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Geometry.CaloEventSetup.CaloTowerConstituents_cfi")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
@@ -164,11 +174,6 @@ else:
         else:
             gt = "124X_dataRun3_PromptAnalysis_v2"
 
-# Override inputs if input file list provided
-if options.inputFileList:
-    with open(options.inputFileList, "r") as f:
-        options.inputFiles = [line.strip() for line in f if line[0] != "#" and not line.isspace()]
-
 print("globalTag: %s" % gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
@@ -177,7 +182,8 @@ process.schedule = cms.Schedule()
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.source = cms.Source(
     "PoolSource",
-    #inputCommands("keep *", "drop LHERunInfoProduct_*_*_*"),
+    # Avoid problem with excessive memory use in LHERunInfoProduct
+    inputCommands("keep *", "drop LHERunInfoProduct_*_*_*"),
     fileNames = cms.untracked.vstring(options.inputFiles),
     skipEvents = cms.untracked.uint32(options.skipEvents),
     eventsToProcess = cms.untracked.VEventRange(options.eventsToProcess)
@@ -257,7 +263,7 @@ if not wz:
     from UWVV.AnalysisTools.templates.ZZFlow import ZZFlow
     FlowSteps.append(ZZFlow)
 
-# Create initial states
+# Create final states
 if zz or l:
     # Add ZZ information along with jetPUSF
     if zz:
@@ -346,6 +352,9 @@ if not wz:
     if options.year == "2022":
         from UWVV.Ntuplizer.templates.triggerBranches import triggerBranches_2022
         trgBranches = triggerBranches_2022
+else:
+    from UWVV.Ntuplizer.templates.triggerBranches import verboseTriggerBranches
+    trgBranches = verboseTriggerBranches
 
 # Get filter branches
 if options.isMC:
