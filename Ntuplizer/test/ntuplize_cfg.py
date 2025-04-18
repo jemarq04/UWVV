@@ -135,7 +135,7 @@ if options.inputFileList:
         options.inputFiles = [line.strip() for line in f if line[0] != "#" and not line.isspace()]
 
 # Switch off LHE if (1) data or (2) matches a given MC generator
-if not options.isMC or all(any(x in fname.lower() for x in ["mcfm", "sherpa", "phantom"]) for fname in options.inputFiles):
+if not options.isMC: #or all(any(x in fname.lower() for x in ["mcfm", "sherpa", "phantom"]) for fname in options.inputFiles):
     options.lheWeights = 0
 
 if options.debug:
