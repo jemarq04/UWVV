@@ -141,7 +141,7 @@ if not options.isMC: #or all(any(x in fname.lower() for x in ["mcfm", "sherpa", 
 if options.debug:
     print("Debug flag on")
 
-# Load CMS CFIs
+# Load CMS configs
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
