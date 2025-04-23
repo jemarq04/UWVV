@@ -144,7 +144,7 @@ if options.debug:
 # Load CMS configs
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Geometry.CaloEventSetup.CaloTowerConstituents_cfi")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
