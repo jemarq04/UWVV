@@ -10,6 +10,7 @@ metFilters = cms.PSet(
         "Flag_BadPFMuonDzFilter",
         "Flag_hfNoisyHitsFilter",
         "Flag_eeBadScFilter",
+        "Flag_ecalBadCalibFilter",
     ),
     Flag_goodVerticesPaths = cms.vstring("Flag_goodVertices"),
     Flag_globalSuperTightHalo2016FilterPaths = cms.vstring("Flag_globalSuperTightHalo2016Filter"),
@@ -18,6 +19,7 @@ metFilters = cms.PSet(
     Flag_BadPFMuonDzFilterPaths = cms.vstring("Flag_BadPFMuonDzFilter"),
     Flag_hfNoisyHitsFilterPaths = cms.vstring("Flag_hfNoisyHitsFilter"),
     Flag_eeBadScFilterPaths = cms.vstring("Flag_eeBadScFilter"),
+    Flag_ecalBadCalibFilterPaths = cms.vstring("Flag_ecalBadCalibFilter"),
 
     trigResultsSrc = cms.InputTag("TriggerResults", "", "RECO"),
     trigPrescaleSrc = cms.InputTag("patTrigger"),
@@ -34,6 +36,7 @@ metFiltersSIM = cms.PSet(
         "Flag_BadPFMuonDzFilter",
         "Flag_hfNoisyHitsFilter",
         "Flag_eeBadScFilter",
+        "Flag_ecalBadCalibFilter",
     ),
     Flag_goodVerticesPaths = cms.vstring("Flag_goodVertices"),
     Flag_globalSuperTightHalo2016FilterPaths = cms.vstring("Flag_globalSuperTightHalo2016Filter"),
@@ -42,6 +45,7 @@ metFiltersSIM = cms.PSet(
     Flag_BadPFMuonDzFilterPaths = cms.vstring("Flag_BadPFMuonDzFilter"),
     Flag_hfNoisyHitsFilterPaths = cms.vstring("Flag_hfNoisyHitsFilter"),
     Flag_eeBadScFilterPaths = cms.vstring("Flag_eeBadScFilter"),
+    Flag_ecalBadCalibFilterPaths = cms.vstring("Flag_ecalBadCalibFilter"),
 
     trigResultsSrc = cms.InputTag("TriggerResults", "", "PAT"),
     trigPrescaleSrc = cms.InputTag("patTrigger"),
