@@ -145,6 +145,7 @@ if options.debug:
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("Geometry.CaloEventSetup.CaloTowerConstituents_cfi")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -170,9 +171,9 @@ elif options.isMC:
 else:
     if options.year == "2022":
         if not options.isPrompt:
-            gt = "124X_dataRun3_v15"
+            gt = "130X_dataRun3_v2"
         else:
-            gt = "124X_dataRun3_PromptAnalysis_v2"
+            gt = "130X_dataRun3_PromptAnalysis_v1"
 
 print("globalTag: %s" % gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
