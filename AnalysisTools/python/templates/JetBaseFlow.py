@@ -23,51 +23,21 @@ class JetBaseFlow(AnalysisFlowBase):
             # Pileup veto
             # This puts the IDs in the event stream, not an updated
             # jet collection
-            from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_106X_UL16, _chsalgos_106X_UL17, _chsalgos_106X_UL18
+            from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_106X_UL18
             self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
             self.process.pileupJetIdUpdated = self.process.pileupJetId.clone(
                 jets = step.getObjTag('j'),
                 inputIsCorrected = True,
                 applyJec = True,
                 vertexes = step.getObjTag('v'),
+                algos = cms.VPSet(_chsalgos_106X_UL18),
             )
             # CJLST does not re-do pileup jet ID - just uses pileupJetId:fullId
             step.addModule('pileupJetId',
                            self.process.pileupJetId,
                            'puID', puID='fullId')
-
-            # Jet energy corrections
-            # TODO: move to correctionlib - use compound corrections
-            corrections = ['L1FastJet', 'L2Relative', 'L3Absolute',]
-            if not self.isMC:
-                corrections.append('L2L3Residual')
-            updateJetCollection(
-                self.process,
-                jetSource = step.getObjTag('j'),
-                labelName = 'UpdatedJEC',
-                jetCorrections = ('AK4PFchs', cms.vstring(corrections), 'None'),
-            )
-
-            # Store PU ID in jet collection as a userInt
-            self.process.updatedPatJetsUpdatedJEC.userData.userInts.src += [step.getObjTagString('puID')]
-
-            self.process.jecSequence = cms.Sequence(
-                self.process.patJetCorrFactorsUpdatedJEC
-                * self.process.updatedPatJetsUpdatedJEC
-            )
-            step.addModule('jecSequence',
-                           self.process.jecSequence,
-                           'j')
-
-            if self.isMC:
-                # shift corrections up and down for systematics
-                jesShifts = cms.EDProducer(
-                    "PATJetEnergyScaleShifter",
-                    src = step.getObjTag('j'),
-                )
-                step.addModule('jesShifts', jesShifts, 'j_jesUp', 'j_jesDown',
-                               j_jesUp='jesUp', j_jesDown='jesDown')
-
+            
+            # Gen matching
             if self.isMC:
                 patJetGenJetMatch = cms.EDProducer("GenJetMatcher",  # cut on deltaR; pick best by deltaR
                     src         = step.getObjTag('j'),               # RECO jets (any View<Jet> is ok)
@@ -89,6 +59,35 @@ class JetBaseFlow(AnalysisFlowBase):
                 #              )
                 #step.addModule('jetMatchViewerMy',jetMatchViewerMy)
 
+
+            # Jet energy corrections/resolution
+            yearstring = jesConfig = jerConfig = ""
+            if self.year == "2022":
+                yearstring = "2022_Summer22%s" % ("" if self.calibEEera22 == "preEE" else "EE")
+                jesConfig = "Summer22%s_22Sep2023%s_V2" % (
+                    "" if self.calibEEera22 == "preEE" else "EE",
+                    "" if self.isMC else "_RunCD" # TODO: update RunCD appropriately
+                )
+                jerConfig = "Summer22%s_22Sep2023_JRV1" % ("" if self.calibEEera22 == "preEE" else "EE")
+
+            scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
+                                    yearstring, "jet_jerc.json.gz")
+
+            jercEmbedder = cms.EDProducer(
+                "PATJetJERCEmbedder",
+                src = step.getObjTag('j'),
+                rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
+                scaleFile = cms.string(scaleFileP),
+                jesConfig = cms.string(jesConfig),
+                jerconfig = cms.string(jerConfig),
+                isMC = cms.bool(self.isMC),
+            )
+            step.addModule("jercEmbedder", jercEmbedder, 
+                "j_jesUp", "j_jesDown", "j_jerUp", "j_jerDown",
+                j_jesUp="jesUp", j_jesDown="jesDown",
+                j_jerUp="jerUp", j_jerDown="jerDown",
+            )
+
             jetIDEmbedding = cms.EDProducer(
                 "PATJetIDEmbedder",
                 src = step.getObjTag('j'),
@@ -96,6 +95,14 @@ class JetBaseFlow(AnalysisFlowBase):
                 domatch = cms.bool(self.isMC),
             )
             step.addModule('jetIDEmbedding', jetIDEmbedding, 'j') #,j="normaljet") #produce jet and SF mulfac, distinguish jet with extra tag
+
+            # need to re-sort now that we're calibrated
+            jSort = cms.EDProducer(
+                "PATJetCollectionSorter",
+                src = step.getObjTag('j'),
+                function = cms.string('pt'),
+            )
+            step.addModule('jetSorting', jSort, 'j')
 
             if self.isMC:
                 jetIDEmbedding_jesUp = cms.EDProducer(
@@ -110,22 +117,18 @@ class JetBaseFlow(AnalysisFlowBase):
                     setup = cms.int32(int(self.year)),
                 )
                 step.addModule('jetIDEmbeddingJESDown', jetIDEmbedding_jesDown, 'j_jesDown')
-
-                jetSmearing = cms.EDProducer(
-                    "PATJetSmearing",
-                    src = step.getObjTag('j'),
-                    rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
-                    systematics = cms.bool(True),
+                jetIDEmbedding_jerUp = cms.EDProducer(
+                    "PATJetIDEmbedder",
+                    src = step.getObjTag("j_jerUp"),
+                    setup = cms.int32(int(self.year)),
                 )
-                step.addModule("jetSmearing", jetSmearing, 'j', 'j_jerUp',
-                               'j_jerDown', j_jerUp='jerUp', j_jerDown='jerDown')
-
-                jetSmearing_jesUp = jetSmearing.clone(src = step.getObjTag('j_jesUp'),
-                                                      systematics = cms.bool(False))
-                step.addModule("jetSmearingJESUp", jetSmearing_jesUp, 'j_jesUp')
-                jetSmearing_jesDown = jetSmearing.clone(src = step.getObjTag('j_jesDown'),
-                                                      systematics = cms.bool(False))
-                step.addModule("jetSmearingJESDown", jetSmearing_jesDown, 'j_jesDown')
+                step.addModule("jetIDEmbeddingJERUp", jetIDEmbedding_jerUp, "j_jerUp")
+                jetIDEmbedding_jerDown = cms.EDProducer(
+                    "PATJetIDEmbedder",
+                    src = step.getObjTag("j_jerDown"),
+                    setup = cms.int32(int(self.year)),
+                )
+                step.addModule("jetIDEmbeddingJERDown", jetIDEmbedding_jerDown, "j_jerDown")
 
                 # need to re-sort now that we're calibrated
                 jSort_jesUp = cms.EDProducer(
@@ -155,14 +158,6 @@ class JetBaseFlow(AnalysisFlowBase):
                     function = cms.string('pt'),
                 )
                 step.addModule('jetSortingJERDn', jSort_jerDn, 'j_jerDown')
-
-            # need to re-sort now that we're calibrated
-            jSort = cms.EDProducer(
-                "PATJetCollectionSorter",
-                src = step.getObjTag('j'),
-                function = cms.string('pt'),
-            )
-            step.addModule('jetSorting', jSort, 'j')
 
         elif stepName == 'preselection':
             # For now, we're not using the PU ID, but we'll store it in the
