@@ -31,12 +31,13 @@ class JetBaseFlow(AnalysisFlowBase):
                 applyJec = True,
                 vertexes = step.getObjTag('v'),
             )
-            step.addModule('pileupJetIdUpdated',
-                           self.process.pileupJetIdUpdated,
+            # CJLST does not re-do pileup jet ID - just uses pileupJetId:fullId
+            step.addModule('pileupJetId',
+                           self.process.pileupJetId,
                            'puID', puID='fullId')
 
             # Jet energy corrections
-            # TODO: Check how this is done - does this need to move to correctionlib to have finer control over the corrections?
+            # TODO: move to correctionlib - use compound corrections
             corrections = ['L1FastJet', 'L2Relative', 'L3Absolute',]
             if not self.isMC:
                 corrections.append('L2L3Residual')
