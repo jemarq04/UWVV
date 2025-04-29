@@ -73,7 +73,6 @@ class ElectronCalibration(AnalysisFlowBase):
             eCorr = cms.EDProducer(
                 "PATElectronCorrector",
                 src = step.getObjTag('e'),
-                seedGainSrc = cms.InputTag("seedGainEle"),
                 scaleFile = cms.string(scaleFileP),
                 isMC = cms.bool(self.isMC)
             )
