@@ -76,10 +76,8 @@ void PATJetEnergyScaleShifter::produce(edm::Event& iEvent,
       jecUnc.setJetPt(jet.pt());
       float unc = jecUnc.getUncertainty(true);
 
-      outUp->back().setP4(math::PtEtaPhiMLorentzVector(jet.pt()*(1.+unc), jet.eta(),
-                                                       jet.phi(), jet.mass()));
-      outDn->back().setP4(math::PtEtaPhiMLorentzVector(jet.pt()*(1.-unc), jet.eta(),
-                                                       jet.phi(), jet.mass()));
+      outUp->back().setP4(math::XYZTLorentzVector((1.+unc) * jet.p4()));
+      outDn->back().setP4(math::XYZTLorentzVector((1.-unc) * jet.p4()));
     }
 
   iEvent.put(std::move(outUp), "jesUp");
