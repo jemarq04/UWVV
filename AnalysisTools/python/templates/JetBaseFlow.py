@@ -23,19 +23,26 @@ class JetBaseFlow(AnalysisFlowBase):
             # Pileup veto
             # This puts the IDs in the event stream, not an updated
             # jet collection
-            from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_106X_UL18
-            self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
-            self.process.pileupJetIdUpdated = self.process.pileupJetId.clone(
-                jets = step.getObjTag('j'),
-                inputIsCorrected = True,
-                applyJec = True,
-                vertexes = step.getObjTag('v'),
-                algos = cms.VPSet(_chsalgos_106X_UL18),
-            )
-            # CJLST does not re-do pileup jet ID - just uses pileupJetId:fullId
-            step.addModule('pileupJetId',
-                           self.process.pileupJetId,
-                           'puID', puID='fullId')
+            if self.year == "2024":
+                self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
+                self.process.pileupJetIdUpdated = self.process.pileupJetIdPuppi.clone(
+                    jets = step.getObjTag('j'),
+                    inputIsCorrected = True,
+                    applyJec = True,
+                    vertexes = step.getObjTag('v'),
+                )
+                step.addModule('pileupJetIdUpdated',
+                               self.process.pileupJetIdUpdated,
+                               'puID', puID='fullId')
+            else:
+                # this producer will create a ValueMap<int> filled with the given value,
+                # as a placeholder for the pileup ID until it is available for 2022-23
+                self.process.pileupJetIdPlaceholder = cms.EDProducer(
+                    "PATJetPUIDProducer",
+                    src = step.getObjTag('j'),
+                    value = cms.int32(7),
+                )
+                step.addModule("pileupJetIdPlaceholder", pileupJetIdPlaceholder, "puID", puID="fullId")
             
             # Gen matching
             if self.isMC:
