@@ -110,7 +110,6 @@ bool PATJetIDEmbedder::passTight(const Jet& jet) const
   float NHF  = jet.neutralHadronEnergyFraction();
   float NEMF = jet.neutralEmEnergyFraction();
   float CHF  = jet.chargedHadronEnergyFraction();
-  float CEMF = jet.chargedEmEnergyFraction();
   int NumConst = jet.chargedMultiplicity()+jet.neutralMultiplicity();
   int NumNeutralParticles = jet.neutralMultiplicity();
   float CHM  = jet.chargedMultiplicity();
@@ -122,15 +121,15 @@ bool PATJetIDEmbedder::passTight(const Jet& jet) const
   if ( setup_ == 2016 )
   {
     // Tight jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVUL#Recommendations_for_the_13_TeV_U
-    JetID = (absEta <= 2.4 && NHF < 0.90 && NEMF < 0.90 && NumConst > 1 && CHF > 0 && CEMF > 0) ||
+    JetID = (absEta <= 2.4 && NHF < 0.90 && NEMF < 0.90 && NumConst > 1 && CHF > 0 && CHM > 0) ||
             (absEta > 2.4 && absEta <= 2.7 && NHF < 0.90 && NEMF < 0.99) ||
-            (absEta > 2.7 && absEta <= 3.0 && NHF < 0.90 && NEMF > 0 && NEMF < 0.99 && NumNuetralParticles > 1) ||
+            (absEta > 2.7 && absEta <= 3.0 && NHF < 0.90 && NEMF > 0 && NEMF < 0.99 && NumNeutralParticles > 1) ||
             (absEta > 3.0 && NHF > 0.2 && NEMF < 0.90 && NumNeutralParticles>10);
   }
   else if ( setup_ == 2017 || setup_ == 2018)
   {
     // Tight jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVUL#Recommendations_for_the_13_T_AN1
-    JetID = (absEta <= 2.4 && NHF < 0.90 && NEMF < 0.90 && NumConst > 1 && CHF > 0 && CEMF > 0) ||
+    JetID = (absEta <= 2.4 && NHF < 0.90 && NEMF < 0.90 && NumConst > 1 && CHF > 0 && CHM > 0) ||
             (absEta > 2.4 && absEta <= 2.7 && NHF < 0.90 && NEMF < 0.99 && CHM > 0) ||
             (absEta > 2.7 && absEta <= 3.0 && NEMF > 0.01 && NEMF < 0.99 && NumNeutralParticles > 1) ||
             (absEta > 3.0 && NHF > 0.2 && NEMF < 0.9 && NumNeutralParticles > 10);
