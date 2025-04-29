@@ -44,8 +44,8 @@ private:
 
   edm::EDGetTokenT<JetView> srcToken;
   edm::EDGetTokenT<double> rhoToken;
-  std::string scaleFileName_, smearFileName_, config_;
-  std::unique_ptr<correction::CorrectionSet> scaleFile_, smearFile_;
+  std::string scaleFileName_, config_;
+  std::unique_ptr<correction::CorrectionSet> scaleFile_;
   const bool isMC_, systematics_;
   edm::ConsumesCollector cc;
   edm::ESGetToken<JetCorrectorParametersCollection,JetCorrectionsRecord> jecToken;
@@ -68,13 +68,6 @@ PATJetCorrector::PATJetCorrector(const edm::ParameterSet& iConfig) :
   }
   catch (...){
     throw cms::Exception("Invalid JSON file") << "Filepath: " << scaleFileName_;
-  }
-  try{
-    smearFile_ = correction::CorrectionSet::from_file(smearFileName_);
-    if (smearFile_ == nullptr) throw cms::Exception("Invalid JER Smear file") << smearFileName_;
-  }
-  catch (...){
-    throw cms::Exception("Invalid JER Smear file") << smearFileName_;
   }
 
   produces<VJet>();
