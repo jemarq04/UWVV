@@ -111,10 +111,11 @@ bool PATJetIDEmbedder::passTight(const Jet& jet) const
   float NHF  = jet.neutralHadronEnergyFraction();
   float NEMF = jet.neutralEmEnergyFraction();
   float CHF  = jet.chargedHadronEnergyFraction();
-  //float CEMF = jet.chargedEmEnergyFraction();
+  float CEMF = jet.chargedEmEnergyFraction();
   int NumConst = jet.chargedMultiplicity()+jet.neutralMultiplicity();
   int NumNeutralParticles = jet.neutralMultiplicity();
   float CHM  = jet.chargedMultiplicity();
+  float MF   = jet.muonEnergyFraction();
 
   float absEta = std::abs(jet.eta());
 
@@ -122,8 +123,8 @@ bool PATJetIDEmbedder::passTight(const Jet& jet) const
 
   if (setup_ == 2022){
     //https://twiki.cern.ch/twiki/bin/view/CMS/JetID13p6TeV#Recommendations_for_the_13_6_AN1 (assuming AK4CHS)
-    JetID = (absEta <= 2.6 && NHF < 0.99 && NEMF < 0.90 && NumConst > 1 && CHF > 0.01 && CHM > 0) ||
-            (absEta > 2.6 && absEta <= 2.7 && NHF < 0.9 && NEMF < 0.99 && CHM > 0) ||
+    JetID = (absEta <= 2.6 && NHF < 0.99 && NEMF < 0.90 && NumConst > 1 && MF < 0.80 && CHF > 0.01 && CHM > 0 && CEMF < 0.80) ||
+            (absEta > 2.6 && absEta <= 2.7 && NHF < 0.9 && NEMF < 0.99 && MF < 0.80 && CHM > 0 && CEMF < 0.80) ||
             (absEta > 2.7 && absEta <= 3.0 && NHF < 0.99 && NEMF < 0.99 && NumNeutralParticles > 1) ||
             (absEta > 3.0 && NEMF < 0.4 && NumNeutralParticles > 10);
   }
