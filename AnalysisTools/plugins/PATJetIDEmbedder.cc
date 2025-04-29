@@ -119,15 +119,15 @@ bool PATJetIDEmbedder::passTight(const Jet& jet) const
 
   bool JetID = false;
 
-  if (setup_ == 2022){
-    //https://twiki.cern.ch/twiki/bin/view/CMS/JetID13p6TeV#Recommendations_for_the_13_6_AN1 (assuming AK4CHS)
+  if (setup_ >= 2022){
+    //https://twiki.cern.ch/twiki/bin/view/CMS/JetID13p6TeV#Recommendations_for_the_13_6_AN1 (assuming PUPPI)
     JetID = (absEta <= 2.6 && NHF < 0.99 && NEMF < 0.90 && NumConst > 1 && MF < 0.80 && CHF > 0.01 && CHM > 0 && CEMF < 0.80) ||
-            (absEta > 2.6 && absEta <= 2.7 && NHF < 0.9 && NEMF < 0.99 && MF < 0.80 && CHM > 0 && CEMF < 0.80) ||
-            (absEta > 2.7 && absEta <= 3.0 && NHF < 0.99 && NEMF < 0.99 && NumNeutralParticles > 1) ||
-            (absEta > 3.0 && NEMF < 0.4 && NumNeutralParticles > 10);
+            (absEta > 2.6 && absEta <= 2.7 && NHF < 0.9 && NEMF < 0.99 && MF < 0.80 && CEMF < 0.80) ||
+            (absEta > 2.7 && absEta <= 3.0 && NHF < 0.99) ||
+            (absEta > 3.0 && NEMF < 0.4 && NumNeutralParticles >= 2);
   }
-  else
-    throw cms::Exception("JetID") << "Jet ID is not defined for the given setup (" << setup_ << ")!";
+  else throw cms::Exception("JetID") << "Jet ID is not defined for the given setup (" << setup_ << ")!";
+
   return JetID;
 }
 
