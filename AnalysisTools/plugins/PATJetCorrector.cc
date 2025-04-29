@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //                                                                          //
-//    PATJetCorrector.cc                                                 //
+//    PATJetCorrector.cc                                                    //
 //                                                                          //
 //    Author: Justin Marquez, U. Wisconsin                                  //
 //                                                                          //
