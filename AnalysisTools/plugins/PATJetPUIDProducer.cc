@@ -53,7 +53,6 @@ void PATJetPUIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   for (size_t i=0; i<in->size(); i++)
     ids.push_back(value_);
 
-  //TODO: add in value maps to event
   auto out = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler filler(*out);
   filler.insert(in, ids.begin(), ids.end());
