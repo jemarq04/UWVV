@@ -60,7 +60,7 @@ class JetBaseFlow(AnalysisFlowBase):
                 #step.addModule('jetMatchViewerMy',jetMatchViewerMy)
 
 
-            # Jet energy corrections/resolution
+            # Setup/configuration
             yearstring = jesConfig = jerConfig = ""
             if self.year == "2022":
                 yearstring = "2022_Summer22%s" % ("" if self.calibEEera22 == "preEE" else "EE")
@@ -73,21 +73,23 @@ class JetBaseFlow(AnalysisFlowBase):
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
                                     yearstring, "jet_jerc.json.gz")
 
-            jercEmbedder = cms.EDProducer(
-                "PATJetJERCEmbedder",
+            # Jet energy corrections + uncertainties (JES)
+            jetCorrector = cms.EDProducer(
+                "PATJetCorrector",
                 src = step.getObjTag('j'),
                 rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
                 scaleFile = cms.string(scaleFileP),
-                jesConfig = cms.string(jesConfig),
-                jerconfig = cms.string(jerConfig),
+                config = cms.string(jesConfig),
                 isMC = cms.bool(self.isMC),
             )
-            step.addModule("jercEmbedder", jercEmbedder, 
-                "j_jesUp", "j_jesDown", "j_jerUp", "j_jerDown",
-                j_jesUp="jesUp", j_jesDown="jesDown",
-                j_jerUp="jerUp", j_jerDown="jerDown",
-            )
+            if self.isMC:
+                step.addModule("jetCorrectorMC", jetCorrector, 'j',
+                    "j_jesUp", "j_jesDown", j_jesUp="jesUp", j_jesDown="jesDown"
+                )
+            else:
+                step.addModule("jetCorrectorData", jetCorrector, 'j')
 
+            # UWVV Jet ID
             jetIDEmbedding = cms.EDProducer(
                 "PATJetIDEmbedder",
                 src = step.getObjTag('j'),
@@ -95,14 +97,6 @@ class JetBaseFlow(AnalysisFlowBase):
                 domatch = cms.bool(self.isMC),
             )
             step.addModule('jetIDEmbedding', jetIDEmbedding, 'j') #,j="normaljet") #produce jet and SF mulfac, distinguish jet with extra tag
-
-            # need to re-sort now that we're calibrated
-            jSort = cms.EDProducer(
-                "PATJetCollectionSorter",
-                src = step.getObjTag('j'),
-                function = cms.string('pt'),
-            )
-            step.addModule('jetSorting', jSort, 'j')
 
             if self.isMC:
                 jetIDEmbedding_jesUp = cms.EDProducer(
@@ -117,18 +111,31 @@ class JetBaseFlow(AnalysisFlowBase):
                     setup = cms.int32(int(self.year)),
                 )
                 step.addModule('jetIDEmbeddingJESDown', jetIDEmbedding_jesDown, 'j_jesDown')
-                jetIDEmbedding_jerUp = cms.EDProducer(
-                    "PATJetIDEmbedder",
-                    src = step.getObjTag("j_jerUp"),
-                    setup = cms.int32(int(self.year)),
+
+                # Jet smearing + uncertainties (JER)
+                jetSmearing = cms.EDProducer(
+                    "PATJetSmearing",
+                    src = step.getObjTag('j'),
+                    rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
+                    scaleFile = cms.string(scaleFileP),
+                    config = cms.string(jerConfig),
+                    systematics = cms.bool(True),
                 )
-                step.addModule("jetIDEmbeddingJERUp", jetIDEmbedding_jerUp, "j_jerUp")
-                jetIDEmbedding_jerDown = cms.EDProducer(
-                    "PATJetIDEmbedder",
-                    src = step.getObjTag("j_jerDown"),
-                    setup = cms.int32(int(self.year)),
+                step.addModule("jetSmearing", jetSmearing, 'j',
+                    "j_jerUp", "j_jerDown", j_jerUp="jerUp", j_jerDown="jerDown"
                 )
-                step.addModule("jetIDEmbeddingJERDown", jetIDEmbedding_jerDown, "j_jerDown")
+
+                jetSmearing_jesUp = jetSmearing.clone(
+                    src = step.getObjTag("j_jesUp"),
+                    systematics = cms.bool(False),
+                )
+                step.addModule("jetSmearingJESUp", jetSmearing_jesUp, "j_jesUp")
+                
+                jetSmearing_jesDown = jetSmearing.clone(
+                    src = step.getObjTag("j_jesDown"),
+                    systematics = cms.bool(False),
+                )
+                step.addModule("jetSmearingJESDown", jetSmearing_jesDown, "j_jesDown")
 
                 # need to re-sort now that we're calibrated
                 jSort_jesUp = cms.EDProducer(
@@ -158,6 +165,14 @@ class JetBaseFlow(AnalysisFlowBase):
                     function = cms.string('pt'),
                 )
                 step.addModule('jetSortingJERDn', jSort_jerDn, 'j_jerDown')
+
+            # need to re-sort now that we're calibrated
+            jSort = cms.EDProducer(
+                "PATJetCollectionSorter",
+                src = step.getObjTag('j'),
+                function = cms.string('pt'),
+            )
+            step.addModule('jetSorting', jSort, 'j')
 
         elif stepName == 'preselection':
             # For now, we're not using the PU ID, but we'll store it in the
