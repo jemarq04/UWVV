@@ -115,7 +115,7 @@ bool PATJetIDEmbedder::passTight(const Jet& jet) const
   int NumConst = jet.chargedMultiplicity()+jet.neutralMultiplicity();
   int NumNeutralParticles = jet.neutralMultiplicity();
   float CHM  = jet.chargedMultiplicity();
-  float MF   = jet.muonEnergyFraction()
+  float MF   = jet.muonEnergyFraction();
 
   float absEta = std::abs(jet.eta());
 
