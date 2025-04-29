@@ -37,12 +37,20 @@ class JetBaseFlow(AnalysisFlowBase):
             else:
                 # this producer will create a ValueMap<int> filled with the given value,
                 # as a placeholder for the pileup ID until it is available for 2022-23
-                self.process.pileupJetIdPlaceholder = cms.EDProducer(
+                self.process.pileupJetIdUpdated = cms.EDProducer(
                     "PATJetPUIDProducer",
                     src = step.getObjTag('j'),
                     value = cms.int32(7),
                 )
-                step.addModule("pileupJetIdPlaceholder", pileupJetIdPlaceholder, "puID", puID="fullId")
+                step.addModule("pileupJetIdUpdated", self.process.pileupJetIdUpdated, "puID", puID="fullId")
+            
+            jetPUIDEmbedder = cms.EDProducer(
+                "PATJetValueMapEmbedder",
+                src = step.getObjTag('j'),
+                intLabels = cms.untracked.vstring("pileupJetIdUpdated:fullId"),
+                intVals = cms.untracked.VInputTag("pileupJetIdUpdated:fullId"),
+            )
+            step.addModule("jetPUIDEmbedder", jetPUIDEmbedder, 'j')
             
             # Gen matching
             if self.isMC:
@@ -66,6 +74,14 @@ class JetBaseFlow(AnalysisFlowBase):
                 #              )
                 #step.addModule('jetMatchViewerMy',jetMatchViewerMy)
 
+            # UWVV Jet ID
+            jetIDEmbedding = cms.EDProducer(
+                "PATJetIDEmbedder",
+                src = step.getObjTag('j'),
+                setup = cms.int32(int(self.year)),
+                domatch = cms.bool(self.isMC),
+            )
+            step.addModule('jetIDEmbedding', jetIDEmbedding, 'j')
 
             # Setup/configuration
             yearstring = jesConfig = jerConfig = ""
@@ -96,29 +112,7 @@ class JetBaseFlow(AnalysisFlowBase):
             else:
                 step.addModule("jetCorrectorData", jetCorrector, 'j')
 
-            # UWVV Jet ID
-            jetIDEmbedding = cms.EDProducer(
-                "PATJetIDEmbedder",
-                src = step.getObjTag('j'),
-                setup = cms.int32(int(self.year)),
-                domatch = cms.bool(self.isMC),
-            )
-            step.addModule('jetIDEmbedding', jetIDEmbedding, 'j') #,j="normaljet") #produce jet and SF mulfac, distinguish jet with extra tag
-
             if self.isMC:
-                jetIDEmbedding_jesUp = cms.EDProducer(
-                    "PATJetIDEmbedder",
-                    src = step.getObjTag('j_jesUp'),
-                    setup = cms.int32(int(self.year)),
-                )
-                step.addModule('jetIDEmbeddingJESUp', jetIDEmbedding_jesUp, 'j_jesUp')
-                jetIDEmbedding_jesDown = cms.EDProducer(
-                    "PATJetIDEmbedder",
-                    src = step.getObjTag('j_jesDown'),
-                    setup = cms.int32(int(self.year)),
-                )
-                step.addModule('jetIDEmbeddingJESDown', jetIDEmbedding_jesDown, 'j_jesDown')
-
                 # Jet smearing + uncertainties (JER)
                 jetSmearing = cms.EDProducer(
                     "PATJetSmearing",
