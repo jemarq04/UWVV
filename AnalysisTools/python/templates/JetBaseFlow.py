@@ -14,6 +14,8 @@ class JetBaseFlow(AnalysisFlowBase):
             self.year = kwargs.pop('year', '2016')
         if not hasattr(self, 'runningLocal'):
             self.runningLocal = kwargs.pop('runningLocal', False)
+        if not hasattr(self, 'CalibULera16'):
+            self.CalibULera16 = kwargs.pop('CalibULera16', '2016postVFP-UL')
         super(JetBaseFlow, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
@@ -26,10 +28,13 @@ class JetBaseFlow(AnalysisFlowBase):
             # Pileup veto
             # This puts the IDs in the event stream, not an updated
             # jet collection
-            from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_106X_UL16, _chsalgos_106X_UL17, _chsalgos_106X_UL18
+            from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_106X_UL16, _chsalgos_106X_UL16APV, _chsalgos_106X_UL17, _chsalgos_106X_UL18
             algos = None
             if LeptonSetup == "2016":
-                algos = cms.VPSet(_chsalgos_106X_UL16)
+                if self.CalibULera16 == "2016preVFP-UL":
+                    algos = cms.VPSet(_chsalgos_106X_UL16)
+                else:
+                    algos = cms.VPSet(_chsalgos_106X_UL16APV)
             elif LeptonSetup == "2017":
                 algos = cms.VPSet(_chsalgos_106X_UL17)
             elif LeptonSetup == "2018":
