@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
@@ -57,8 +58,7 @@ PATJetEnergyScaleShifter::PATJetEnergyScaleShifter(const edm::ParameterSet& pset
 }
 
 
-void PATJetEnergyScaleShifter::produce(edm::Event& iEvent,
-                                       const edm::EventSetup& iSetup)
+void PATJetEnergyScaleShifter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<JetView> in;
   iEvent.getByToken(srcToken, in);
@@ -72,20 +72,18 @@ void PATJetEnergyScaleShifter::produce(edm::Event& iEvent,
   std::unique_ptr<VJet> outDn(new VJet());
 
   for(size_t i = 0; i < in->size(); ++i)
-    {
-      const Jet& jet = in->at(i);
-      outUp->push_back(jet); // copies, transfers ownership
-      outDn->push_back(jet);
+  {
+    const Jet& jet = in->at(i);
+    outUp->push_back(jet); // copies, transfers ownership
+    outDn->push_back(jet);
 
-      jecUnc.setJetEta(jet.eta());
-      jecUnc.setJetPt(jet.pt());
-      float unc = jecUnc.getUncertainty(true);
+    jecUnc.setJetEta(jet.eta());
+    jecUnc.setJetPt(jet.pt());
+    float unc = jecUnc.getUncertainty(true);
 
-      outUp->back().setP4(math::PtEtaPhiMLorentzVector(jet.pt()*(1.+unc), jet.eta(),
-                                                       jet.phi(), jet.mass()));
-      outDn->back().setP4(math::PtEtaPhiMLorentzVector(jet.pt()*(1.-unc), jet.eta(),
-                                                       jet.phi(), jet.mass()));
-    }
+    outUp->back().setP4(math::XYZTLorentzVector((1.+unc) * jet.p4()));
+    outDn->back().setP4(math::XYZTLorentzVector((1.-unc) * jet.p4()));
+  }
 
   iEvent.put(std::move(outUp), "jesUp");
   iEvent.put(std::move(outDn), "jesDown");
