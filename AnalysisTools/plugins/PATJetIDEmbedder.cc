@@ -78,9 +78,7 @@ void PATJetIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
     Jet& jet = out->back();
 
-    int idPU = jet.userInt("pileupJetIdUpdated:fullId");
     jet.addUserFloat("idTight", float(passTight(jet)));
-    jet.addUserFloat("idPU", float(idPU));
 
     if (domatch_){
       edm::Ref<JetView> jetRef(in, i);
@@ -89,6 +87,7 @@ void PATJetIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
       /*
       jetcount++;
+      int idPU = jet.userInt("pileupJetIdUpdated:fullId");
       if (genMatched.isNonnull()){
         printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n", 
         evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), genMatched->pt(), genMatched->eta(), genMatched->phi(),jetRef->userInt("pileupJetId:fullId"), idPU, jetcount);
