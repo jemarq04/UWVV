@@ -52,6 +52,35 @@ class JetBaseFlow(AnalysisFlowBase):
             )
             step.addModule("jetPUIDEmbedder", jetPUIDEmbedder, 'j')
             
+            # Setup/configuration
+            yearstring = jesConfig = jerConfig = ""
+            if self.year == "2022":
+                yearstring = "2022_Summer22%s" % ("" if self.calibEEera22 == "preEE" else "EE")
+                jesConfig = "Summer22%s_22Sep2023%s_V2" % (
+                    "" if self.calibEEera22 == "preEE" else "EE",
+                    "" if self.isMC else "_RunCD" # TODO: update RunCD appropriately
+                )
+                jerConfig = "Summer22%s_22Sep2023_JRV1" % ("" if self.calibEEera22 == "preEE" else "EE")
+
+            scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
+                                    yearstring, "jet_jerc.json.gz")
+
+            # Jet energy corrections + uncertainties (JES)
+            jetCorrector = cms.EDProducer(
+                "PATJetCorrector",
+                src = step.getObjTag('j'),
+                rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
+                scaleFile = cms.string(scaleFileP),
+                config = cms.string(jesConfig),
+                isMC = cms.bool(self.isMC),
+            )
+            if self.isMC:
+                step.addModule("jetCorrectorMC", jetCorrector, 'j',
+                    "j_jesUp", "j_jesDown", j_jesUp="jesUp", j_jesDown="jesDown"
+                )
+            else:
+                step.addModule("jetCorrectorData", jetCorrector, 'j')
+
             # Gen matching
             if self.isMC:
                 patJetGenJetMatch = cms.EDProducer("GenJetMatcher",  # cut on deltaR; pick best by deltaR
@@ -83,36 +112,14 @@ class JetBaseFlow(AnalysisFlowBase):
             )
             step.addModule('jetIDEmbedding', jetIDEmbedding, 'j')
 
-            # Setup/configuration
-            yearstring = jesConfig = jerConfig = ""
-            if self.year == "2022":
-                yearstring = "2022_Summer22%s" % ("" if self.calibEEera22 == "preEE" else "EE")
-                jesConfig = "Summer22%s_22Sep2023%s_V2" % (
-                    "" if self.calibEEera22 == "preEE" else "EE",
-                    "" if self.isMC else "_RunCD" # TODO: update RunCD appropriately
-                )
-                jerConfig = "Summer22%s_22Sep2023_JRV1" % ("" if self.calibEEera22 == "preEE" else "EE")
-
-            scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
-                                    yearstring, "jet_jerc.json.gz")
-
-            # Jet energy corrections + uncertainties (JES)
-            jetCorrector = cms.EDProducer(
-                "PATJetCorrector",
-                src = step.getObjTag('j'),
-                rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
-                scaleFile = cms.string(scaleFileP),
-                config = cms.string(jesConfig),
-                isMC = cms.bool(self.isMC),
-            )
             if self.isMC:
-                step.addModule("jetCorrectorMC", jetCorrector, 'j',
-                    "j_jesUp", "j_jesDown", j_jesUp="jesUp", j_jesDown="jesDown"
-                )
-            else:
-                step.addModule("jetCorrectorData", jetCorrector, 'j')
+                # UWVV Jet ID (JES Up/Down)
+                jetIDEmbedding_jesUp = jetIDEmbedding.clone(src = step.getObjTag("j_jesUp"))
+                step.addModule("jetIDEmbeddingJESUp", jetIDEmbedding_jesUp, "j_jesUp")
 
-            if self.isMC:
+                jetIDEmbedding_jesDown = jetIDEmbedding.clone(src = step.getObjTag("j_jesDown"))
+                step.addModule("jetIDEmbeddingJESDown", jetIDEmbedding_jesDown, "j_jesDown")
+
                 # Jet smearing + uncertainties (JER)
                 jetSmearing = cms.EDProducer(
                     "PATJetSmearing",
