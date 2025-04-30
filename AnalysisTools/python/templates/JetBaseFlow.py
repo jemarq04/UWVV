@@ -114,10 +114,10 @@ class JetBaseFlow(AnalysisFlowBase):
 
             if self.isMC:
                 # UWVV Jet ID (JES Up/Down)
-                jetIDEmbedding_jesUp = jetIDEmbedding.clone(src = step.getObjTag("j_jesUp"))
+                jetIDEmbedding_jesUp = jetIDEmbedding.clone(src = step.getObjTag("j_jesUp"), domatch = cms.bool(False))
                 step.addModule("jetIDEmbeddingJESUp", jetIDEmbedding_jesUp, "j_jesUp")
 
-                jetIDEmbedding_jesDown = jetIDEmbedding.clone(src = step.getObjTag("j_jesDown"))
+                jetIDEmbedding_jesDown = jetIDEmbedding.clone(src = step.getObjTag("j_jesDown"), domatch = cms.bool(False))
                 step.addModule("jetIDEmbeddingJESDown", jetIDEmbedding_jesDown, "j_jesDown")
 
                 # Jet smearing + uncertainties (JER)
