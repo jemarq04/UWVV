@@ -78,7 +78,6 @@ class ElectronCalibration(AnalysisFlowBase):
             )
             step.addModule("calibratedPatElectrons", eCorr, 'e')
 
-        elif stepName == 'selection':
             # need to re-sort now that we're calibrated
             eSort = cms.EDProducer(
                 "PATElectronCollectionSorter",
