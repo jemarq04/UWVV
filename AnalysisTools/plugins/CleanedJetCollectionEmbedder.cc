@@ -39,6 +39,7 @@
 typedef pat::CompositeCandidate CCand;
 typedef pat::Jet Jet;
 typedef std::vector<Jet> VJet;
+typedef edm::PtrVector<Jet> VJetPtr;
 typedef edm::View<Jet> JetView;
 
 class CleanedJetCollectionEmbedder : public edm::stream::EDProducer<>
@@ -51,21 +52,17 @@ class CleanedJetCollectionEmbedder : public edm::stream::EDProducer<>
   private:
     virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup);
 
-    edm::PtrVector<pat::Jet> getCleanedJetCollection(edm::Event &iEvent,
-        const edm::EDGetTokenT<edm::View<pat::Jet>> &jetToken,
-        const reco::CompositeCandidate &initialState);
-
-    edm::PtrVector<pat::Jet> getCleanedJetCollection2(edm::Event &iEvent,
-        const edm::EDGetTokenT<edm::View<pat::Jet>> &jetToken,
-        const reco::CompositeCandidate &initialState);
+    VJetPtr getCleanedJetCollection(edm::Event &iEvent,
+        const edm::EDGetTokenT<JetView> &jetToken,
+        const reco::CompositeCandidate &initialState,
+        bool checkPUID=false);
 
     const edm::EDGetTokenT<edm::View<CCand>> srcToken;
-    const edm::EDGetTokenT<edm::View<pat::Jet>> jetSrcToken;
+    const edm::EDGetTokenT<JetView> jetSrcToken;
 
     const std::string collectionName;
 
     typedef edm::Association<reco::GenJetCollection> MatchMap;
-    edm::EDGetTokenT<JetView> srcToken2;
     edm::EDGetTokenT<MatchMap> matchToken_;
     std::unique_ptr<correction::CorrectionSet> scaleFile_;
     bool domatch_;
@@ -73,29 +70,25 @@ class CleanedJetCollectionEmbedder : public edm::stream::EDProducer<>
     const int setup_;
 
     const double deltaR;
-    const bool APV;
     const std::string workingPoint;
 
-    edm::EDGetTokenT<edm::View<pat::Jet>> jesUpJetSrcToken;
-    edm::EDGetTokenT<edm::View<pat::Jet>> jesDownJetSrcToken;
-    edm::EDGetTokenT<edm::View<pat::Jet>> jerUpJetSrcToken;
-    edm::EDGetTokenT<edm::View<pat::Jet>> jerDownJetSrcToken;
+    edm::EDGetTokenT<JetView> jesUpJetSrcToken;
+    edm::EDGetTokenT<JetView> jesDownJetSrcToken;
+    edm::EDGetTokenT<JetView> jerUpJetSrcToken;
+    edm::EDGetTokenT<JetView> jerDownJetSrcToken;
     bool jesUpTagExists;
     bool jesDownTagExists;
     bool jerUpTagExists;
     bool jerDownTagExists;
 
-    int PUid;
-    int evtcount = 0;
-    int jetcount = 0;
     float weight;
 
     typedef const edm::Ptr<reco::Candidate>(FType)(const reco::Candidate *const);
 };
 
-CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterSet &iConfig) 
-  : srcToken(consumes<edm::View<CCand>>(iConfig.getParameter<edm::InputTag>("src"))),
-  jetSrcToken(consumes<edm::View<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jetSrc"))),
+CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterSet &iConfig) :
+  srcToken(consumes<edm::View<CCand>>(iConfig.getParameter<edm::InputTag>("src"))),
+  jetSrcToken(consumes<JetView>(iConfig.getParameter<edm::InputTag>("jetSrc"))),
   collectionName(iConfig.getUntrackedParameter<std::string>("collectionName", "cleanedJets")),
   matchToken_(consumes<MatchMap>(edm::InputTag("patJetGenJetMatch2"))),
   domatch_(iConfig.exists("domatch") ? iConfig.getParameter<bool>("domatch") : false),
@@ -103,7 +96,6 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   // Which year JET ID we need
   setup_(iConfig.exists("setup") ? iConfig.getParameter<int>("setup") : 2022),
   deltaR(iConfig.getUntrackedParameter<double>("deltaR", 0.4)),
-  APV(iConfig.exists("APV") ? iConfig.getParameter<bool>("APV") : false),
   workingPoint(iConfig.exists("workingPoint") ? iConfig.getParameter<std::string>("workingPoint") : "T"),
   jesUpTagExists(iConfig.existsAs<edm::InputTag>("jesUpJetSrc")),
   jesDownTagExists(iConfig.existsAs<edm::InputTag>("jesDownJetSrc")),
@@ -111,20 +103,20 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   jerDownTagExists(iConfig.existsAs<edm::InputTag>("jerDownJetSrc"))
 {
   if (jesUpTagExists)
-    jesUpJetSrcToken = consumes<edm::View<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jesUpJetSrc"));
+    jesUpJetSrcToken = consumes<JetView>(iConfig.getParameter<edm::InputTag>("jesUpJetSrc"));
   if (jesDownTagExists)
-    jesDownJetSrcToken = consumes<edm::View<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jesDownJetSrc"));
+    jesDownJetSrcToken = consumes<JetView>(iConfig.getParameter<edm::InputTag>("jesDownJetSrc"));
   if (jerUpTagExists)
-    jerUpJetSrcToken = consumes<edm::View<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jerUpJetSrc"));
+    jerUpJetSrcToken = consumes<JetView>(iConfig.getParameter<edm::InputTag>("jerUpJetSrc"));
   if (jerDownTagExists)
-    jerDownJetSrcToken = consumes<edm::View<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jerDownJetSrc"));
+    jerDownJetSrcToken = consumes<JetView>(iConfig.getParameter<edm::InputTag>("jerDownJetSrc"));
 
-  if (domatch_ && scaleFileN_ != "sfFileNone") 
+  if (scaleFileN_ != "sfFileNone" && domatch_)
   {
     // Define correction set here
     try{
       scaleFile_ = correction::CorrectionSet::from_file(scaleFileN_);
-      if (scaleFile_ == nullptr) throw cms::Exception("Invalid POG file");
+      if (scaleFile_ == nullptr) throw cms::Exception("Invalid POG file") << "Filepath: " << scaleFileN_;
     }
     catch (...){
       throw cms::Exception("Invalid POG file") << "Filepath: " << scaleFileN_;
@@ -134,8 +126,7 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   produces<std::vector<CCand>>();
 }
 
-void CleanedJetCollectionEmbedder::produce(edm::Event &iEvent,
-    const edm::EventSetup &iSetup)
+void CleanedJetCollectionEmbedder::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
 {
   edm::Handle<edm::View<CCand>> in;
   iEvent.getByToken(srcToken, in);
@@ -148,101 +139,81 @@ void CleanedJetCollectionEmbedder::produce(edm::Event &iEvent,
     out->push_back(*cand);
 
     if (jesUpTagExists){
-      edm::PtrVector<pat::Jet> cleanedJets = getCleanedJetCollection2(iEvent, jetSrcToken, *cand);
-      out->back().addUserData<edm::PtrVector<pat::Jet>>(collectionName, cleanedJets);
+      VJetPtr cleanedJets = getCleanedJetCollection(iEvent, jetSrcToken, *cand, true);
+      out->back().addUserData<VJetPtr>(collectionName, cleanedJets);
+      out->back().addUserFloat("jetPUSFmulfac", weight);
     }
     else{
-      edm::PtrVector<pat::Jet> cleanedJets = getCleanedJetCollection(iEvent, jetSrcToken, *cand); 
-      out->back().addUserData<edm::PtrVector<pat::Jet>>(collectionName, cleanedJets);
+      VJetPtr cleanedJets = getCleanedJetCollection(iEvent, jetSrcToken, *cand); 
+      out->back().addUserData<VJetPtr>(collectionName, cleanedJets);
     }
-
-
-    if (jesUpTagExists) out->back().addUserFloat("jetPUSFmulfac", weight);
 
     if (jesUpTagExists)
     {
-      edm::PtrVector<pat::Jet> cleanedJesUpJets = getCleanedJetCollection(iEvent, jesUpJetSrcToken, *cand);
-      out->back().addUserData<edm::PtrVector<pat::Jet>>(collectionName + "_jesUp", cleanedJesUpJets);
+      VJetPtr cleanedJesUpJets = getCleanedJetCollection(iEvent, jesUpJetSrcToken, *cand);
+      out->back().addUserData<VJetPtr>(collectionName + "_jesUp", cleanedJesUpJets);
     }
     if (jesDownTagExists)
     {
-      edm::PtrVector<pat::Jet> cleanedJesDownJets = getCleanedJetCollection(iEvent, jesDownJetSrcToken, *cand);
-      out->back().addUserData<edm::PtrVector<pat::Jet>>(collectionName + "_jesDown", cleanedJesDownJets);
+      VJetPtr cleanedJesDownJets = getCleanedJetCollection(iEvent, jesDownJetSrcToken, *cand);
+      out->back().addUserData<VJetPtr>(collectionName + "_jesDown", cleanedJesDownJets);
     }
     if (jerUpTagExists)
     {
-      edm::PtrVector<pat::Jet> cleanedJerUpJets = getCleanedJetCollection(iEvent, jerUpJetSrcToken, *cand);
-      out->back().addUserData<edm::PtrVector<pat::Jet>>(collectionName + "_jerUp", cleanedJerUpJets);
+      VJetPtr cleanedJerUpJets = getCleanedJetCollection(iEvent, jerUpJetSrcToken, *cand);
+      out->back().addUserData<VJetPtr>(collectionName + "_jerUp", cleanedJerUpJets);
     }
     if (jerDownTagExists)
     {
-      edm::PtrVector<pat::Jet> cleanedJerDownJets = getCleanedJetCollection(iEvent, jerDownJetSrcToken, *cand);
-      out->back().addUserData<edm::PtrVector<pat::Jet>>(collectionName + "_jerDown", cleanedJerDownJets);
+      VJetPtr cleanedJerDownJets = getCleanedJetCollection(iEvent, jerDownJetSrcToken, *cand);
+      out->back().addUserData<VJetPtr>(collectionName + "_jerDown", cleanedJerDownJets);
     }
   }
 
   iEvent.put(std::move(out));
 }
 
-edm::PtrVector<pat::Jet> CleanedJetCollectionEmbedder::getCleanedJetCollection2(edm::Event &iEvent,
-    const edm::EDGetTokenT<edm::View<pat::Jet>> &jetToken,
-    const reco::CompositeCandidate &initialState)
+VJetPtr CleanedJetCollectionEmbedder::getCleanedJetCollection(edm::Event &iEvent,
+    const edm::EDGetTokenT<JetView> &jetToken,
+    const reco::CompositeCandidate &initialState,
+    bool checkPUID)
 {
-  edm::Handle<edm::View<pat::Jet>> uncleanedJets;
-  edm::PtrVector<pat::Jet> cleanedJets;
-  std::unique_ptr<VJet> out2(new VJet());
-
+  edm::Handle<JetView> uncleanedJets;
   iEvent.getByToken(jetToken, uncleanedJets);
 
-  weight = 1.; // mult factor for jet PU id SF correction
+  VJetPtr cleanedJets;
+
   edm::Handle<MatchMap> match;
   if (domatch_)
     iEvent.getByToken(matchToken_, match);
 
+  weight = 1.; // mult factor for jet PU id SF correction
   for (size_t j = 0; j < uncleanedJets->size(); ++j)
   {
     if (!uwvv::helpers::overlapWithAnyDaughter(uncleanedJets->at(j), initialState, deltaR))
     {
-      out2->push_back(uncleanedJets->at(j)); // just for copying, no output
-      Jet &jet = out2->back();
-      PUid = jet.userInt("pileupJetIdUpdated:fullId"); // can use jetRef, but just in case
-      if (PUid >= 7 || jet.pt() > 50)
+      const Jet &jet = uncleanedJets->at(j);
+      int PUID = checkPUID? jet.userInt("pileupJetIdUpdated:fullId") : 7;
+      if (PUID >= 7 || jet.pt() > 50)
         cleanedJets.push_back(uncleanedJets->ptrAt(j));
 
-      if (domatch_)
+      if (checkPUID && scaleFileN_ != "sfFileNone" && domatch_)
       {
         edm::Ref<JetView> jetRef(uncleanedJets, j);
         const auto genMatched = (*match)[jetRef];
 
-        if (genMatched.isNonnull() && jet.pt() < 50 && scaleFileN_ != "sfFileNone"){
+        if (genMatched.isNonnull() && jet.pt() < 50){
           float jetPUSF = scaleFile_->at("PUJetID_eff")->evaluate({jet.eta(), jet.pt(), "nom", workingPoint});
           float jeffPU  = scaleFile_->at("PUJetID_eff")->evaluate({jet.eta(), jet.pt(), "MCEff", workingPoint});
           float mulfac = 1.;
 
-          if (PUid < 7) mulfac = (1. - jetPUSF * jeffPU) / (1. - jeffPU);
+          if (PUID < 7) mulfac = (1. - jetPUSF * jeffPU) / (1. - jeffPU);
           else mulfac = jetPUSF;
 
           weight *= mulfac;
         }
       }
     }
-  }
-  return cleanedJets;
-}
-
-edm::PtrVector<pat::Jet> CleanedJetCollectionEmbedder::getCleanedJetCollection(edm::Event &iEvent,
-    const edm::EDGetTokenT<edm::View<pat::Jet>> &jetToken,
-    const reco::CompositeCandidate &initialState)
-{
-  edm::Handle<edm::View<pat::Jet>> uncleanedJets;
-  edm::PtrVector<pat::Jet> cleanedJets;
-
-  iEvent.getByToken(jetToken, uncleanedJets);
-
-  for (size_t j = 0; j < uncleanedJets->size(); ++j)
-  {
-    if (!uwvv::helpers::overlapWithAnyDaughter(uncleanedJets->at(j), initialState, deltaR))
-      cleanedJets.push_back(uncleanedJets->ptrAt(j));
   }
   return cleanedJets;
 }
