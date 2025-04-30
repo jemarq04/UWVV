@@ -73,13 +73,11 @@ class ElectronCalibration(AnalysisFlowBase):
             eCorr = cms.EDProducer(
                 "PATElectronCorrector",
                 src = step.getObjTag('e'),
-                seedGainSrc = cms.InputTag("seedGainEle"),
                 scaleFile = cms.string(scaleFileP),
                 isMC = cms.bool(self.isMC)
             )
             step.addModule("calibratedPatElectrons", eCorr, 'e')
 
-        elif stepName == 'selection':
             # need to re-sort now that we're calibrated
             eSort = cms.EDProducer(
                 "PATElectronCollectionSorter",

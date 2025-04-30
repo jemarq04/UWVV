@@ -266,13 +266,10 @@ if not wz:
 
 # Create final states
 if zz or l:
-    # Add ZZ information along with jetPUSF
+    # Add ZZ information (including jetPUSF)
     if zz:
         from UWVV.AnalysisTools.templates.ZZInitialStateBaseFlow import ZZInitialStateBaseFlow
         FlowSteps.append(ZZInitialStateBaseFlow)
-        
-        from UWVV.AnalysisTools.templates.JetPUSFEmbedder import ZZJetPUSFEmbedder
-        FlowSteps.append(ZZJetPUSFEmbedder)
 
     from UWVV.AnalysisTools.templates.ZZSkim import ZZSkim
     FlowSteps.append(ZZSkim)
