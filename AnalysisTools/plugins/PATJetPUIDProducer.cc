@@ -4,7 +4,7 @@
 //                                                                          //
 //    Embed TEMPORARY passing PUID userFloat                                //
 //                                                                          //
-//    Author: Nate Woods, U. Wisconsin                                      //
+//    Author: Justin Marquez, U. Wisconsin                                  //
 //                                                                          //
 //////////////////////////////////////////////////////////////////////////////
 
