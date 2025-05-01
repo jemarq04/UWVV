@@ -2,7 +2,6 @@ from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 
 import FWCore.ParameterSet.Config as cms
 
-
 class ZZID(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
         if not hasattr(self, 'year'):

@@ -14,8 +14,8 @@ class ElectronCalibration(AnalysisFlowBase):
         if not hasattr(self, 'year'):
             self.year = kwargs.pop('year', '2022')
 
-        if not hasattr(self, 'calibEEera22'):
-            self.calibEEera22 = kwargs.pop('calibEEera22', 'preEE')
+        if not hasattr(self, 'calibEra22'):
+            self.calibEra22 = kwargs.pop('calibEra22', 'preEE')
 
         eesShift = kwargs.pop('electronScaleShift', 0) if self.isMC else 0
         eerRhoShift = kwargs.pop('electronRhoResShift', 0) if self.isMC else 0
@@ -67,7 +67,7 @@ class ElectronCalibration(AnalysisFlowBase):
 
             yearstring = ""
             if LeptonSetup == "2022":
-                yearstring = "2022_Summer22%s" % ("" if self.calibEEera22 == "preEE" else "EE")
+                yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/EGM",
                                     yearstring, "electronSS.json.gz")
             eCorr = cms.EDProducer(

@@ -15,8 +15,6 @@ class ZZFSR(AnalysisFlowBase):
             self.isMC = kwargs.pop('isMC', True)
         if not hasattr(self, 'year'):
             self.year = kwargs.pop('year', '2022')
-        if not hasattr(self, 'calibEEera22'):
-            self.calibEEera22 = kwargs.pop('calibEEera22', 'preEE')
         super(ZZFSR, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):

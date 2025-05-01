@@ -2,7 +2,6 @@ from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 
 import FWCore.ParameterSet.Config as cms
 
-
 class MuonBaseFlow(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
         if not hasattr(self, 'debug'):
@@ -22,7 +21,7 @@ class MuonBaseFlow(AnalysisFlowBase):
 
         elif stepName == 'embedding':
             embedMuId = cms.EDProducer(
-                "MuonIdEmbedder",
+                "PATMuonIDEmbedder",
                 src = step.getObjTag('m'),
                 vertexSrc = step.getObjTag('v')
             )
