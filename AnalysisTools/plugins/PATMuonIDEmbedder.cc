@@ -5,14 +5,16 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+using pat::Muon, pat::MuonCollection;
+typedef edm::View<Muon> MuonView;
+typedef reco::Muon RecoMuon;
 
 class PATMuonIDEmbedder : public edm::stream::EDProducer<>
 {
@@ -23,47 +25,41 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  // Methods
-  void beginJob() {}
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
-  void endJob() {}
 
-  bool isWZTightMuon(const pat::Muon& patMu, const reco::Vertex& pv);
-  bool isMediumMuonICHEP(const reco::Muon& recoMu);
-  bool isWZMediumMuon(const pat::Muon& patMu, const reco::Vertex& pv);
-  bool isWZTightMuonNoIso(const pat::Muon& patMu, const reco::Vertex& pv);
-  bool isWZLooseMuon(const pat::Muon& patMu, const reco::Vertex& pv);
-  bool isWZLooseMuonNoIso(const pat::Muon& patMu, const reco::Vertex& pv);
-  bool isSoftMuonICHEP(const reco::Muon& recoMu, const reco::Vertex& pv);
+  bool isWZTightMuon(const Muon& patMu, const reco::Vertex& pv);
+  bool isMediumMuonICHEP(const RecoMuon& recoMu);
+  bool isWZMediumMuon(const Muon& patMu, const reco::Vertex& pv);
+  bool isWZTightMuonNoIso(const Muon& patMu, const reco::Vertex& pv);
+  bool isWZLooseMuon(const Muon& patMu, const reco::Vertex& pv);
+  bool isWZLooseMuonNoIso(const Muon& patMu, const reco::Vertex& pv);
+  bool isSoftMuonICHEP(const RecoMuon& recoMu, const reco::Vertex& pv);
 
-  // Data
-  edm::EDGetTokenT<edm::View<pat::Muon> > collectionToken_; // input collection
-  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;  // vertices
+  edm::EDGetTokenT<MuonView> srcToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 };
 
-// Constructors and destructors
 PATMuonIDEmbedder::PATMuonIDEmbedder(const edm::ParameterSet& iConfig):
-  collectionToken_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("src"))),
+  srcToken_(consumes<MuonView>(iConfig.getParameter<edm::InputTag>("src"))),
   vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexSrc")))
 {
-  produces<std::vector<pat::Muon> >();
+  produces<MuonCollection>();
 }
 
 void PATMuonIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::unique_ptr<std::vector<pat::Muon> > out = std::make_unique<std::vector<pat::Muon> >();
-
-  edm::Handle<edm::View<pat::Muon> > collection;
-  iEvent.getByToken(collectionToken_, collection);
+  edm::Handle<MuonView> muonsIn;
+  iEvent.getByToken(srcToken_, muonsIn);
 
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(vertexToken_, vertices);
 
   const reco::Vertex& pv = *vertices->begin();
+  std::unique_ptr<MuonCollection> out(new MuonCollection());
 
-  for (size_t c = 0; c < collection->size(); ++c) {
-    const auto obj = collection->at(c);
-    pat::Muon newObj = obj;
+  for (MuonView::const_iterator imu = muonsIn.begin(); imu != muonsIn.end(); imu++){
+    out->push_back(*imu);
+    Muon &newObj = out->back();
 
     newObj.addUserInt("isTightMuon", obj.isTightMuon(pv));
     newObj.addUserInt("isMediumMuonICHEP", isMediumMuonICHEP(obj));
@@ -77,13 +73,7 @@ void PATMuonIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     newObj.addUserInt("isHighPtMuon", obj.isHighPtMuon(pv));
     newObj.addUserFloat("segmentCompatibility", muon::segmentCompatibility(obj));
     newObj.addUserInt("isGoodMuon", muon::isGoodMuon(obj, muon::TMOneStationTight));
-    int highPurity = 0;
-    if (obj.innerTrack().isNonnull()) {
-        highPurity = obj.innerTrack()->quality(reco::TrackBase::highPurity);
-    }
-    newObj.addUserInt("highPurityTrack",highPurity);
-
-    out->push_back(newObj);
+    newObj.addUserInt("highPurityTrack", obj.innerTrack().isNonnull()? obj.innerTrack()->quality(reco::TrackBase::highPurity) : 0);
   }
 
   iEvent.put(std::move(out));
@@ -91,7 +81,7 @@ void PATMuonIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ICHEP short term IDs
 // https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2#Short_Term_Instructions_for_ICHE
-bool PATMuonIDEmbedder::isMediumMuonICHEP(const reco::Muon & recoMu)
+bool PATMuonIDEmbedder::isMediumMuonICHEP(const RecoMuon & recoMu)
   {
     bool goodGlob = recoMu.isGlobalMuon() &&
                     recoMu.globalTrack()->normalizedChi2() < 3 &&
@@ -103,7 +93,7 @@ bool PATMuonIDEmbedder::isMediumMuonICHEP(const reco::Muon & recoMu)
     return isMedium;
   }
 
-bool PATMuonIDEmbedder::isWZLooseMuon(const pat::Muon& patMu, const reco::Vertex& pv)
+bool PATMuonIDEmbedder::isWZLooseMuon(const Muon& patMu, const reco::Vertex& pv)
   {
     reco::MuonPFIsolation pfIsoDB04 = patMu.pfIsolationR04();
     float muIso = (pfIsoDB04.sumChargedHadronPt
@@ -113,14 +103,14 @@ bool PATMuonIDEmbedder::isWZLooseMuon(const pat::Muon& patMu, const reco::Vertex
                   ) / patMu.pt();
     return isWZLooseMuonNoIso(patMu, pv) && muIso < 0.4;
   }
-bool PATMuonIDEmbedder::isWZLooseMuonNoIso(const pat::Muon& patMu, const reco::Vertex& pv)
+bool PATMuonIDEmbedder::isWZLooseMuonNoIso(const Muon& patMu, const reco::Vertex& pv)
   {
     return isMediumMuonICHEP(patMu) &&
         std::abs(patMu.innerTrack()->dxy(pv.position())) < 0.02 &&
         std::abs(patMu.innerTrack()->dz(pv.position())) < 0.1 &&
         patMu.trackIso()/patMu.pt() < 0.4;
   }
-bool PATMuonIDEmbedder::isWZTightMuon(const pat::Muon& patMu, const reco::Vertex& pv)
+bool PATMuonIDEmbedder::isWZTightMuon(const Muon& patMu, const reco::Vertex& pv)
   {
     reco::MuonPFIsolation pfIsoDB04 = patMu.pfIsolationR04();
     float muIso = (pfIsoDB04.sumChargedHadronPt
@@ -130,13 +120,13 @@ bool PATMuonIDEmbedder::isWZTightMuon(const pat::Muon& patMu, const reco::Vertex
                   ) / patMu.pt();
     return isWZTightMuonNoIso(patMu, pv) && muIso < 0.15;
   }
-bool PATMuonIDEmbedder::isWZTightMuonNoIso(const pat::Muon& patMu, const reco::Vertex& pv)
+bool PATMuonIDEmbedder::isWZTightMuonNoIso(const Muon& patMu, const reco::Vertex& pv)
   {
     return patMu.isTightMuon(pv) &&
         std::abs(patMu.innerTrack()->dxy(pv.position())) < 0.02 &&
         std::abs(patMu.innerTrack()->dz(pv.position())) < 0.1;
   }
-bool PATMuonIDEmbedder::isWZMediumMuon(const pat::Muon& patMu, const reco::Vertex& pv)
+bool PATMuonIDEmbedder::isWZMediumMuon(const Muon& patMu, const reco::Vertex& pv)
   {
     reco::MuonPFIsolation pfIsoDB04 = patMu.pfIsolationR04();
     float muIso = (pfIsoDB04.sumChargedHadronPt
@@ -146,7 +136,7 @@ bool PATMuonIDEmbedder::isWZMediumMuon(const pat::Muon& patMu, const reco::Verte
                   ) / patMu.pt();
     return isWZTightMuonNoIso(patMu, pv) && muIso < 0.40;
   }
-bool PATMuonIDEmbedder::isSoftMuonICHEP(const reco::Muon & recoMu, const reco::Vertex& pv)
+bool PATMuonIDEmbedder::isSoftMuonICHEP(const RecoMuon & recoMu, const reco::Vertex& pv)
   {
     bool soft = muon::isGoodMuon(recoMu, muon::TMOneStationTight) &&
                 recoMu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
@@ -163,4 +153,5 @@ void PATMuonIDEmbedder::fillDescriptions(edm::ConfigurationDescriptions& descrip
   descriptions.addDefault(desc);
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATMuonIDEmbedder);
