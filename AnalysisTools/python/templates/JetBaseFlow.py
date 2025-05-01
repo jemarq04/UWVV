@@ -37,10 +37,19 @@ class JetBaseFlow(AnalysisFlowBase):
             else:
                 # this producer will create a ValueMap<int> filled with the given value,
                 # as a placeholder for the pileup ID until it is available for 2022-23
+                '''
                 self.process.pileupJetIdUpdated = cms.EDProducer(
                     "PATJetPUIDProducer",
                     src = step.getObjTag('j'),
                     value = cms.int32(7),
+                )
+                step.addModule("pileupJetIdUpdated", self.process.pileupJetIdUpdated, "puID", puID="fullId")
+                '''
+                self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
+                self.process.pileupJetIdUpdated = self.process.pileupJetId.clone(
+                    jets = step.getObjTag('j'),
+                    applyJec = False,
+                    vertexes = step.getObjTag('v'),
                 )
                 step.addModule("pileupJetIdUpdated", self.process.pileupJetIdUpdated, "puID", puID="fullId")
             
