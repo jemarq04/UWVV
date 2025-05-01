@@ -162,16 +162,16 @@ void PATObjectValueEmbedder<T>::produce(edm::Event& iEvent,
   bools2.clear();
 
   if (replaceFlag_){ //handle special case BadMuonFilters.py in UL, in this case variable bools should be empty 
-  edm::Handle<edm::TriggerResults> trigResults;
-  iEvent.getByToken(trigToken_, trigResults);
-  const edm::TriggerNames& trigNames = iEvent.triggerNames(*trigResults);
-  std::string pathName1 = "Flag_BadPFMuonFilter";
-  std::string pathName2 = "Flag_BadChargedCandidateFilter";
-  bool passTrig1=trigResults->accept(trigNames.triggerIndex(pathName1));
-  bools2.push_back(passTrig1);
-  bool passTrig2=trigResults->accept(trigNames.triggerIndex(pathName2));
-  bools2.push_back(passTrig2);
-  embedAll(*out, bools2, boolLabels_);
+    edm::Handle<edm::TriggerResults> trigResults;
+    iEvent.getByToken(trigToken_, trigResults);
+    const edm::TriggerNames& trigNames = iEvent.triggerNames(*trigResults);
+    std::string pathName1 = "Flag_BadPFMuonFilter";
+    std::string pathName2 = "Flag_BadChargedCandidateFilter";
+    bool passTrig1=trigResults->accept(trigNames.triggerIndex(pathName1));
+    bools2.push_back(passTrig1);
+    bool passTrig2=trigResults->accept(trigNames.triggerIndex(pathName2));
+    bools2.push_back(passTrig2);
+    embedAll(*out, bools2, boolLabels_);
   }
   
   std::vector<double> doubles;

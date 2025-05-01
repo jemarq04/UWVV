@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -85,33 +84,32 @@ void PATCompositeUserCandPromoter<T1,T2>::produce(edm::Event& iEvent,
   iEvent.getByToken(srcToken, in);
 
   for(size_t i = 0; i < in->size(); ++i)
+  {
+    out->push_back(in->at(i));
+    CCand& c = out->back();
+
+    const T1* dau1 = static_cast<const T1*>(c.daughter(0)->masterClone().get());
+    CandPtr fsr1 = ::getUserCand(*dau1, label);
+    const T2* dau2 = static_cast<const T2*>(c.daughter(1)->masterClone().get());
+    CandPtr fsr2 = ::getUserCand(*dau2, label);
+
+    size_t nFSR = 0;
+
+    if(fsr1.isNonnull())
     {
-      CCandPtr cPtr = in->ptrAt(i);
-      out->push_back(*cPtr);
-      CCand& c = out->back();
-
-      const T1* dau1 = static_cast<const T1*>(c.daughter(0)->masterClone().get());
-      CandPtr fsr1 = ::getUserCand(*dau1, label);
-      const T2* dau2 = static_cast<const T2*>(c.daughter(1)->masterClone().get());
-      CandPtr fsr2 = ::getUserCand(*dau2, label);
-
-      size_t nFSR = 0;
-
-      if(fsr1.isNonnull())
-        {
-          c.setP4(c.p4() + fsr1->p4());
-          c.addDaughter(*fsr1, label + std::to_string(nFSR));
-          nFSR++;
-        }
-      if(fsr2.isNonnull())
-        {
-          c.setP4(c.p4() + fsr2->p4());
-          c.addDaughter(*fsr2, label + std::to_string(nFSR));
-          nFSR++;
-        }
-
-      out->back().addUserInt("n"+label+"Cands", nFSR);
+      c.setP4(c.p4() + fsr1->p4());
+      c.addDaughter(*fsr1, label + std::to_string(nFSR));
+      nFSR++;
     }
+    if(fsr2.isNonnull())
+    {
+      c.setP4(c.p4() + fsr2->p4());
+      c.addDaughter(*fsr2, label + std::to_string(nFSR));
+      nFSR++;
+    }
+
+    c.addUserInt("n"+label+"Cands", nFSR);
+  }
 
   iEvent.put(std::move(out));
 }
@@ -120,6 +118,6 @@ void PATCompositeUserCandPromoter<T1,T2>::produce(edm::Event& iEvent,
 typedef PATCompositeUserCandPromoter<pat::Electron, pat::Electron> PATElectronCompositeUserCandPromoter;
 typedef PATCompositeUserCandPromoter<pat::Muon, pat::Muon> PATMuonCompositeUserCandPromoter;
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATElectronCompositeUserCandPromoter);
 DEFINE_FWK_MODULE(PATMuonCompositeUserCandPromoter);
-

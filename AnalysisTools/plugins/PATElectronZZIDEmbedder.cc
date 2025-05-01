@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //                                                                          //
-//   PATElectronZZIDEmbedder.cc                                         //
+//   PATElectronZZIDEmbedder.cc                                             //
 //                                                                          //
 //   Embeds electron ID decisions as userfloats                             //
 //       (1 for true, 0 for false), for use in other modules using          //
@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -32,68 +31,65 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
+using pat::Electron, pat::ElectronCollection;
+typedef edm::View<Electron> ElectronView;
 
 class PATElectronZZIDEmbedder : public edm::stream::EDProducer<>
 {
-public:
-  explicit PATElectronZZIDEmbedder(const edm::ParameterSet&);
-  ~PATElectronZZIDEmbedder() {}
+  public:
+    explicit PATElectronZZIDEmbedder(const edm::ParameterSet&);
+    ~PATElectronZZIDEmbedder() {}
 
+  private:
+    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-private:
-  // Methods
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+    bool passKinematics(const Electron& ele) const;
+    bool passVertex(const Electron& ele) const;
+    bool passBDT(const Electron& ele) const;
+    bool passMissingHits(const Electron& ele) const;
 
-  bool passKinematics(const edm::Ptr<pat::Electron>& elec) const;
-  bool passVertex(const edm::Ptr<pat::Electron>& elec) const;
-  bool passBDT(const edm::Ptr<pat::Electron>& elec) const;
-  bool passMissingHits(const edm::Ptr<pat::Electron>& elec) const;
+    edm::EDGetTokenT<ElectronView> srcToken_;
+    const std::string idLabel_; // label for the decision userfloat
+    const std::string isoLabel_;
+    const edm::EDGetTokenT<reco::VertexCollection> vtxSrcToken_; // primary vertex (for veto PV and SIP cuts)
 
-  // Data
-  edm::EDGetTokenT<edm::View<pat::Electron> > electronCollectionToken_;
-  const std::string idLabel_; // label for the decision userfloat
-  const std::string isoLabel_;
-  const edm::EDGetTokenT<reco::VertexCollection> vtxSrcToken_; // primary vertex (for veto PV and SIP cuts)
-  edm::Handle<reco::VertexCollection> vertices;
+    const double ptCut;
+    const double etaCut;
+    const double sipCut;
+    const double pvDXYCut;
+    const double pvDZCut;
+    const double idPtThr;
+    const double idEtaThrLow;
+    const double idEtaThrHigh;
+    const double idCutLowPtLowEta;
+    const double idCutLowPtMedEta;
+    const double idCutLowPtHighEta;
+    const double idCutHighPtLowEta;
+    const double idCutHighPtMedEta;
+    const double idCutHighPtHighEta;
+    const std::string bdtLabel;
+    const std::string mvaLabel;
+    const bool useMVA;
+    const std::string cutBasedLabel;
+    //const std::string HZZWP;
+    const int missingHitsCut;
 
-  const double ptCut;
-  const double etaCut;
-  const double sipCut;
-  const double pvDXYCut;
-  const double pvDZCut;
-  const double idPtThr;
-  const double idEtaThrLow;
-  const double idEtaThrHigh;
-  const double idCutLowPtLowEta;
-  const double idCutLowPtMedEta;
-  const double idCutLowPtHighEta;
-  const double idCutHighPtLowEta;
-  const double idCutHighPtMedEta;
-  const double idCutHighPtHighEta;
-  const std::string bdtLabel;
-  const std::string mvaLabel;
-  const bool useMVA;
-  const std::string cutBasedLabel;
-  //const std::string HZZWP;
-  const int missingHitsCut;
-
-  StringCutObjectSelector<pat::Electron> selector;
+    StringCutObjectSelector<Electron> selector;
 };
 
-
-// Constructors and destructors
-
 PATElectronZZIDEmbedder::PATElectronZZIDEmbedder(const edm::ParameterSet& iConfig):
-  electronCollectionToken_(consumes<edm::View<pat::Electron> >(iConfig.exists("src") ?
-                                                               iConfig.getParameter<edm::InputTag>("src") :
-                                                               edm::InputTag("slimmedElectrons"))),
+  srcToken_(consumes<ElectronView>(iConfig.exists("src") ?
+      iConfig.getParameter<edm::InputTag>("src") :
+      edm::InputTag("slimmedElectrons"))),
   idLabel_(iConfig.exists("idLabel") ?
-	   iConfig.getParameter<std::string>("idLabel") :
-	   std::string("HZZ4lIDPass")),
+      iConfig.getParameter<std::string>("idLabel") :
+      std::string("HZZ4lIDPass")),
   isoLabel_(iConfig.exists("isoLabel") ?
-	   iConfig.getParameter<std::string>("isoLabel") :
-	   std::string("HZZ4lIsoPass")),
-  vtxSrcToken_(consumes<reco::VertexCollection>(iConfig.exists("vtxSrc") ? iConfig.getParameter<edm::InputTag>("vtxSrc") : edm::InputTag("selectedPrimaryVertex"))),
+      iConfig.getParameter<std::string>("isoLabel") :
+      std::string("HZZ4lIsoPass")),
+  vtxSrcToken_(consumes<reco::VertexCollection>(iConfig.exists("vtxSrc") ? 
+      iConfig.getParameter<edm::InputTag>("vtxSrc") : 
+      edm::InputTag("selectedPrimaryVertex"))),
   ptCut(iConfig.exists("ptCut") ? iConfig.getParameter<double>("ptCut") : 7.),
   etaCut(iConfig.exists("etaCut") ? iConfig.getParameter<double>("etaCut") : 2.5),
   sipCut(iConfig.exists("sipCut") ? iConfig.getParameter<double>("sipCut") : 4.),
@@ -113,116 +109,70 @@ PATElectronZZIDEmbedder::PATElectronZZIDEmbedder(const edm::ParameterSet& iConfi
   useMVA(iConfig.exists("useMVA") ? iConfig.getParameter<bool>("useMVA") : true),
   cutBasedLabel(iConfig.exists("cutBasedLabel") ? iConfig.getParameter<std::string>("cutBasedLabel") : "cutBasedElectronID-RunIIIWinter22-V1"),
   missingHitsCut(iConfig.exists("missingHitsCut") ? iConfig.getParameter<int>("missingHitsCut") : 1),
-  selector(iConfig.exists("selection") ?
-	    iConfig.getParameter<std::string>("selection") :
-	    "")
+  selector(iConfig.exists("selection") ? iConfig.getParameter<std::string>("selection") : "")
 {
-  produces<std::vector<pat::Electron> >();
+  produces<ElectronCollection>();
 }
 
 
 void PATElectronZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::unique_ptr<std::vector<pat::Electron> >out = std::make_unique<std::vector<pat::Electron> >();
+  edm::Handle<ElectronView> electronsIn;
+  iEvent.getByToken(srcToken_, electronsIn);
 
-  edm::Handle<edm::View<pat::Electron> > electronsIn;
+  edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(vtxSrcToken_,vertices);
 
-  iEvent.getByToken(electronCollectionToken_, electronsIn);
+  std::unique_ptr<ElectronCollection> out(new ElectronCollection());
 
-  for(edm::View<pat::Electron>::const_iterator ei = electronsIn->begin();
-      ei != electronsIn->end(); ei++) // loop over electrons
-    {
-      const edm::Ptr<pat::Electron> eptr(electronsIn, ei - electronsIn->begin());
+  for(ElectronView::const_iterator ei = electronsIn->begin(); ei != electronsIn->end(); ei++)
+  {
+    out->push_back(*ei); // copy electron to save correctly in event
+    Electron& ele = out->back();
 
-      out->push_back(*ei); // copy electron to save correctly in event
+    bool vtxResult = vertices->size() && passVertex(ele);
+    bool kinResult = passKinematics(ele);
+    bool missingHitsResult = passMissingHits(ele);
+    bool idResultNoVtx = selector(ele) && kinResult && missingHitsResult;
+    bool idResult = idResultNoVtx && vtxResult;
 
-      bool vtxResult = passVertex(eptr);
-      bool kinResult = passKinematics(eptr);
-      bool missingHitsResult = passMissingHits(eptr);
-      bool idResultNoVtx = selector(*eptr) && kinResult && missingHitsResult;
-      bool idResult = idResultNoVtx && vtxResult;
-      
-      out->back().addUserFloat(idLabel_+"NoVtx", float(idResultNoVtx)); // 1 for true, 0 for false
-      out->back().addUserFloat(idLabel_, float(idResult)); // 1 for true, 0 for false
+    ele.addUserFloat(idLabel_+"NoVtx", float(idResultNoVtx)); // 1 for true, 0 for false
+    ele.addUserFloat(idLabel_, float(idResult)); // 1 for true, 0 for false
 
-      bool bdtID = useMVA? ei->electronID(mvaLabel) : passBDT(eptr);
-      out->back().addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && bdtID)); // 1 for true, 0 for false
-      out->back().addUserFloat(idLabel_+"Tight", float(idResult && bdtID)); // 1 for true, 0 for false
+    bool bdtID = useMVA? ele.electronID(mvaLabel) : passBDT(ele);
+    ele.addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && bdtID)); // 1 for true, 0 for false
+    ele.addUserFloat(idLabel_+"Tight", float(idResult && bdtID)); // 1 for true, 0 for false
 
-      //Also add some cut-based Run2 electron IDs for validation
-      out->back().addUserFloat("Loose",float(ei->electronID((cutBasedLabel + "-loose").c_str())));
-      out->back().addUserFloat("Medium",float(ei->electronID((cutBasedLabel + "-medium").c_str())));
-      out->back().addUserFloat("Tight",float(ei->electronID((cutBasedLabel + "-tight").c_str())));
-      out->back().addUserFloat("Veto",float(ei->electronID((cutBasedLabel + "-veto").c_str())));
-
-      /* TODO: This needs to be added back in once electron calibration is working for Run 3
-      //-- Scale and smearing corrections are now stored in the miniAOD https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#Energy_Scale_and_Smearing
-      float uncorrected_pt = ei->pt();
-      float corr_factor = ei->userFloat("ecalTrkEnergyPostCorr") / ei->energy();//get scale/smear correction factor directly from miniAOD       
-      //scale and smear electron
-      out->back().setP4(reco::Particle::PolarLorentzVector(uncorrected_pt*corr_factor, ei->eta(), ei->phi(), ei->mass()*corr_factor));
-      out->back().addUserFloat("uncorrected_pt",uncorrected_pt);
-      //get all scale uncertainties and their breakdown
-      float scale_total_up = ei->userFloat("energyScaleUp") / ei->energy();
-      float scale_stat_up = ei->userFloat("energyScaleStatUp") / ei->energy();
-      float scale_syst_up = ei->userFloat("energyScaleSystUp") / ei->energy();
-      float scale_gain_up = ei->userFloat("energyScaleGainUp") / ei->energy();
-      float scale_total_dn = ei->userFloat("energyScaleDown") / ei->energy();
-      float scale_stat_dn = ei->userFloat("energyScaleStatDown") / ei->energy();
-      float scale_syst_dn = ei->userFloat("energyScaleSystDown") / ei->energy();
-      float scale_gain_dn = ei->userFloat("energyScaleGainDown") / ei->energy();
-      //get all smearing uncertainties and their breakdown
-      float sigma_total_up = ei->userFloat("energySigmaUp") / ei->energy();
-      float sigma_rho_up = ei->userFloat("energySigmaRhoUp") / ei->energy();
-      float sigma_phi_up = ei->userFloat("energySigmaPhiUp") / ei->energy();
-      float sigma_total_dn = ei->userFloat("energySigmaDown") / ei->energy();
-      float sigma_rho_dn = ei->userFloat("energySigmaRhoDown") / ei->energy();
-      float sigma_phi_dn = ei->userFloat("energySigmaPhiDown") / ei->energy();
-      
-      out->back().addUserFloat("scale_total_up",scale_total_up);
-      out->back().addUserFloat("scale_stat_up",scale_stat_up);
-      out->back().addUserFloat("scale_syst_up",scale_syst_up);
-      out->back().addUserFloat("scale_gain_up",scale_gain_up);
-      out->back().addUserFloat("scale_total_dn",scale_total_dn);
-      out->back().addUserFloat("scale_stat_dn",scale_stat_dn);
-      out->back().addUserFloat("scale_syst_dn",scale_syst_dn);
-      out->back().addUserFloat("scale_gain_dn",scale_gain_dn);
-      out->back().addUserFloat("sigma_total_up",sigma_total_up);
-      out->back().addUserFloat("sigma_total_dn",sigma_total_dn);
-      out->back().addUserFloat("sigma_rho_up",sigma_rho_up);
-      out->back().addUserFloat("sigma_rho_dn",sigma_rho_dn);
-      out->back().addUserFloat("sigma_phi_up",sigma_phi_up);
-      out->back().addUserFloat("sigma_phi_dn",sigma_phi_dn);
-      */
-    }
+    //Also add some cut-based Run2 electron IDs for validation
+    ele.addUserFloat("Loose",float(ele.electronID((cutBasedLabel + "-loose").c_str())));
+    ele.addUserFloat("Medium",float(ele.electronID((cutBasedLabel + "-medium").c_str())));
+    ele.addUserFloat("Tight",float(ele.electronID((cutBasedLabel + "-tight").c_str())));
+    ele.addUserFloat("Veto",float(ele.electronID((cutBasedLabel + "-veto").c_str())));
+  }
 
   iEvent.put(std::move(out));
 }
 
-
-bool PATElectronZZIDEmbedder::passKinematics(const edm::Ptr<pat::Electron>& elec) const
+bool PATElectronZZIDEmbedder::passKinematics(const Electron& ele) const
 {
-  return elec->pt() > ptCut && fabs(elec->eta()) < etaCut;
+  return ele.pt() > ptCut && fabs(ele.eta()) < etaCut;
 }
 
 
-bool PATElectronZZIDEmbedder::passVertex(const edm::Ptr<pat::Electron>& elec) const
+bool PATElectronZZIDEmbedder::passVertex(const Electron& ele) const
 {
-  if (!vertices->size()) return false;
-
-  return (fabs(elec->dB(pat::Electron::PV3D))/elec->edB(pat::Electron::PV3D) < sipCut &&
-          fabs(elec->dB(pat::Electron::PV2D)) < pvDXYCut &&
-          fabs(elec->dB(pat::Electron::PVDZ)) < pvDZCut);
+  return (fabs(ele.dB(Electron::PV3D))/ele.edB(Electron::PV3D) < sipCut &&
+          fabs(ele.dB(Electron::PV2D)) < pvDXYCut &&
+          fabs(ele.dB(Electron::PVDZ)) < pvDZCut);
 }
 
 
-bool PATElectronZZIDEmbedder::passBDT(const edm::Ptr<pat::Electron>& elec) const
+bool PATElectronZZIDEmbedder::passBDT(const Electron& ele) const
 {
   if (bdtLabel == "") return true;
 
-  double pt = elec->pt();
-  double eta = fabs(elec->superCluster()->eta());
+  double pt = ele.pt();
+  double eta = fabs(ele.superCluster()->eta());
 
   double bdtCut;
   if(pt < idPtThr)
@@ -244,15 +194,14 @@ bool PATElectronZZIDEmbedder::passBDT(const edm::Ptr<pat::Electron>& elec) const
       bdtCut = idCutHighPtHighEta;
   }
 
-  return (elec->userFloat(bdtLabel) > bdtCut);
+  return ele.userFloat(bdtLabel) > bdtCut;
 }
 
 
-bool PATElectronZZIDEmbedder::passMissingHits(const edm::Ptr<pat::Electron>& elec) const
+bool PATElectronZZIDEmbedder::passMissingHits(const Electron& ele) const
 {
-  return (elec->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS) <= missingHitsCut);
+  return ele.gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS) <= missingHitsCut;
 }
 
-
-//define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATElectronZZIDEmbedder);
