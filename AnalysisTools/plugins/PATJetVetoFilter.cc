@@ -68,26 +68,24 @@ bool PATJetVetoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for (JetView::const_iterator ijet = jets->begin(); ijet != jets->end(); ijet++)
   {
-    const Jet& jet = *ijet;
-    bool jetID    = jet.userFloat("idTight") > 0.5;
-    float jetpt   = jet.pt();
-    float jetCEMF = jet.chargedEmEnergyFraction();
-    float jetNEMF = jet.neutralEmEnergyFraction();
+    bool jetID    = ijet->userFloat("idTight") > 0.5;
+    float jetpt   = ijet->pt();
+    float jetCEMF = ijet->chargedEmEnergyFraction();
+    float jetNEMF = ijet->neutralEmEnergyFraction();
 
     // Jet must pass loose selections
     if (jetpt < 15 || !jetID || jetCEMF+jetNEMF < 0.9) continue;
 
     for (MuonView::const_iterator imu = muons->begin(); imu != muons->end(); imu++)
     {
-      const Muon& mu = *imu;
-      if (!mu.isPFMuon()) continue;
+      if (!imu->isPFMuon()) continue;
 
       // Jet must not be within 0.2 deltaR of PF muon
-      if (reco::deltaR(jet.p4(), mu.p4()) < 0.2) continue;
+      if (reco::deltaR(ijet->p4(), imu->p4()) < 0.2) continue;
     }
 
     // Now, apply veto to jets passing above selections
-    float output = vetoFile_->begin()->second->evaluate({"jetvetomap", jet.eta(), jet.phi()});
+    float output = vetoFile_->begin()->second->evaluate({"jetvetomap", ijet->eta(), ijet->phi()});
     if (std::fabs(output) > 1e-6)
       return false; // if a jet failes the veto, the event is discarded
   }
