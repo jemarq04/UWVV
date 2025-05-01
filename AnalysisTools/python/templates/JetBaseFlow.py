@@ -73,6 +73,8 @@ class JetBaseFlow(AnalysisFlowBase):
                                     yearstring, "jet_jerc.json.gz")
             vetoFileP  = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
                                     yearstring, "jetvetomaps.json.gz")
+            idFileP    = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
+                                    yearstring, "jetid.json.gz")
 
             # Jet energy corrections + uncertainties (JES)
             jetCorrector = cms.EDProducer(
@@ -116,8 +118,9 @@ class JetBaseFlow(AnalysisFlowBase):
             jetIDEmbedding = cms.EDProducer(
                 "PATJetIDEmbedder",
                 src = step.getObjTag('j'),
-                setup = cms.int32(int(self.year)),
                 domatch = cms.bool(self.isMC),
+                idFile = cms.string(idFileP),
+                config = cms.string("AK4PUPPI_Tight")
             )
             step.addModule('jetIDEmbedding', jetIDEmbedding, 'j')
 
