@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -37,6 +36,7 @@ typedef pat::Muon Muon;
 typedef edm::Ptr<pat::Muon> MuonPtr;
 typedef edm::View<pat::Muon> MuonView;
 typedef pat::Jet Jet;
+typedef pat::JetCollection JetCollection;
 typedef edm::Ptr<pat::Jet> JetPtr;
 typedef edm::View<pat::Jet> JetView;
 
@@ -100,7 +100,7 @@ PATJetFSRCleaner::PATJetFSRCleaner(const edm::ParameterSet& iConfig):
          iConfig.getParameter<double>("deltaR") :
          0.4)
 {
-  produces<std::vector<Jet> >();
+  produces<JetCollection>();
 }
 
 
@@ -116,8 +116,7 @@ void PATJetFSRCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   std::vector<CandPtr> fsr = getFSR(elecsIn, muonsIn);
 
-  std::unique_ptr<std::vector<Jet> > out =
-    std::make_unique<std::vector<Jet> >();
+  std::unique_ptr<JetCollection> out(new JetCollection());
 
   for(size_t iJ = 0; iJ < jetsIn->size(); ++iJ)
     {
@@ -138,8 +137,7 @@ void PATJetFSRCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
 std::vector<CandPtr>
-PATJetFSRCleaner::getFSR(const edm::Handle<ElecView>& elecs,
-                         const edm::Handle<MuonView>& muons) const
+PATJetFSRCleaner::getFSR(const edm::Handle<ElecView>& elecs, const edm::Handle<MuonView>& muons) const
 {
   std::vector<CandPtr> out;
 
@@ -151,9 +149,7 @@ PATJetFSRCleaner::getFSR(const edm::Handle<ElecView>& elecs,
 
 
 template<typename Lep>
-void
-PATJetFSRCleaner::addFSR(const edm::Handle<edm::View<Lep> >& leps,
-                         std::vector<CandPtr>& fsr) const
+void PATJetFSRCleaner::addFSR(const edm::Handle<edm::View<Lep> >& leps, std::vector<CandPtr>& fsr) const
 {
   for(size_t iLep = 0; iLep < leps->size(); ++iLep)
     {
@@ -166,20 +162,16 @@ PATJetFSRCleaner::addFSR(const edm::Handle<edm::View<Lep> >& leps,
 }
 
 
-bool
-PATJetFSRCleaner::selectFSRLep(const ElecPtr& e) const
+bool PATJetFSRCleaner::selectFSRLep(const ElecPtr& e) const
 {
   return fsrElecSelection(*e);
 }
 
 
-bool
-PATJetFSRCleaner::selectFSRLep(const MuonPtr& m) const
+bool PATJetFSRCleaner::selectFSRLep(const MuonPtr& m) const
 {
   return fsrMuonSelection(*m);
 }
 
-
-//define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATJetFSRCleaner);
-

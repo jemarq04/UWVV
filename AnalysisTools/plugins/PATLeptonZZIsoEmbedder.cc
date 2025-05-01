@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //                                                                          //
-//   PATLeptonZZIsoEmbedder.cc                                          //
+//   PATLeptonZZIsoEmbedder.cc                                              //
 //                                                                          //
 //   Embeds lepton relative isolation and isolation decisions as userfloats //
 //       (1 for true, 0 for false) for use in other modules, using          //
@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -132,47 +131,47 @@ private:
 
 PATLeptonZZIsoEmbedder::PATLeptonZZIsoEmbedder(const edm::ParameterSet& iConfig):
   collectionTokenE(consumes<ElecView>(iConfig.exists("srcE") ?
-                                      iConfig.getParameter<edm::InputTag>("srcE") :
-                                      edm::InputTag("slimmedElectrons"))),
+      iConfig.getParameter<edm::InputTag>("srcE") :
+      edm::InputTag("slimmedElectrons"))),
   collectionTokenM(consumes<MuonView>(iConfig.exists("srcMu") ?
-                                      iConfig.getParameter<edm::InputTag>("srcMu") :
-                                      edm::InputTag("slimmedMuons"))),
+      iConfig.getParameter<edm::InputTag>("srcMu") :
+      edm::InputTag("slimmedMuons"))),
   isoValueLabel(iConfig.exists("isoValueLabel") ?
-                iConfig.getParameter<std::string>("isoValueLabel") :
-                std::string("HZZ4lIso")),
+      iConfig.getParameter<std::string>("isoValueLabel") :
+      std::string("HZZ4lIso")),
   isoDecisionLabel(iConfig.exists("isoDecisionLabel") ?
-                   iConfig.getParameter<std::string>("isoDecisionLabel") :
-                   std::string("HZZ4lIsoPass")),
+      iConfig.getParameter<std::string>("isoDecisionLabel") :
+      std::string("HZZ4lIsoPass")),
   isoCutE(iConfig.exists("isoCutE") ? iConfig.getParameter<double>("isoCutE") : 0.5),
   rhoLabel(iConfig.exists("rhoLabel") ?
-	   iConfig.getParameter<std::string>("rhoLabel") :
-	   std::string("rho_fastjet")),
+      iConfig.getParameter<std::string>("rhoLabel") :
+      std::string("rho_fastjet")),
   eaLabel(iConfig.exists("eaLabel") ?
-	  iConfig.getParameter<std::string>("eaLabel") :
-	  std::string("EffectiveArea")),
+      iConfig.getParameter<std::string>("eaLabel") :
+      std::string("EffectiveArea")),
   eaScaleFactor(iConfig.exists("eaScaleFactor") ?
-                iConfig.getParameter<double>("eaScaleFactor") : 1.),
+      iConfig.getParameter<double>("eaScaleFactor") : 1.),
   isoConeDRMaxE(iConfig.exists("isoConeDRMaxE") ?
-                iConfig.getParameter<double>("isoConeDRMaxE") : 0.4),
+      iConfig.getParameter<double>("isoConeDRMaxE") : 0.4),
   isoConeDRMinE(iConfig.exists("isoConeDRMinE") ?
-                iConfig.getParameter<double>("isoConeDRMinE") : 0.08),
+      iConfig.getParameter<double>("isoConeDRMinE") : 0.08),
   isoConeVetoEtaThresholdE(iConfig.exists("isoConeVetoEtaThresholdE") ?
-                           iConfig.getParameter<double>("isoConeVetoEtaThreshold") :
-                           1.479),
+      iConfig.getParameter<double>("isoConeVetoEtaThreshold") :
+      1.479),
   isoCutM(iConfig.exists("isoCutMu") ? iConfig.getParameter<double>("isoCutMu") : 0.35),
   isoConeDRMaxM(iConfig.exists("isoConeDRMaxMu") ?
-                iConfig.getParameter<double>("isoConeDRMaxMu") : 0.4),
+      iConfig.getParameter<double>("isoConeDRMaxMu") : 0.4),
   isoConeDRMinM(iConfig.exists("isoConeDRMinMu") ?
-                iConfig.getParameter<double>("isoConeDRMinMu") : 0.01),
+      iConfig.getParameter<double>("isoConeDRMinMu") : 0.01),
   fsrElecSelection(iConfig.exists("fsrElecSelection") ?
-                   iConfig.getParameter<std::string>("fsrElecSelection") :
-                   ""),
+      iConfig.getParameter<std::string>("fsrElecSelection") :
+      ""),
   fsrMuonSelection(iConfig.exists("fsrMuonSelection") ?
-                   iConfig.getParameter<std::string>("fsrMuonSelection") :
-                   ""),
+      iConfig.getParameter<std::string>("fsrMuonSelection") :
+      ""),
   fsrLabel(iConfig.exists("fsrLabel") ?
-           iConfig.getParameter<std::string>("fsrLabel") :
-           std::string("dretFSRCand"))
+      iConfig.getParameter<std::string>("fsrLabel") :
+      std::string("dretFSRCand"))
 {
   produces<std::vector<Elec> >("electrons");
   produces<std::vector<Muon> >("muons");
@@ -230,9 +229,7 @@ PATLeptonZZIsoEmbedder::makeCollection(const edm::Handle<edm::View<Lep> >& lepsI
 
 
 template<typename Lep>
-float
-PATLeptonZZIsoEmbedder::relPFIsoFSR(const edm::Ptr<Lep>& lep,
-                                    const std::vector<CandPtr>& fsrs) const
+float PATLeptonZZIsoEmbedder::relPFIsoFSR(const edm::Ptr<Lep>& lep, const std::vector<CandPtr>& fsrs) const
 {
   float chHadIso = isolationVariables(lep).sumChargedHadronPt;
   float nHadIso = isolationVariables(lep).sumNeutralHadronEt;
@@ -249,8 +246,7 @@ PATLeptonZZIsoEmbedder::relPFIsoFSR(const edm::Ptr<Lep>& lep,
 }
 
 
-float
-PATLeptonZZIsoEmbedder::isoPUCorrection(const ElecPtr& e) const
+float PATLeptonZZIsoEmbedder::isoPUCorrection(const ElecPtr& e) const
 {
   return (e->userFloat(rhoLabel) *
           e->userFloat(eaLabel) *
@@ -258,31 +254,26 @@ PATLeptonZZIsoEmbedder::isoPUCorrection(const ElecPtr& e) const
 }
 
 
-float
-PATLeptonZZIsoEmbedder::isoPUCorrection(const MuonPtr& m) const
+float PATLeptonZZIsoEmbedder::isoPUCorrection(const MuonPtr& m) const
 {
   return 0.5 * isolationVariables(m).sumPUPt;
 }
 
 
-const reco::GsfElectron::PflowIsolationVariables&
-PATLeptonZZIsoEmbedder::isolationVariables(const ElecPtr& e) const
+const reco::GsfElectron::PflowIsolationVariables& PATLeptonZZIsoEmbedder::isolationVariables(const ElecPtr& e) const
 {
   return e->pfIsolationVariables();
 }
 
 
-const reco::MuonPFIsolation&
-PATLeptonZZIsoEmbedder::isolationVariables(const MuonPtr& m) const
+const reco::MuonPFIsolation& PATLeptonZZIsoEmbedder::isolationVariables(const MuonPtr& m) const
 {
   return m->pfIsolationR03();
 }
 
 
 template<typename Lep>
-float
-PATLeptonZZIsoEmbedder::isoFSRCorrection(const edm::Ptr<Lep>& lep,
-                                             const std::vector<CandPtr>& fsrs) const
+float PATLeptonZZIsoEmbedder::isoFSRCorrection(const edm::Ptr<Lep>& lep, const std::vector<CandPtr>& fsrs) const
 {
   float corr = 0.;
 
@@ -296,9 +287,7 @@ PATLeptonZZIsoEmbedder::isoFSRCorrection(const edm::Ptr<Lep>& lep,
 }
 
 
-bool
-PATLeptonZZIsoEmbedder::fsrInIsoCone(const ElecPtr& e,
-                                     const CandPtr& fsr) const
+bool PATLeptonZZIsoEmbedder::fsrInIsoCone(const ElecPtr& e, const CandPtr& fsr) const
 {
   // float fsrDR = reco::deltaR(*fsr, *(e->superCluster()));
   float fsrDR = reco::deltaR(fsr->p4(), e->p4());
@@ -311,9 +300,7 @@ PATLeptonZZIsoEmbedder::fsrInIsoCone(const ElecPtr& e,
 }
 
 
-bool
-PATLeptonZZIsoEmbedder::fsrInIsoCone(const MuonPtr& m,
-                                     const CandPtr& fsr) const
+bool PATLeptonZZIsoEmbedder::fsrInIsoCone(const MuonPtr& m, const CandPtr& fsr) const
 {
   float fsrDR = reco::deltaR(fsr->p4(), m->p4());
 
@@ -321,9 +308,7 @@ PATLeptonZZIsoEmbedder::fsrInIsoCone(const MuonPtr& m,
 }
 
 
-std::vector<CandPtr>
-PATLeptonZZIsoEmbedder::getFSR(const edm::Handle<ElecView>& elecs,
-                               const edm::Handle<MuonView>& muons) const
+std::vector<CandPtr> PATLeptonZZIsoEmbedder::getFSR(const edm::Handle<ElecView>& elecs, const edm::Handle<MuonView>& muons) const
 {
   std::vector<CandPtr> out;
 
@@ -335,9 +320,7 @@ PATLeptonZZIsoEmbedder::getFSR(const edm::Handle<ElecView>& elecs,
 
 
 template<typename Lep>
-void
-PATLeptonZZIsoEmbedder::addFSR(const edm::Handle<edm::View<Lep> >& leps,
-                               std::vector<CandPtr>& fsr) const
+void PATLeptonZZIsoEmbedder::addFSR(const edm::Handle<edm::View<Lep> >& leps, std::vector<CandPtr>& fsr) const
 {
   for(size_t iLep = 0; iLep < leps->size(); ++iLep)
     {
@@ -351,27 +334,17 @@ PATLeptonZZIsoEmbedder::addFSR(const edm::Handle<edm::View<Lep> >& leps,
 }
 
 
-bool
-PATLeptonZZIsoEmbedder::selectFSRLep(const ElecPtr& e) const
+bool PATLeptonZZIsoEmbedder::selectFSRLep(const ElecPtr& e) const
 {
   return fsrElecSelection(*e);
 }
 
 
-bool
-PATLeptonZZIsoEmbedder::selectFSRLep(const MuonPtr& m) const
+bool PATLeptonZZIsoEmbedder::selectFSRLep(const MuonPtr& m) const
 {
   return fsrMuonSelection(*m);
 }
 
 
-//define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATLeptonZZIsoEmbedder);
-
-
-
-
-
-
-
-
