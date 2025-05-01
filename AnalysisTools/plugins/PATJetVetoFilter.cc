@@ -1,8 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //                                                                          //
-//    PATJetPUIDProducer.cc                                                 //
-//                                                                          //
-//    Embed TEMPORARY passing PUID userFloat                                //
+//    PATJetVetoFilter.cc                                                   //
 //                                                                          //
 //    Author: Justin Marquez, U. Wisconsin                                  //
 //                                                                          //
