@@ -64,15 +64,17 @@ class JetBaseFlow(AnalysisFlowBase):
             # Setup/configuration
             yearstring = jesConfig = jerConfig = ""
             if self.year == "2022":
-                yearstring = "2022_Summer22%s" % ("" if self.calibEEera22 == "preEE" else "EE")
+                yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
                 jesConfig = "Summer22%s_22Sep2023%s_V2" % (
-                    "" if self.calibEEera22 == "preEE" else "EE",
+                    "" if self.calibEra22 == "preEE" else "EE",
                     "" if self.isMC else "_RunCD" # TODO: update RunCD appropriately
                 )
-                jerConfig = "Summer22%s_22Sep2023_JRV1" % ("" if self.calibEEera22 == "preEE" else "EE")
+                jerConfig = "Summer22%s_22Sep2023_JRV1" % ("" if self.calibEra22 == "preEE" else "EE")
 
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
                                     yearstring, "jet_jerc.json.gz")
+            vetoFileP  = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
+                                    yearstring, "jetvetomaps.json.gz")
 
             # Jet energy corrections + uncertainties (JES)
             jetCorrector = cms.EDProducer(
@@ -120,6 +122,15 @@ class JetBaseFlow(AnalysisFlowBase):
                 domatch = cms.bool(self.isMC),
             )
             step.addModule('jetIDEmbedding', jetIDEmbedding, 'j')
+
+            # Apply jet veto map
+            jetVetoFilter = cms.EDFilter(
+                "PATJetVetoFilter",
+                jets = step.getObjTag("j"),
+                muons = step.getObjTag("m"),
+                vetoFile = cms.string(vetoFileP),
+            )
+            step.addModule("jetVetoFilter", jetVetoFilter);
 
             if self.isMC:
                 # UWVV Jet ID (JES Up/Down)
