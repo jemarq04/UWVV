@@ -37,9 +37,7 @@
 #include "TRandom3.h"
 #include "correction.h"
 
-
-typedef pat::Jet Jet;
-typedef std::vector<Jet> VJet;
+using pat::Jet, pat::JetCollection;
 typedef edm::View<Jet> JetView;
 
 class PATJetSmearing : public edm::stream::EDProducer<>
@@ -53,7 +51,7 @@ private:
 
   edm::EDGetTokenT<JetView> srcToken;
   edm::EDGetTokenT<double> rhoToken;
-  std::string scaleFileName_, smearFileName_, config_;
+  std::string scaleFileName_, smearFileName_, config_, algo_;
   std::unique_ptr<correction::CorrectionSet> scaleFile_, smearFile_;
 
   const bool systematics_;
@@ -69,7 +67,8 @@ PATJetSmearing::PATJetSmearing(const edm::ParameterSet& iConfig) :
       "/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME/jer_smear.json.gz"),
   config_(iConfig.getParameter<std::string>("config")),
   systematics_(iConfig.exists("systematics") ?
-      iConfig.getParameter<bool>("systematics") : false)
+      iConfig.getParameter<bool>("systematics") : false),
+  algo_(iConfig.exists("algo") ? iConfig.getParameter<std::string>("algo") : "AK4PFPuppi")
 {
   try{
     scaleFile_ = correction::CorrectionSet::from_file(scaleFileName_);
@@ -86,11 +85,11 @@ PATJetSmearing::PATJetSmearing(const edm::ParameterSet& iConfig) :
     throw cms::Exception("Invalid JER Smear file") << smearFileName_;
   }
 
-  produces<VJet>();
+  produces<JetCollection>();
   if(systematics_)
   {
-    produces<VJet>("jerUp");
-    produces<VJet>("jerDown");
+    produces<JetCollection>("jerUp");
+    produces<JetCollection>("jerDown");
   }
 }
 
@@ -102,12 +101,12 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<double> rho;
   iEvent.getByToken(rhoToken, rho);
 
-  std::unique_ptr<VJet> out(new VJet());
-  std::unique_ptr<VJet> outUp(new VJet());
-  std::unique_ptr<VJet> outDn(new VJet());
+  std::unique_ptr<JetCollection> out(new JetCollection());
+  std::unique_ptr<JetCollection> outUp(new JetCollection());
+  std::unique_ptr<JetCollection> outDn(new JetCollection());
   
-  std::string jerName = config_ + "_MC_PtResolution_AK4PFPuppi";
-  std::string jersfName = config_ + "_MC_ScaleFactor_AK4PFPuppi";
+  std::string jerName = config_ + "_MC_PtResolution_" + algo_;
+  std::string jersfName = config_ + "_MC_ScaleFactor_" + algo_;
 
   for (size_t i=0; i<in->size(); ++i)
   {

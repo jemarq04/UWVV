@@ -84,6 +84,7 @@ class JetBaseFlow(AnalysisFlowBase):
                 scaleFile = cms.string(scaleFileP),
                 config = cms.string(jesConfig),
                 isMC = cms.bool(self.isMC),
+                algo = cms.string("AK4PFPuppi"),
             )
             if self.isMC:
                 step.addModule("jetCorrectorMC", jetCorrector, 'j',
@@ -149,6 +150,7 @@ class JetBaseFlow(AnalysisFlowBase):
                     scaleFile = cms.string(scaleFileP),
                     config = cms.string(jerConfig),
                     systematics = cms.bool(True),
+                    algo = cms.string("AK4PFPuppi"),
                 )
                 step.addModule("jetSmearing", jetSmearing, 'j',
                     "j_jerUp", "j_jerDown", j_jerUp="jerUp", j_jerDown="jerDown"

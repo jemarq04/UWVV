@@ -28,9 +28,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "correction.h"
 
-
-typedef pat::Jet Jet;
-typedef pat::JetCollection VJet;
+using pat::Jet, pat::JetCollection;
 typedef edm::View<Jet> JetView;
 
 class PATJetCorrector : public edm::stream::EDProducer<>
@@ -44,7 +42,7 @@ private:
 
   edm::EDGetTokenT<JetView> srcToken;
   edm::EDGetTokenT<double> rhoToken;
-  std::string scaleFileName_, config_;
+  std::string scaleFileName_, config_, algo_;
   std::unique_ptr<correction::CorrectionSet> scaleFile_;
   const bool isMC_, systematics_;
   edm::ConsumesCollector cc;
@@ -57,10 +55,11 @@ PATJetCorrector::PATJetCorrector(const edm::ParameterSet& iConfig) :
   rhoToken(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoSrc"))),
   scaleFileName_(iConfig.getParameter<std::string>("scaleFile")),
   config_(iConfig.getParameter<std::string>("config")),
+  algo_(iConfig.exists("algo") ? iConfig.getParameter<std::string>("algo") : "AK4PFPuppi"),
   isMC_(iConfig.exists("isMC") ? iConfig.getParameter<bool>("isMC") : false),
   systematics_(iConfig.exists("systematics") ? iConfig.getParameter<bool>("systematics") : isMC_),
   cc(consumesCollector()),
-  jecToken(cc.esConsumes(edm::ESInputTag("","AK4PFPuppi")))
+  jecToken(cc.esConsumes(edm::ESInputTag("",algo_)))
 {
   try{
     scaleFile_ = correction::CorrectionSet::from_file(scaleFileName_);
@@ -70,10 +69,10 @@ PATJetCorrector::PATJetCorrector(const edm::ParameterSet& iConfig) :
     throw cms::Exception("Invalid JSON file") << "Filepath: " << scaleFileName_;
   }
 
-  produces<VJet>();
+  produces<JetCollection>();
   if (systematics_){
-    produces<VJet>("jesUp");
-    produces<VJet>("jesDown");
+    produces<JetCollection>("jesUp");
+    produces<JetCollection>("jesDown");
   }
 }
 
@@ -90,11 +89,11 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const JetCorrectorParameters & param = (*jecParams)["Uncertainty"];
   JetCorrectionUncertainty jecUnc(param);
 
-  std::unique_ptr<VJet> out(new VJet());
-  std::unique_ptr<VJet> out_jesUp(new VJet());
-  std::unique_ptr<VJet> out_jesDn(new VJet());
+  std::unique_ptr<JetCollection> out(new JetCollection());
+  std::unique_ptr<JetCollection> out_jesUp(new JetCollection());
+  std::unique_ptr<JetCollection> out_jesDn(new JetCollection());
 
-  std::string jesName = config_ + (isMC_? "_MC" : "_DATA") + "_L1L2L3Res_AK4PFPuppi";
+  std::string jesName = config_ + (isMC_? "_MC" : "_DATA") + "_L1L2L3Res_" + algo_;
 
   for (size_t i = 0; i<in->size(); ++i)
   {
