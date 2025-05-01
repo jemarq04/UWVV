@@ -1,10 +1,9 @@
 from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
+
 import FWCore.ParameterSet.Config as cms
-from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-from UWVV.Utilities.helpers import UWVV_BASE_PATH
-import os
+
+#from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from os import path
-import pdb
 
 class JetBaseFlow(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
@@ -20,9 +19,8 @@ class JetBaseFlow(AnalysisFlowBase):
         step = super(JetBaseFlow, self).makeAnalysisStep(stepName, **inputs)
         
         if stepName == 'preliminary':
-            # Pileup veto
-            # This puts the IDs in the event stream, not an updated
-            # jet collection
+            # Pileup ID
+            # This puts the IDs in the event stream, not an updated jet collection
             if self.year == "2024":
                 self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
                 self.process.pileupJetIdUpdated = self.process.pileupJetIdPuppi.clone(
