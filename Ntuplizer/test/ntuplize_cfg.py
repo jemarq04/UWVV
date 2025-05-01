@@ -324,7 +324,7 @@ if zz or wz:
 flowOpts = {
     "isMC": bool(options.isMC),
     "year": options.year,
-    "calibEEera22": "%sEE" % ("post" if options.postEE else "pre"),
+    "calibEra22": "%sEE" % ("post" if options.postEE else "pre"),
     "debug": options.debug,
 }
 

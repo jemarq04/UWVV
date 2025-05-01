@@ -113,6 +113,3 @@ class ZZCrossCleaning(AnalysisFlowBase):
                 )
 
         return step
-
-
-
