@@ -22,143 +22,86 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/Ref.h"
 
+#include "correction.h"
 
-typedef pat::Jet Jet;
-typedef std::vector<Jet> VJet;
+using pat::Jet, pat::JetCollection;
 typedef edm::View<Jet> JetView;
 
 class PATJetIDEmbedder : public edm::stream::EDProducer<>
 {
- public:
-  explicit PATJetIDEmbedder(const edm::ParameterSet& pset);
-  virtual ~PATJetIDEmbedder() {;}
+  public:
+    explicit PATJetIDEmbedder(const edm::ParameterSet& iConfig);
+    virtual ~PATJetIDEmbedder() {;}
 
- private:
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  private:
+    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  bool passTight(const Jet& jet) const;
-  bool passPUID(const Jet& jet) const;
-  typedef edm::Association<reco::GenJetCollection> MatchMap;
-  edm::EDGetTokenT<JetView> srcToken;
-  edm::EDGetTokenT<MatchMap> matchToken_;
-  bool domatch_;
-  const int  setup_;
-  int PUid;
-  int evtcount = 0;
-  int jetcount = 0;
-  
+    typedef edm::Association<reco::GenJetCollection> MatchMap;
+
+    edm::EDGetTokenT<JetView> srcToken;
+    edm::EDGetTokenT<MatchMap> matchToken_;
+    bool domatch_;
+    std::string idFileName_, idConfig_;
+    std::unique_ptr<correction::CorrectionSet> idFile_;
 };
 
 
-PATJetIDEmbedder::PATJetIDEmbedder(const edm::ParameterSet& pset) :
-  srcToken(consumes<JetView>(pset.getParameter<edm::InputTag>("src"))),
+PATJetIDEmbedder::PATJetIDEmbedder(const edm::ParameterSet& iConfig) :
+  srcToken(consumes<JetView>(iConfig.getParameter<edm::InputTag>("src"))),
   matchToken_(consumes<MatchMap>(edm::InputTag("patJetGenJetMatch"))),
-  domatch_(pset.exists("domatch") ? pset.getParameter<bool>("domatch") : false),
-  //Which year JET ID we need
-  setup_(pset.exists("setup") ? pset.getParameter<int>("setup") : 2022)
+  domatch_(iConfig.exists("domatch") ? iConfig.getParameter<bool>("domatch") : false),
+  idFileName_(iConfig.getParameter<std::string>("idFile")),
+  idConfig_(iConfig.getParameter<std::string>("config"))
 {
-  produces<VJet>();
+  try{
+    idFile_ = correction::CorrectionSet::from_file(idFileName_);
+    if (idFile_ == nullptr) throw cms::Exception("Invalid JSON file");
+  }
+  catch (...){
+    throw cms::Exception("Invalid JSON file") << "Filename: " << idFileName_;
+  }
+
+  produces<JetCollection>();
 }
 
 
-void PATJetIDEmbedder::produce(edm::Event& iEvent,
-                               const edm::EventSetup& iSetup)
+void PATJetIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //evtcount++;
-  //printf("====================RECO vs Gen jet Information=========================================\n");
-  //printf("evt#   pt     eta    phi    pt     eta    phi    PUid0 PUidnew jet#\n");
-  //jetcount = 0;
   edm::Handle<JetView> in;
   iEvent.getByToken(srcToken, in);
-  edm::Handle<MatchMap> match;
-  if (domatch_){
-  iEvent.getByToken(matchToken_, match);}
 
-  std::unique_ptr<VJet> out(new VJet());
+  edm::Handle<MatchMap> match;
+  if (domatch_)
+    iEvent.getByToken(matchToken_, match);
+
+  std::unique_ptr<JetCollection> out(new JetCollection());
 
   for(size_t i = 0; i < in->size(); ++i)
-    {
-      out->push_back(in->at(i)); // copies, transfers ownership
+  {
+    out->push_back(in->at(i)); // copies, transfers ownership
 
-      Jet& jet = out->back();
+    Jet& jet = out->back();
+  
+    float eta    = jet.eta();
+    float chHF   = jet.chargedHadronEnergyFraction();
+    float neHF   = jet.neutralHadronEnergyFraction();
+    float neEmEF = jet.neutralEmEnergyFraction();
+    float chMult = jet.chargedMultiplicity();
+    float neMult = jet.neutralMultiplicity();
+    float mult   = chMult + neMult;
 
-      jet.addUserFloat("idTight", float(passTight(jet)));
-      jet.addUserFloat("idPU", float(passPUID(jet)));
+    float passTight = idFile_->at(idConfig_)->evaluate({eta, chHF, neHF, neEmEF, chMult, neMult, mult});
+    jet.addUserFloat("idTight", float(passTight > 0.5));
 
-      if (domatch_){
-        //jetcount++;
-        edm::Ref<JetView> jetRef(in, i);
-        const auto genMatched = (*match)[jetRef];
-        PUid = jetRef->userInt("pileupJetIdUpdated:fullId");
-        if (genMatched.isNonnull()){
-          //printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n", 
-         //evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), genMatched->pt(), genMatched->eta(), genMatched->phi(),jetRef->userInt("pileupJetId:fullId"), PUid, jetcount);
-          jet.addUserFloat("genjetMatched", 1.);
-        }
-        else{
-          //printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n", 
-         //evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), -1.,-1.,-1.,jetRef->userInt("pileupJetId:fullId"), PUid, jetcount);
-          jet.addUserFloat("genjetMatched", 0.);
-        }
-      }
+    if (domatch_){
+      edm::Ref<JetView> jetRef(in, i);
+      const auto genMatched = (*match)[jetRef];
+      jet.addUserFloat("genjetMatched", float(genMatched.isNonnull()));
     }
+  }
 
   iEvent.put(std::move(out));
 }
-
-bool PATJetIDEmbedder::passTight(const Jet& jet) const
-{
-  float NHF  = jet.neutralHadronEnergyFraction();
-  float NEMF = jet.neutralEmEnergyFraction();
-  float CHF  = jet.chargedHadronEnergyFraction();
-  float CEMF = jet.chargedEmEnergyFraction();
-  int NumConst = jet.chargedMultiplicity()+jet.neutralMultiplicity();
-  int NumNeutralParticles = jet.neutralMultiplicity();
-  float CHM  = jet.chargedMultiplicity();
-  float MF   = jet.muonEnergyFraction();
-
-  float absEta = std::abs(jet.eta());
-
-  bool JetID = false;
-
-  if (setup_ == 2022){
-    //https://twiki.cern.ch/twiki/bin/view/CMS/JetID13p6TeV#Recommendations_for_the_13_6_AN1 (assuming AK4CHS)
-    JetID = (absEta <= 2.6 && NHF < 0.99 && NEMF < 0.90 && NumConst > 1 && MF < 0.80 && CHF > 0.01 && CHM > 0 && CEMF < 0.80) ||
-            (absEta > 2.6 && absEta <= 2.7 && NHF < 0.9 && NEMF < 0.99 && MF < 0.80 && CHM > 0 && CEMF < 0.80) ||
-            (absEta > 2.7 && absEta <= 3.0 && NHF < 0.99 && NEMF < 0.99 && NumNeutralParticles > 1) ||
-            (absEta > 3.0 && NEMF < 0.4 && NumNeutralParticles > 10);
-  }
-  else
-    throw cms::Exception("JetID") << "Jet ID is not defined for the given setup (" << setup_ << ")!";
-  return JetID;
-}
-bool PATJetIDEmbedder::passPUID(const Jet& jet) const
-{
-  if(!jet.hasUserFloat("pileupJetId:fullDiscriminant"))
-    return false;
-
-  float mva = jet.userFloat("pileupJetId:fullDiscriminant");
-
-  float absEta = std::abs(jet.eta());
-
-  if(jet.pt() > 20.)
-    {
-      if(absEta > 3. && mva <= -0.45) return false;
-      if(absEta > 2.75 && mva <= 0.55) return false;
-      if(absEta > 2.5 && mva <= -0.6) return false;
-      if(mva <= -0.63) return false;
-    }
-  else
-    {
-      if(absEta > 3. && mva <= -0.95) return false;
-      if(absEta > 2.75 && mva <= -0.94) return false;
-      if(absEta > 2.5 && mva <= -0.96) return false;
-      if(mva <= -0.95) return false;
-    }
-
-  return true;
-}
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATJetIDEmbedder);
