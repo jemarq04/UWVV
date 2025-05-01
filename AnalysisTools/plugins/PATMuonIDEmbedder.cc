@@ -3,6 +3,7 @@
 // via Devin Taylor, U. Wisconsin
 // with modifications by K. Long, U. Wisconsin
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -57,23 +58,23 @@ void PATMuonIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   const reco::Vertex& pv = *vertices->begin();
   std::unique_ptr<MuonCollection> out(new MuonCollection());
 
-  for (MuonView::const_iterator imu = muonsIn.begin(); imu != muonsIn.end(); imu++){
+  for (MuonView::const_iterator imu = muonsIn->begin(); imu != muonsIn->end(); imu++){
     out->push_back(*imu);
-    Muon &newObj = out->back();
+    Muon &mu = out->back();
 
-    newObj.addUserInt("isTightMuon", obj.isTightMuon(pv));
-    newObj.addUserInt("isMediumMuonICHEP", isMediumMuonICHEP(obj));
-    newObj.addUserInt("isWZMediumMuon", isWZMediumMuon(obj, pv));
-    newObj.addUserInt("isWZTightMuon", isWZTightMuon(obj, pv));
-    newObj.addUserInt("isWZTightMuonNoIso", isWZTightMuonNoIso(obj, pv));
-    newObj.addUserInt("isWZLooseMuon", isWZLooseMuon(obj, pv));
-    newObj.addUserInt("isWZLooseMuonNoIso", isWZLooseMuonNoIso(obj, pv));
-    newObj.addUserInt("isSoftMuon", obj.isSoftMuon(pv));
-    newObj.addUserInt("isSoftMuonICHEP", isSoftMuonICHEP(obj,pv));
-    newObj.addUserInt("isHighPtMuon", obj.isHighPtMuon(pv));
-    newObj.addUserFloat("segmentCompatibility", muon::segmentCompatibility(obj));
-    newObj.addUserInt("isGoodMuon", muon::isGoodMuon(obj, muon::TMOneStationTight));
-    newObj.addUserInt("highPurityTrack", obj.innerTrack().isNonnull()? obj.innerTrack()->quality(reco::TrackBase::highPurity) : 0);
+    mu.addUserInt("isTightMuon", mu.isTightMuon(pv));
+    mu.addUserInt("isMediumMuonICHEP", isMediumMuonICHEP(mu));
+    mu.addUserInt("isWZMediumMuon", isWZMediumMuon(mu, pv));
+    mu.addUserInt("isWZTightMuon", isWZTightMuon(mu, pv));
+    mu.addUserInt("isWZTightMuonNoIso", isWZTightMuonNoIso(mu, pv));
+    mu.addUserInt("isWZLooseMuon", isWZLooseMuon(mu, pv));
+    mu.addUserInt("isWZLooseMuonNoIso", isWZLooseMuonNoIso(mu, pv));
+    mu.addUserInt("isSoftMuon", mu.isSoftMuon(pv));
+    mu.addUserInt("isSoftMuonICHEP", isSoftMuonICHEP(mu,pv));
+    mu.addUserInt("isHighPtMuon", mu.isHighPtMuon(pv));
+    mu.addUserFloat("segmentCompatibility", muon::segmentCompatibility(mu));
+    mu.addUserInt("isGoodMuon", muon::isGoodMuon(mu, muon::TMOneStationTight));
+    mu.addUserInt("highPurityTrack", mu.innerTrack().isNonnull()? mu.innerTrack()->quality(reco::TrackBase::highPurity) : 0);
   }
 
   iEvent.put(std::move(out));
@@ -82,69 +83,82 @@ void PATMuonIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 // ICHEP short term IDs
 // https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2#Short_Term_Instructions_for_ICHE
 bool PATMuonIDEmbedder::isMediumMuonICHEP(const RecoMuon & recoMu)
-  {
-    bool goodGlob = recoMu.isGlobalMuon() &&
-                    recoMu.globalTrack()->normalizedChi2() < 3 &&
-                    recoMu.combinedQuality().chi2LocalPosition < 12 &&
-                    recoMu.combinedQuality().trkKink < 20;
-    bool isMedium = muon::isLooseMuon(recoMu) &&
-                    recoMu.innerTrack()->validFraction() > 0.49 &&
-                    muon::segmentCompatibility(recoMu) > (goodGlob ? 0.303 : 0.451);
-    return isMedium;
-  }
+{
+  bool goodGlob = recoMu.isGlobalMuon() &&
+    recoMu.globalTrack()->normalizedChi2() < 3 &&
+    recoMu.combinedQuality().chi2LocalPosition < 12 &&
+    recoMu.combinedQuality().trkKink < 20;
+  bool isMedium = muon::isLooseMuon(recoMu) &&
+    recoMu.innerTrack()->validFraction() > 0.49 &&
+    muon::segmentCompatibility(recoMu) > (goodGlob ? 0.303 : 0.451);
+  return isMedium;
+}
+
 
 bool PATMuonIDEmbedder::isWZLooseMuon(const Muon& patMu, const reco::Vertex& pv)
-  {
-    reco::MuonPFIsolation pfIsoDB04 = patMu.pfIsolationR04();
-    float muIso = (pfIsoDB04.sumChargedHadronPt
-                        + std::max(0., pfIsoDB04.sumNeutralHadronEt
-                            + pfIsoDB04.sumPhotonEt
-                            - 0.5*pfIsoDB04.sumPUPt)
-                  ) / patMu.pt();
-    return isWZLooseMuonNoIso(patMu, pv) && muIso < 0.4;
-  }
+{
+  reco::MuonPFIsolation pfIsoDB04 = patMu.pfIsolationR04();
+  float muIso = (pfIsoDB04.sumChargedHadronPt
+      + std::max(0., pfIsoDB04.sumNeutralHadronEt
+        + pfIsoDB04.sumPhotonEt
+        - 0.5*pfIsoDB04.sumPUPt)
+      ) / patMu.pt();
+  return isWZLooseMuonNoIso(patMu, pv) && muIso < 0.4;
+}
+
+
 bool PATMuonIDEmbedder::isWZLooseMuonNoIso(const Muon& patMu, const reco::Vertex& pv)
-  {
-    return isMediumMuonICHEP(patMu) &&
-        std::abs(patMu.innerTrack()->dxy(pv.position())) < 0.02 &&
-        std::abs(patMu.innerTrack()->dz(pv.position())) < 0.1 &&
-        patMu.trackIso()/patMu.pt() < 0.4;
-  }
+{
+  return isMediumMuonICHEP(patMu) &&
+    std::abs(patMu.innerTrack()->dxy(pv.position())) < 0.02 &&
+    std::abs(patMu.innerTrack()->dz(pv.position())) < 0.1 &&
+    patMu.trackIso()/patMu.pt() < 0.4;
+}
+
+
 bool PATMuonIDEmbedder::isWZTightMuon(const Muon& patMu, const reco::Vertex& pv)
-  {
-    reco::MuonPFIsolation pfIsoDB04 = patMu.pfIsolationR04();
-    float muIso = (pfIsoDB04.sumChargedHadronPt
-                        + std::max(0., pfIsoDB04.sumNeutralHadronEt
-                            + pfIsoDB04.sumPhotonEt
-                            - 0.5*pfIsoDB04.sumPUPt)
-                  ) / patMu.pt();
-    return isWZTightMuonNoIso(patMu, pv) && muIso < 0.15;
-  }
+{
+  reco::MuonPFIsolation pfIsoDB04 = patMu.pfIsolationR04();
+  float muIso = (pfIsoDB04.sumChargedHadronPt
+      + std::max(0., pfIsoDB04.sumNeutralHadronEt
+        + pfIsoDB04.sumPhotonEt
+        - 0.5*pfIsoDB04.sumPUPt)
+      ) / patMu.pt();
+  return isWZTightMuonNoIso(patMu, pv) && muIso < 0.15;
+}
+
+
 bool PATMuonIDEmbedder::isWZTightMuonNoIso(const Muon& patMu, const reco::Vertex& pv)
-  {
-    return patMu.isTightMuon(pv) &&
-        std::abs(patMu.innerTrack()->dxy(pv.position())) < 0.02 &&
-        std::abs(patMu.innerTrack()->dz(pv.position())) < 0.1;
-  }
+{
+  return patMu.isTightMuon(pv) &&
+    std::abs(patMu.innerTrack()->dxy(pv.position())) < 0.02 &&
+    std::abs(patMu.innerTrack()->dz(pv.position())) < 0.1;
+}
+
+
 bool PATMuonIDEmbedder::isWZMediumMuon(const Muon& patMu, const reco::Vertex& pv)
-  {
-    reco::MuonPFIsolation pfIsoDB04 = patMu.pfIsolationR04();
-    float muIso = (pfIsoDB04.sumChargedHadronPt
-                        + std::max(0., pfIsoDB04.sumNeutralHadronEt
-                            + pfIsoDB04.sumPhotonEt
-                            - 0.5*pfIsoDB04.sumPUPt)
-                  ) / patMu.pt();
-    return isWZTightMuonNoIso(patMu, pv) && muIso < 0.40;
-  }
+{
+  reco::MuonPFIsolation pfIsoDB04 = patMu.pfIsolationR04();
+  float muIso = (pfIsoDB04.sumChargedHadronPt
+      + std::max(0., pfIsoDB04.sumNeutralHadronEt
+        + pfIsoDB04.sumPhotonEt
+        - 0.5*pfIsoDB04.sumPUPt)
+      ) / patMu.pt();
+  return isWZTightMuonNoIso(patMu, pv) && muIso < 0.40;
+}
+
+
 bool PATMuonIDEmbedder::isSoftMuonICHEP(const RecoMuon & recoMu, const reco::Vertex& pv)
-  {
-    bool soft = muon::isGoodMuon(recoMu, muon::TMOneStationTight) &&
-                recoMu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
-                recoMu.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0 &&
-                fabs(recoMu.innerTrack()->dxy(pv.position())) < 0.3 &&
-                fabs(recoMu.innerTrack()->dz(pv.position())) < 20.;
-    return soft;
-  }
+{
+  bool soft = muon::isGoodMuon(recoMu, muon::TMOneStationTight) &&
+    recoMu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+    recoMu.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0 &&
+    fabs(recoMu.innerTrack()->dxy(pv.position())) < 0.3 &&
+    fabs(recoMu.innerTrack()->dz(pv.position())) < 20.;
+  return soft;
+}
+
+
 void PATMuonIDEmbedder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
@@ -153,5 +167,4 @@ void PATMuonIDEmbedder::fillDescriptions(edm::ConfigurationDescriptions& descrip
   descriptions.addDefault(desc);
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATMuonIDEmbedder);
