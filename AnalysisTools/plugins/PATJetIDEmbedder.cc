@@ -41,8 +41,6 @@ class PATJetIDEmbedder : public edm::stream::EDProducer<>
     edm::EDGetTokenT<JetView> srcToken;
     edm::EDGetTokenT<MatchMap> matchToken_;
     bool domatch_;
-    int evtcount = 0;
-    int jetcount = 0;
     std::string idFileName_, idConfig_;
     std::unique_ptr<correction::CorrectionSet> idFile_;
 };
@@ -69,10 +67,6 @@ PATJetIDEmbedder::PATJetIDEmbedder(const edm::ParameterSet& iConfig) :
 
 void PATJetIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //printf("====================RECO vs Gen jet Information=========================================\n");
-  //printf("evt#   pt     eta    phi    pt     eta    phi    idPU0 idPUnew jet#\n");
-  //evtcount++;
-  //jetcount = 0;
   edm::Handle<JetView> in;
   iEvent.getByToken(srcToken, in);
 
@@ -103,19 +97,6 @@ void PATJetIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       edm::Ref<JetView> jetRef(in, i);
       const auto genMatched = (*match)[jetRef];
       jet.addUserFloat("genjetMatched", float(genMatched.isNonnull()));
-
-      /*
-      jetcount++;
-      int idPU = jet.userInt("pileupJetIdUpdated:fullId");
-      if (genMatched.isNonnull()){
-        printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n", 
-        evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), genMatched->pt(), genMatched->eta(), genMatched->phi(),jetRef->userInt("pileupJetId:fullId"), idPU, jetcount);
-      }
-      else{
-        printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n", 
-        evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), -1.,-1.,-1.,jetRef->userInt("pileupJetId:fullId"), idPU, jetcount);
-      }
-      */
     }
   }
 
