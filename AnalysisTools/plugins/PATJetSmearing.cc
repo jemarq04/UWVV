@@ -66,9 +66,9 @@ PATJetSmearing::PATJetSmearing(const edm::ParameterSet& iConfig) :
       iConfig.getParameter<std::string>("smearFile") :
       "/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME/jer_smear.json.gz"),
   config_(iConfig.getParameter<std::string>("config")),
+  algo_(iConfig.exists("algo") ? iConfig.getParameter<std::string>("algo") : "AK4PFPuppi"),
   systematics_(iConfig.exists("systematics") ?
-      iConfig.getParameter<bool>("systematics") : false),
-  algo_(iConfig.exists("algo") ? iConfig.getParameter<std::string>("algo") : "AK4PFPuppi")
+      iConfig.getParameter<bool>("systematics") : false)
 {
   try{
     scaleFile_ = correction::CorrectionSet::from_file(scaleFileName_);
