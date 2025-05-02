@@ -56,6 +56,8 @@ if year == "2022":
         postEE = 1 if "postEE" in conditions else 0
     print("postEE: %s"%postEE)
 
+dataPeriod = conditions.split("Run%s" % year)[1][0] if not isMC else ""
+
 def getUnitsPerJob(ds):
     if isMC == 0:
         # Data is split by lumisection
@@ -96,6 +98,7 @@ print("lheWeights:",lheWeight)
 configParams = [
     'isMC=%d' % isMC,
     'isPrompt=%i' % isPrompt,
+    'jetsUL=%s' % localSettings.get("local", "jetsUL", fallback=0),
     'postEE=%i' % postEE,
     'datasetName=%s' % dataset,
     "year=%s" % year,
@@ -121,6 +124,7 @@ if isMC:
         config.General.requestName += "postEE"
 
 else:
+    configParams.append("dataPeriod=%s" % dataPeriod)
     # Since a PD will have several eras, add conditions to name to differentiate
     config.General.requestName = '_'.join([campaign_name, primaryDS, conditions])
     #if "Run2016" in conditions:
