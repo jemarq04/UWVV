@@ -24,7 +24,7 @@ class JetBaseFlow(AnalysisFlowBase):
             # Pileup ID
             # This puts the IDs in the event stream, not an updated jet collection
             if self.jetsUL:
-                self.outputs['j'] = "slimmedJets"
+                step.outputs['j'] = "slimmedJets"
                 from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_106X_UL18
                 self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
                 self.process.pileupJetIdUpdated = self.process.pileupJetId.clone(
@@ -200,6 +200,7 @@ class JetBaseFlow(AnalysisFlowBase):
                     config = cms.string(jerConfig),
                     systematics = cms.bool(True),
                     algo = cms.string("AK4PFPuppi" if not self.jetsUL else "AK4PFchs"),
+                    useUL = cms.bool(self.jetsUL),
                 )
                 step.addModule("jetSmearing", jetSmearing, 'j',
                     "j_jerUp", "j_jerDown", j_jerUp="jerUp", j_jerDown="jerDown"

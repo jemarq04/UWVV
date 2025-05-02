@@ -54,7 +54,7 @@ private:
   std::string scaleFileName_, smearFileName_, config_, algo_;
   std::unique_ptr<correction::CorrectionSet> scaleFile_, smearFile_;
 
-  const bool systematics_;
+  const bool systematics_, useUL_;
 };
 
 
@@ -68,7 +68,9 @@ PATJetSmearing::PATJetSmearing(const edm::ParameterSet& iConfig) :
   config_(iConfig.getParameter<std::string>("config")),
   algo_(iConfig.exists("algo") ? iConfig.getParameter<std::string>("algo") : "AK4PFPuppi"),
   systematics_(iConfig.exists("systematics") ?
-      iConfig.getParameter<bool>("systematics") : false)
+      iConfig.getParameter<bool>("systematics") : false),
+  useUL_(iConfig.exists("useUL") ?
+      iConfig.getParameter<bool>("useUL") : false)
 {
   try{
     scaleFile_ = correction::CorrectionSet::from_file(scaleFileName_);
@@ -124,7 +126,8 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // JER
     double jer       = scaleFile_->at(jerName)->evaluate({eta, pt, *rho});
-    double jersf     = scaleFile_->at(jersfName)->evaluate({eta, pt, "nom"});
+    double jersf     = useUL_? scaleFile_->at(jersfName)->evaluate({eta, "nom"}) :
+                               scaleFile_->at(jersfName)->evaluate({eta, pt, "nom"});
     double jerCorr   = smearFile_->at("JERSmear")->evaluate({pt, eta, genpt, *rho, int(iEvent.id().event()), jer, jersf});
     out->back().setP4(math::XYZTLorentzVector(jerCorr * jet.p4()));
     out->back().addUserFloat("jerCorrInverse", 1./jerCorr);
@@ -132,8 +135,10 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(systematics_)
     {
       // JER Uncertainty
-      double jersfUp   = scaleFile_->at(jersfName)->evaluate({eta, pt, "up"});
-      double jersfDn   = scaleFile_->at(jersfName)->evaluate({eta, pt, "down"});
+      double jersfUp   = useUL_? scaleFile_->at(jersfName)->evaluate({eta, "up"}) :
+                                 scaleFile_->at(jersfName)->evaluate({eta, pt, "up"});
+      double jersfDn   = useUL_? scaleFile_->at(jersfName)->evaluate({eta, "down"}) :
+                                 scaleFile_->at(jersfName)->evaluate({eta, pt, "down"});
       double jerCorrUp = smearFile_->at("JERSmear")->evaluate({pt, eta, genpt, *rho, int(iEvent.id().event()), jer, jersfUp});
       double jerCorrDn = smearFile_->at("JERSmear")->evaluate({pt, eta, genpt, *rho, int(iEvent.id().event()), jer, jersfDn});
 
