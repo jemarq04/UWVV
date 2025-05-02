@@ -136,10 +136,11 @@ if options.genLeptonType not in genLepChoices:
     print("Default: %s" % genLepDefault)
     exit(1)
 
-if options.isMC and options.isPrompt:
-    print("ERROR: option mismatch. isPrompt is for data.")
-    exit(1)
-if not options.isMC:
+if options.isMC:
+    if options.isPrompt:
+        print("ERROR: option mismatch. isPrompt is for data.")
+        exit(1)
+else:
     if not options.dataPeriod:
         print("ERROR: for jet corrections, the data period must be provided (e.g. A, B, C, ...)")
         exit(1)
@@ -347,7 +348,7 @@ flowOpts = {
     "year": options.year,
     "calibEra22": "%sEE" % ("post" if options.postEE else "pre"),
     "dataPeriod": options.dataPeriod,
-    "jetsUL": options.jetsUL,
+    "jetsUL": bool(options.jetsUL),
 }
 
 # Turn all these into a single flow class
