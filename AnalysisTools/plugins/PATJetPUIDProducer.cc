@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //                                                                          //
-//    PATJetPUIDProducer.cc                                                 //
+//    PATObjectValueMapProducer.cc                                          //
 //                                                                          //
 //    Embed TEMPORARY passing PUID userFloat                                //
 //                                                                          //
@@ -18,47 +18,53 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 
-using pat::Jet, pat::JetCollection;
-typedef edm::View<Jet> JetView;
-
-class PATJetPUIDProducer : public edm::stream::EDProducer<>
+template <typename T>
+class PATObjectValueMapProducer : public edm::stream::EDProducer<>
 {
   public:
-    explicit PATJetPUIDProducer(const edm::ParameterSet& iConfig);
-    virtual ~PATJetPUIDProducer() {;}
+    explicit PATObjectValueMapProducer(const edm::ParameterSet& iConfig);
+    virtual ~PATObjectValueMapProducer() {;}
 
   private:
     virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-    edm::EDGetTokenT<JetView> srcToken;
-    const int value_;
+    typedef edm::View<T> ViewT;
+
+    edm::EDGetTokenT<ViewT> srcToken;
+    const int intVal_;
+    std::string label_;
 };
 
-PATJetPUIDProducer::PATJetPUIDProducer(const edm::ParameterSet& iConfig) :
-  srcToken(consumes<JetView>(iConfig.getParameter<edm::InputTag>("src"))),
-  value_(iConfig.exists("value") ? iConfig.getParameter<int>("value") : 7)
+template <typename T>
+PATObjectValueMapProducer<T>::PATObjectValueMapProducer(const edm::ParameterSet& iConfig) :
+  srcToken(consumes<ViewT>(iConfig.getParameter<edm::InputTag>("src"))),
+  intVal_(iConfig.getParameter<int>("intVal")),
+  label_(iConfig.getParameter<std::string>("label"))
 {
-  produces<edm::ValueMap<int>>("fullId");
+  produces<edm::ValueMap<int>>(label_);
 }
 
-void PATJetPUIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+template <typename T>
+void PATObjectValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::Handle<JetView> in;
+  edm::Handle<ViewT> in;
   iEvent.getByToken(srcToken, in);
 
   std::vector<int> ids;
   for (size_t i=0; i<in->size(); i++)
-    ids.push_back(value_);
+    ids.push_back(intVal_);
 
   auto out = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler filler(*out);
   filler.insert(in, ids.begin(), ids.end());
   filler.fill();
-  iEvent.put(std::move(out), "fullId");
+  iEvent.put(std::move(out), label_);
 }
 
+typedef PATObjectValueMapProducer<pat::Jet> PATJetValueMapProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(PATJetPUIDProducer);
+DEFINE_FWK_MODULE(PATJetValueMapProducer);
