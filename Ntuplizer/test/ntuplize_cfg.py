@@ -35,6 +35,7 @@ process = cms.Process("Ntuple")
 options = VarParsing.VarParsing("analysis")
 options.maxEvents = -1
 options.inputFiles = []
+options.setDefault("outputFile", "")
 
 options.register("debug", 0,
         VarParsing.VarParsing.multiplicity.singleton,
@@ -60,6 +61,10 @@ options.register("isPrompt", 0,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
         "0: rereco, 1: prompt")
+options.register("dataPeriod", "",
+        VarParsing.VarParsing.multiplicity.singleton,
+        VarParsing.VarParsing.varType.string,
+        "period for data, given as a character (e.g. A, B, C, ...)")
 options.register("eCalib", 1,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
@@ -68,6 +73,10 @@ options.register("muCalib", 1,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
         "muon corrections 0: off, 1: on")
+options.register("jetsUL", 0,
+        VarParsing.VarParsing.multiplicity.singleton,
+        VarParsing.VarParsing.varType.bool,
+        "use AK4CHS jets and 2018UL corrections 0: off, 1: on")
 options.register("genInfo", 0,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
@@ -112,10 +121,12 @@ if options.year == "2022":
     print("postEE: %i" % options.postEE)
     if not options.isMC:
         print("isPrompt: %i" % options.isPrompt)
-    options.outputFile = "ntuple2022.root"
+    if not options.outputFile:
+        options.outputFile = "ntuple2022.root"
 else:
     print("Run3 config still in progresss. Only 2022 is able to be processed.")
     exit(1)
+print("Output:", options.outputFile)
 
 if options.genLeptonType not in genLepChoices:
     print("ERROR: Invalid GEN lepton type %s" % options.genLeptonType)
@@ -125,9 +136,18 @@ if options.genLeptonType not in genLepChoices:
     print("Default: %s" % genLepDefault)
     exit(1)
 
-if (options.isMC and options.isPrompt):
+if options.isMC and options.isPrompt:
     print("ERROR: option mismatch. isPrompt is for data.")
     exit(1)
+if not options.isMC:
+    if not options.dataPeriod:
+        print("ERROR: for jet corrections, the data period must be provided (e.g. A, B, C, ...)")
+        exit(1)
+    options.dataPeriod = options.dataPeriod.upper()
+    if len(options.dataPeriod) != 1 or not options.dataPeriod.isalpha():
+        print("ERROR: Invalid data period '%s'" % options.dataPeriod)
+        print("Must be a single character uppercase letter denoting period (e.g. A, B, C, ...)")
+        exit(1)
 
 # Override inputs if input file list provided
 if options.inputFileList:
@@ -322,10 +342,12 @@ if zz or wz:
 
 # Set FlowClass options
 flowOpts = {
+    "debug": options.debug,
     "isMC": bool(options.isMC),
     "year": options.year,
     "calibEra22": "%sEE" % ("post" if options.postEE else "pre"),
-    "debug": options.debug,
+    "dataPeriod": options.dataPeriod,
+    "jetsUL": options.jetsUL,
 }
 
 # Turn all these into a single flow class

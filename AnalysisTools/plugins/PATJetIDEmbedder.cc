@@ -43,6 +43,7 @@ class PATJetIDEmbedder : public edm::stream::EDProducer<>
     bool domatch_;
     std::string idFileName_, idConfig_;
     std::unique_ptr<correction::CorrectionSet> idFile_;
+    const bool useUL_;
 };
 
 
@@ -51,14 +52,17 @@ PATJetIDEmbedder::PATJetIDEmbedder(const edm::ParameterSet& iConfig) :
   matchToken_(consumes<MatchMap>(edm::InputTag("patJetGenJetMatch"))),
   domatch_(iConfig.exists("domatch") ? iConfig.getParameter<bool>("domatch") : false),
   idFileName_(iConfig.getParameter<std::string>("idFile")),
-  idConfig_(iConfig.getParameter<std::string>("config"))
+  idConfig_(iConfig.getParameter<std::string>("config")),
+  useUL_(iConfig.exists("useUL") ? iConfig.getParameter<bool>("useUL") : false)
 {
-  try{
-    idFile_ = correction::CorrectionSet::from_file(idFileName_);
-    if (idFile_ == nullptr) throw cms::Exception("Invalid JSON file");
-  }
-  catch (...){
-    throw cms::Exception("Invalid JSON file") << "Filename: " << idFileName_;
+  if (!useUL_){
+    try{
+      idFile_ = correction::CorrectionSet::from_file(idFileName_);
+      if (idFile_ == nullptr) throw cms::Exception("Invalid JSON file");
+    }
+    catch (...){
+      throw cms::Exception("Invalid JSON file") << "Filename: " << idFileName_;
+    }
   }
 
   produces<JetCollection>();
@@ -90,7 +94,18 @@ void PATJetIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     float neMult = jet.neutralMultiplicity();
     float mult   = chMult + neMult;
 
-    float passTight = idFile_->at(idConfig_)->evaluate({eta, chHF, neHF, neEmEF, chMult, neMult, mult});
+    float passTight = 0;
+    if (useUL_){
+      float absEta = fabs(eta); 
+      passTight = float(
+        (absEta <= 2.4 && neHF < 0.90 && neEmEF < 0.90 && mult > 1 && chHF > 0 && chMult > 0) ||
+        (absEta > 2.4 && absEta <= 2.7 && neHF < 0.90 && neEmEF < 0.99 && chMult > 0) ||
+        (absEta > 2.7 && absEta <= 3.0 && neEmEF > 0.01 && neEmEF < 0.99 && neMult > 1) ||
+        (absEta > 3.0 && neHF > 0.2 && neEmEF < 0.9 && neMult > 10)
+      );
+    }
+    else 
+      passTight = idFile_->at(idConfig_)->evaluate({eta, chHF, neHF, neEmEF, chMult, neMult, mult});
     jet.addUserFloat("idTight", float(passTight > 0.5));
 
     if (domatch_){

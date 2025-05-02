@@ -54,7 +54,7 @@ class AnalysisFlowBase(object):
             'e' : 'slimmedElectrons',
             'm' : 'slimmedMuons',
             'a' : 'slimmedPhotons',
-            'j' : 'slimmedJets',
+            'j' : 'slimmedJetsPuppi',
             'v' : 'offlineSlimmedPrimaryVertices',
             'pfCands' : 'packedPFCandidates',
             }
