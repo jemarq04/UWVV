@@ -43,11 +43,14 @@ class ElectronCalibration(AnalysisFlowBase):
             from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq, _defaultEleIDModules
 
             if LeptonSetup == "2022":
+                eleIDModules = _defaultEleIDModules
+                if int(os.environ["CMSSW_VERSION"].split("_")[1]) >= 14:
+                    eleIDModules += ["RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff"]
                 setupEgammaPostRecoSeq(self.process,
                     runEnergyCorrections=False,
                     runVID=True,
                     era="2022-Prompt",
-                    eleIDModules=_defaultEleIDModules + ["RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff"]
+                    eleIDModules=eleIDModules,
                 )
             step.addModule('egammaPostRecoSeq',self.process.egammaPostRecoSeq)
 
