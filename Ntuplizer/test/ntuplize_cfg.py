@@ -74,6 +74,10 @@ options.register("muCalib", 1,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
         "muon corrections 0: off, 1: on")
+options.register("electronsUL", 1,
+        VarParsing.VarParsing.multiplicity.singleton,
+        VarParsing.VarParsing.varType.bool,
+        "use 2018UL MVA for electron ID 0: off, 1: on")
 options.register("jetsUL", 0,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
@@ -129,8 +133,9 @@ else:
     exit(1)
 
 print("Output:", options.outputFile)
-if options.jetsUL:
-    print("jetsUL: true")
+for var in ["jetsUL", "electronsUL", "debug"]:
+    if getattr(options, var):
+        print("%s flag on" % var)
 
 if options.genLeptonType not in genLepChoices:
     print("ERROR: Invalid GEN lepton type %s" % options.genLeptonType)
@@ -162,9 +167,6 @@ if options.inputFileList:
 # Switch off LHE if (1) data or (2) matches a given MC generator
 if not options.isMC: #or all(any(x in fname.lower() for x in ["mcfm", "sherpa", "phantom"]) for fname in options.inputFiles):
     options.lheWeights = 0
-
-if options.debug:
-    print("Debug flag on")
 
 # Load CMS configs
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
@@ -353,6 +355,7 @@ flowOpts = {
     "calibEra22": "%sEE" % ("post" if options.postEE else "pre"),
     "dataPeriod": options.dataPeriod,
     "jetsUL": bool(options.jetsUL),
+    "electronsUL": bool(options.electronsUL)
 }
 
 # Turn all these into a single flow class

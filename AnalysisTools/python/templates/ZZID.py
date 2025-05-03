@@ -2,12 +2,16 @@ from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 
 import FWCore.ParameterSet.Config as cms
 
+from os import environ
+
 class ZZID(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
         if not hasattr(self, 'year'):
             self.year = kwargs.pop('year', '2022')
         if not hasattr(self, 'debug'):
             self.debug = kwargs.pop('debug', False)
+        if not hasattr(self, 'electronsUL'):
+            self.electronsUL = kwargs.pop('electronsUL', True)
 
         super(ZZID, self).__init__(*args, **kwargs)
 
@@ -23,7 +27,7 @@ class ZZID(AnalysisFlowBase):
                     idLabel = cms.string(self.getZZIDLabel()),
                     vtxSrc = step.getObjTag('v'),
                     mvaLabel = cms.string("mvaEleID-Winter22-HZZ-V1"),
-                    useMVA = cms.bool(False), #To use the BDT label and BDT cuts below, change to False
+                    useMVA = cms.bool(int(environ["CMSSW_VERSION"].split("_")[1]) >= 14 and not self.electronsUL),
                     bdtLabel = cms.string("ElectronMVAEstimatorRun2Summer18ULIdIsoValues"),
                     idCutLowPtLowEta = cms.double(0.9044286167),
                     idCutLowPtMedEta = cms.double(0.9094166886),
