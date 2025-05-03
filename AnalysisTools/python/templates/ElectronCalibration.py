@@ -2,7 +2,7 @@ from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 
 import FWCore.ParameterSet.Config as cms
 
-from os import path
+from os import path,environ
 
 class ElectronCalibration(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
@@ -44,7 +44,7 @@ class ElectronCalibration(AnalysisFlowBase):
 
             if LeptonSetup == "2022":
                 eleIDModules = _defaultEleIDModules
-                if int(os.environ["CMSSW_VERSION"].split("_")[1]) >= 14:
+                if int(environ["CMSSW_VERSION"].split("_")[1]) >= 14:
                     eleIDModules += ["RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff"]
                 setupEgammaPostRecoSeq(self.process,
                     runEnergyCorrections=False,
