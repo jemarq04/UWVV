@@ -56,7 +56,10 @@ if year == "2022":
         postEE = 1 if "postEE" in conditions else 0
     print("postEE: %s"%postEE)
 
-dataPeriod = conditions.split("Run%s" % year)[1][0] if not isMC else ""
+dataPeriod = ""
+if not isMC:
+    dataPeriod = conditions.split("Run%s" % year)[1][0]
+    print("dataPeriod:", dataPeriod)
 
 def getUnitsPerJob(ds):
     if isMC == 0:
