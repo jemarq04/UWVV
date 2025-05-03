@@ -27,6 +27,7 @@ genLepChoices = {
 }
 yearDefault = "2022"
 yearChoices = ["2022", "2023", "2024"]
+outputFileDefault = "ntuple.root"
 
 # Initializing process
 process = cms.Process("Ntuple")
@@ -35,7 +36,7 @@ process = cms.Process("Ntuple")
 options = VarParsing.VarParsing("analysis")
 options.maxEvents = -1
 options.inputFiles = []
-options.setDefault("outputFile", "")
+options.setDefault("outputFile", outputFileDefault)
 
 options.register("debug", 0,
         VarParsing.VarParsing.multiplicity.singleton,
@@ -121,12 +122,15 @@ if options.year == "2022":
     print("postEE: %i" % options.postEE)
     if not options.isMC:
         print("isPrompt: %i" % options.isPrompt)
-    if not options.outputFile:
+    if options.outputFile == outputFileDefault:
         options.outputFile = "ntuple2022.root"
 else:
     print("Run3 config still in progresss. Only 2022 is able to be processed.")
     exit(1)
+
 print("Output:", options.outputFile)
+if options.jetsUL:
+    print("jetsUL: true")
 
 if options.genLeptonType not in genLepChoices:
     print("ERROR: Invalid GEN lepton type %s" % options.genLeptonType)
