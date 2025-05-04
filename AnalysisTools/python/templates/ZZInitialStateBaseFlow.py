@@ -7,8 +7,6 @@ from UWVV.Utilities.helpers import UWVV_BASE_PATH
 
 class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
     def __init__(self, *args, **kwargs):
-        if not hasattr(self, 'year'):
-            self.year = kwargs.pop('year', '2022')
         super(ZZInitialStateBaseFlow, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
@@ -53,7 +51,6 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
                         jesDownJetSrc = step.getObjTag('j_jesDown'),
                         jerUpJetSrc = step.getObjTag('j_jerUp'),
                         jerDownJetSrc = step.getObjTag('j_jerDown'),
-                        setup = cms.int32(int(self.year)),
                         domatch = cms.bool(True)
                     )
                 else:
@@ -61,7 +58,6 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
                         "CleanedJetCollectionEmbedder",
                         src = step.getObjTag(chan),
                         jetSrc = step.getObjTag('j'),
-                        setup = cms.int32(int(self.year)),
                     )
                 step.addModule(chan+'CleanedJetsEmbed', mod, chan)
 

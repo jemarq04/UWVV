@@ -67,7 +67,6 @@ class CleanedJetCollectionEmbedder : public edm::stream::EDProducer<>
     std::unique_ptr<correction::CorrectionSet> scaleFile_;
     bool domatch_;
     std::string scaleFileN_;
-    const int setup_;
 
     const double deltaR;
     const std::string workingPoint;
@@ -94,7 +93,6 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   domatch_(iConfig.exists("domatch") ? iConfig.getParameter<bool>("domatch") : false),
   scaleFileN_(iConfig.exists("scaleFile") ? iConfig.getParameter<std::string>("scaleFile") : "sfFileNone"),
   // Which year JET ID we need
-  setup_(iConfig.exists("setup") ? iConfig.getParameter<int>("setup") : 2022),
   deltaR(iConfig.getUntrackedParameter<double>("deltaR", 0.4)),
   workingPoint(iConfig.exists("workingPoint") ? iConfig.getParameter<std::string>("workingPoint") : "T"),
   jesUpTagExists(iConfig.existsAs<edm::InputTag>("jesUpJetSrc")),

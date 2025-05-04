@@ -54,7 +54,6 @@ private:
   edm::Handle<reco::VertexCollection> vertices;
   edm::EDGetTokenT<double> rhoToken_;
   edm::Handle<double> rhoHandle;
-  const int  setup_;
 
   const double ptCut;
   const double etaCut;
@@ -86,8 +85,6 @@ PATMuonZZIDEmbedder::PATMuonZZIDEmbedder(const edm::ParameterSet& iConfig):
   rhoToken_(consumes<double>(iConfig.exists("rhoSrc") ?
                                                 iConfig.getParameter<edm::InputTag>("rhoSrc") :
                                                 edm::InputTag("fixedGridRhoFastjetAll"))),
-  //Which year lepton setup for MuonGBRForestReader
-  setup_(iConfig.exists("setup") ? iConfig.getParameter<int>("setup") : 2022),
   ptCut(iConfig.exists("ptCut") ? iConfig.getParameter<double>("ptCut") : 5.),
   etaCut(iConfig.exists("etaCut") ? iConfig.getParameter<double>("etaCut") : 2.4),
   sipCut(iConfig.exists("sipCut") ? iConfig.getParameter<double>("sipCut") : 4.),
