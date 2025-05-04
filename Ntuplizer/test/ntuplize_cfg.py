@@ -221,7 +221,7 @@ else:
         if not options.isPrompt:
             gt = "auto:run3_data" # TODO: replace when available
         else:
-            gt = "130X_dataRun3_Prompt_v3"
+            gt = "130X_dataRun3_PromptAnalysis_v1"
 
 print("globalTag: %s" % gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
