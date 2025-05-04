@@ -65,7 +65,7 @@ options.register("isPrompt", 0,
 options.register("dataPeriod", "",
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.string,
-        "period for data, given as a character (e.g. A, B, C, ...)")
+        "period for data, given as a character with optional version (e.g. A, Cv3, ...)")
 options.register("eCalib", 1,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
@@ -110,6 +110,10 @@ options.register("postEE", 0,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
         "relevant for 2022 analysis. 0: 2022C-D, 1: 2022E-G")
+options.register("postBPix", 0,
+        VarParsing.VarParsing.multiplicity.singleton,
+        VarParsing.VarParsing.varType.bool,
+        "relevant for 2023 analysis. 0: 2023C, 1: 2023D")
 options.register("eventsToProcess", "",
         VarParsing.VarParsing.multiplicity.list,
         VarParsing.VarParsing.varType.string,
@@ -124,15 +128,19 @@ options.parseArguments()
 print("Running", options.year, "MC" if options.isMC else "Data")
 if options.year == "2022":
     print("postEE: %i" % options.postEE)
-    if not options.isMC:
-        print("isPrompt: %i" % options.isPrompt)
-    if options.outputFile == outputFileDefault:
-        options.outputFile = "ntuple2022.root"
+elif options.year == "2023":
+    print("postBPix: %i" % options.postBPix)
+    print("2023 is still in progress")
+    exit(1)
 else:
     print("Run3 config still in progresss. Only 2022 is able to be processed.")
     exit(1)
 
+if options.outputFile == outputFileDefault:
+    options.outputFile = "ntuple%s.root" % options.year
 print("Output:", options.outputFile)
+if not options.isMC:
+    print("isPrompt: %s" % options.isPrompt)
 for var in ["jetsUL", "electronsUL", "debug"]:
     if getattr(options, var):
         print("%s flag on" % var)
@@ -154,9 +162,13 @@ else:
         print("ERROR: for jet corrections, the data period must be provided (e.g. A, B, C, ...)")
         exit(1)
     options.dataPeriod = options.dataPeriod.upper()
-    if len(options.dataPeriod) != 1 or not options.dataPeriod.isalpha():
+    if not options.dataPeriod.split("v")[0].isalpha() or not options.dataPeriod.split("v")[1].isdigit():
         print("ERROR: Invalid data period '%s'" % options.dataPeriod)
-        print("Must be a single character uppercase letter denoting period (e.g. A, B, C, ...)")
+        print("Must be a single character with optional version (e.g. A, Cv3, ...)")
+        exit(1)
+    elif options.year == "2023" and len(options.split("v")) != 2:
+        print("ERROR: Invalid data period '%s'" % options.dataPeriod)
+        print("2023 data periods MUST contain a version (e.g. Cv1)")
         exit(1)
 
 # Override inputs if input file list provided
@@ -195,12 +207,22 @@ elif options.isMC:
             gt = "130X_mcRun3_2022_realistic_v5"
         else:
             gt = "130X_mcRun3_2022_realistic_postEE_v6"
+    elif options.year == "2023":
+        if not options.postBPix:
+            gt = "130X_mcRun3_2023_realistic_v14"
+        else:
+            gt = " 130X_mcRun3_2023_realistic_postBPix_v2"
 else:
     if options.year == "2022":
         if not options.isPrompt:
             gt = "130X_dataRun3_v2"
         else:
             gt = "130X_dataRun3_PromptAnalysis_v1"
+    elif options.year == "2023":
+        if not options.isPrompt:
+            gt = "auto:run3_data" # TODO: replace when available
+        else:
+            gt = "130X_dataRun3_Prompt_v3"
 
 print("globalTag: %s" % gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
@@ -353,6 +375,7 @@ flowOpts = {
     "isMC": bool(options.isMC),
     "year": options.year,
     "calibEra22": "%sEE" % ("post" if options.postEE else "pre"),
+    "calibEra23": "%sBPix" % ("post" if options.postBPix else "pre"),
     "dataPeriod": options.dataPeriod,
     "jetsUL": bool(options.jetsUL),
     "electronsUL": bool(options.electronsUL)
@@ -377,7 +400,7 @@ process.schedule.append(process.metaTreePath)
 
 # Get trigger branches
 if not wz:
-    if options.year == "2022":
+    if options.year in ["2022", "2023"]:
         from UWVV.Ntuplizer.templates.triggerBranches import triggerBranches_2022
         trgBranches = triggerBranches_2022
 else:

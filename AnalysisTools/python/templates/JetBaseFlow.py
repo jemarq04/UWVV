@@ -11,6 +11,10 @@ class JetBaseFlow(AnalysisFlowBase):
             self.isMC = kwargs.pop('isMC', True)
         if not hasattr(self, 'year'):
             self.year = kwargs.pop('year', '2022')
+        if not hasattr(self, 'calibEra22'):
+            self.calibEra22 = kwargs.pop('calibEra22', 'preEE')
+        if not hasattr(self, 'calibEra23'):
+            self.calibEra23 = kwargs.pop('calibEra23', 'preBPix')
         if not hasattr(self, 'dataPeriod'):
             self.dataPeriod = kwargs.pop('dataPeriod', 'C')
         if not hasattr(self, 'jetsUL'):
@@ -45,7 +49,7 @@ class JetBaseFlow(AnalysisFlowBase):
                     )
                 else:
                     # this producer will create a ValueMap<int> filled with the given value,
-                    # as a placeholder for the pileup ID until it is available for 2022-23
+                    # as a placeholder for the pileup ID until it is available for 2022-2023
                     '''
                     self.process.pileupJetIdUpdated = cms.EDProducer(
                         "PATJetValueMapProducer",
@@ -82,9 +86,27 @@ class JetBaseFlow(AnalysisFlowBase):
                 yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
                 jesConfig = "Summer22%s_22Sep2023%s_V2" % (
                     "" if self.calibEra22 == "preEE" else "EE",
-                    "" if self.isMC else "_RunCD" # TODO: update RunCD appropriately
+                    "" if self.isMC else dataPeriod 
                 )
                 jerConfig = "Summer22%s_22Sep2023_JRV1" % ("" if self.calibEra22 == "preEE" else "EE")
+            elif self.year == "2023":
+                dataPeriod = "_Run"
+                if self.dataPeriod.split("v")[0] == "C":
+                    if self.dataPeriod.split("v")[1] in "123":
+                        dataPeriod += "Cv123"
+                    else:
+                        dataPeriod += "Cv4"
+                elif self.dataPeriod.split("v")[0] == "D":
+                    dataPeriod += "D"
+                yearstring = "2023_Summer23%s" % ("" if self.calibEra22 == "preBPix" else "BPix")
+                jesConfig = "Summer23%sPrompt23%s_V1" % (
+                    "" if self.calibEra23 == "preBPix" else "BPix",
+                    "" if self.isMC else dataPeriod
+                )
+                jerConfig = "Summer23%sPrompt23_%s_JRV1" % (
+                    "" if self.calibEra23 == "preBPix" else "BPix",
+                    "_RunCv4" if self.calibEra23 == "preBPix" else "_RunD" # TODO: how to decide from Cv123 or Cv4?
+                )
 
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
                                     yearstring, "jet_jerc.json.gz")

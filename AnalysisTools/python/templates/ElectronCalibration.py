@@ -10,12 +10,12 @@ class ElectronCalibration(AnalysisFlowBase):
             self.isMC = kwargs.pop('isMC', True)
         if not hasattr(self, 'isSync'):
             self.isSync = self.isMC and kwargs.pop('isSync', False)
-
         if not hasattr(self, 'year'):
             self.year = kwargs.pop('year', '2022')
-
         if not hasattr(self, 'calibEra22'):
             self.calibEra22 = kwargs.pop('calibEra22', 'preEE')
+        if not hasattr(self, 'calibEra23'):
+            self.calibEra23 = kwargs.pop('calibEra23', 'preBPix')
 
         eesShift = kwargs.pop('electronScaleShift', 0) if self.isMC else 0
         eerRhoShift = kwargs.pop('electronRhoResShift', 0) if self.isMC else 0
@@ -36,13 +36,14 @@ class ElectronCalibration(AnalysisFlowBase):
             if not hasattr(self.process, 'RandomNumberGeneratorService'):
                 self.process.RandomNumberGeneratorService = cms.Service(
                     'RandomNumberGeneratorService',
-                    )
-            LeptonSetup = cms.string(self.year)
+                )
 
             #For Run3: https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun3
             from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq, _defaultEleIDModules
 
-            if LeptonSetup == "2022":
+            # Embed MVAs and BDT scores
+            if self.year in ["2022", "2023"]:
+                # TODO: update 2023 when available
                 eleIDModules = _defaultEleIDModules
                 if int(environ["CMSSW_VERSION"].split("_")[1]) >= 14:
                     eleIDModules += ["RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff"]
@@ -54,6 +55,7 @@ class ElectronCalibration(AnalysisFlowBase):
                 )
             step.addModule('egammaPostRecoSeq',self.process.egammaPostRecoSeq)
 
+            # Produce and embed seed gain into electrons
             seedGainEle = cms.EDProducer(
                 "ElectronSeedGainProducer",
                 src = step.getObjTag('e')
@@ -68,16 +70,28 @@ class ElectronCalibration(AnalysisFlowBase):
             )
             step.addModule("seedGainEmbedding", embedSeedGain, 'e')
 
-            yearstring = ""
-            if LeptonSetup == "2022":
+            # Setup/configuration
+            yearstring = scaleConfig = smearConfig = ""
+            if self.year == "2022":
                 yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
+                scaleConfig = "Scale"
+                smearConfig = "Smearing"
+            elif self.year == "2023":
+                yearstring = "2023_Summer23%s" % ("" if self.calibEra22 == "preBPix" else "BPix")
+                # TODO: update configs below when 2023D is available
+                scaleConfig = "2023PromptC_ScaleJSON"
+                smearConfig = "2023PromptC_SmearingJSON"
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/EGM",
                                     yearstring, "electronSS.json.gz")
+
+            # Electron corrections
             eCorr = cms.EDProducer(
                 "PATElectronCorrector",
                 src = step.getObjTag('e'),
                 scaleFile = cms.string(scaleFileP),
-                isMC = cms.bool(self.isMC)
+                isMC = cms.bool(self.isMC),
+                scaleConfig = cms.string(scaleConfig),
+                smearConfig = cms.string(smearConfig),
             )
             step.addModule("calibratedPatElectrons", eCorr, 'e')
 

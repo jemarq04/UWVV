@@ -16,17 +16,23 @@ class MuonCalibration(AnalysisFlowBase):
             self.muonClosureShift = kwargs.pop('muonClosureShift', 0) if self.isMC else 0
         if not hasattr(self, 'calibEra22'):
             self.calibEra22 = kwargs.pop('calibEra22', 'preEE')
+        if not hasattr(self, 'calibEra23'):
+            self.calibEra23 = kwargs.pop('calibEra23', 'preBPix')
         super(MuonCalibration, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(MuonCalibration, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == 'preliminary':
+            # Setup/configuration
             yearstring = ""
             if self.year == "2022":
                 yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
+            elif self.year == "2023":
+                yearstring = "2023_Summer23%s" % ("" if self.calibEra22 == "preBPix" else "BPix")
             scaleFile = os.path.join(UWVV_BASE_PATH, "data", "MuonCorrections", "%s.json" % yearstring)
 
+            # Muon corrections
             muCalibrator = cms.EDProducer(
                 "PATMuonCorrector",
                 src = step.getObjTag('m'),

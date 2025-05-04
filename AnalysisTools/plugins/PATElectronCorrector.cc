@@ -36,21 +36,15 @@ public:
   explicit PATElectronCorrector(const edm::ParameterSet&);
   ~PATElectronCorrector() {}
 private:
-  // Methods
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  // Data
   edm::EDGetTokenT<ElectronView> srcToken_;
-
   const bool isMC_;
-  std::string scaleFileName_;
+  std::string scaleFileName_, scaleConfig_, smearConfig_;
   std::unique_ptr<correction::CorrectionSet> scaleFile_;
   const bool hasSeed_;
   const ULong64_t seed_;
 };
-
-
-// Constructors and destructors
 
 PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig) :
   srcToken_(consumes<ElectronView>(iConfig.exists("src") ?
@@ -58,6 +52,12 @@ PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig) :
       edm::InputTag("slimmedElectrons"))),
   isMC_(iConfig.getParameter<bool>("isMC")),
   scaleFileName_(iConfig.getParameter<std::string>("scaleFile")),
+  scaleConfig_(iConfig.exists("scaleConfig") ?
+      iConfig.getParameter<std::string>("scaleConfig") :
+      "Scale"),
+  smearConfig_(iConfig.exists("smearConfig") ?
+      iConfig.getParameter<std::string>("smearConfig") :
+      "Smearing"),
   hasSeed_(iConfig.exists("seed")),
   seed_(hasSeed_? iConfig.getParameter<ULong64_t>("seed") : 0)
 {
@@ -89,9 +89,9 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
     float scale = 1, err_scale = 0;
     float smear = 1, smear_up = 1, smear_dn = 1;
     if (isMC_){
-      rho       = scaleFile_->at("Smearing")->evaluate({"rho", ele.eta(), ele.r9()});
-      err_rho   = scaleFile_->at("Smearing")->evaluate({"err_rho", ele.eta(), ele.r9()});
-      err_scale = scaleFile_->at("Scale")->evaluate({"total_uncertainty", ele.userInt("seedGain"), (double)iEvent.run(), ele.eta(), ele.r9(), ele.pt()});
+      rho       = scaleFile_->at(smearConfig_)->evaluate({"rho", ele.eta(), ele.r9()});
+      err_rho   = scaleFile_->at(smearConfig_)->evaluate({"err_rho", ele.eta(), ele.r9()});
+      err_scale = scaleFile_->at(scaleConfig_)->evaluate({"total_uncertainty", ele.userInt("seedGain"), (double)iEvent.run(), ele.eta(), ele.r9(), ele.pt()});
 
       TRandom3 rand;
       rand.SetSeed(hasSeed_? seed_ : std::abs(static_cast<int>(std::sin(ele.phi())*100000)));
@@ -100,7 +100,7 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
       smear_dn = rand.Gaus(1., rho-err_rho);
     }
     else
-      scale = scaleFile_->at("Scale")->evaluate({"total_correction", ele.userInt("seedGain"), (double)iEvent.run(), ele.eta(), ele.r9(), ele.pt()});
+      scale = scaleFile_->at(scaleConfig_)->evaluate({"total_correction", ele.userInt("seedGain"), (double)iEvent.run(), ele.eta(), ele.r9(), ele.pt()});
     
     float uncorrected_pt = ele.pt();
     float corrected_pt = uncorrected_pt * (isMC_? smear : scale);

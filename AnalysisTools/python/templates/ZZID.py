@@ -18,9 +18,9 @@ class ZZID(AnalysisFlowBase):
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(ZZID, self).makeAnalysisStep(stepName, **inputs)
 
-        LeptonSetup = cms.string(self.year)
         if stepName == 'embedding':
-            if LeptonSetup=="2022":
+            if self.year in ["2022", "2023"]:
+                # TODO: update 2023 when available
                 eIDEmbedder = cms.EDProducer(
                     "PATElectronZZIDEmbedder",
                     src = step.getObjTag('e'),
