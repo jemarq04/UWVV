@@ -26,7 +26,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "correction.h"
 #include "PhysicsTools/NATModules/interface/MuonScaRe.h"
 
 using pat::Muon, pat::MuonCollection;
@@ -48,7 +47,6 @@ private:
   const bool isMC_;
   const double maxPt_;
   std::string scaleFileName_;
-  std::unique_ptr<correction::CorrectionSet> scaleFile_;
   const bool hasSeed_;
   const ULong64_t seed_;
   MuonScaRe *corrector_;
