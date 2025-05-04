@@ -39,15 +39,7 @@ class JetBaseFlow(AnalysisFlowBase):
                     algos = cms.VPSet(_chsalgos_106X_UL18),
                 )
             else:
-                if self.year == "2024":
-                    self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
-                    self.process.pileupJetIdUpdated = self.process.pileupJetIdPuppi.clone(
-                        jets = step.getObjTag('j'),
-                        inputIsCorrected = True,
-                        applyJec = True,
-                        vertexes = step.getObjTag('v'),
-                    )
-                else:
+                if self.year in ["2022", "2023"]:
                     # this producer will create a ValueMap<int> filled with the given value,
                     # as a placeholder for the pileup ID until it is available for 2022-2023
                     '''
@@ -63,6 +55,14 @@ class JetBaseFlow(AnalysisFlowBase):
                     self.process.pileupJetIdUpdated = self.process.pileupJetId.clone(
                         jets = step.getObjTag('j'),
                         applyJec = False,
+                        vertexes = step.getObjTag('v'),
+                    )
+                elif self.year == "2024":
+                    self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
+                    self.process.pileupJetIdUpdated = self.process.pileupJetIdPuppi.clone(
+                        jets = step.getObjTag('j'),
+                        inputIsCorrected = True,
+                        applyJec = True,
                         vertexes = step.getObjTag('v'),
                     )
             step.addModule("pileupJetIdUpdated", self.process.pileupJetIdUpdated, "puID", puID="fullId")
@@ -98,7 +98,7 @@ class JetBaseFlow(AnalysisFlowBase):
                         dataPeriod += "Cv4"
                 elif self.dataPeriod.split("v")[0] == "D":
                     dataPeriod += "D"
-                yearstring = "2023_Summer23%s" % ("" if self.calibEra22 == "preBPix" else "BPix")
+                yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
                 jesConfig = "Summer23%sPrompt23%s_V1" % (
                     "" if self.calibEra23 == "preBPix" else "BPix",
                     "" if self.isMC else dataPeriod

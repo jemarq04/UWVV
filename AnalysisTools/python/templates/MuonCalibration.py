@@ -29,7 +29,7 @@ class MuonCalibration(AnalysisFlowBase):
             if self.year == "2022":
                 yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
             elif self.year == "2023":
-                yearstring = "2023_Summer23%s" % ("" if self.calibEra22 == "preBPix" else "BPix")
+                yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
             scaleFile = os.path.join(UWVV_BASE_PATH, "data", "MuonCorrections", "%s.json" % yearstring)
 
             # Muon corrections

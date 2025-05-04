@@ -77,7 +77,7 @@ class ElectronCalibration(AnalysisFlowBase):
                 scaleConfig = "Scale"
                 smearConfig = "Smearing"
             elif self.year == "2023":
-                yearstring = "2023_Summer23%s" % ("" if self.calibEra22 == "preBPix" else "BPix")
+                yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
                 # TODO: update configs below when 2023D is available
                 scaleConfig = "2023PromptC_ScaleJSON"
                 smearConfig = "2023PromptC_SmearingJSON"
