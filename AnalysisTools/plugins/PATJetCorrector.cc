@@ -47,6 +47,8 @@ private:
   const bool isMC_, systematics_;
   edm::ConsumesCollector cc;
   edm::ESGetToken<JetCorrectorParametersCollection,JetCorrectionsRecord> jecToken;
+
+  std::string jesName_;
 };
 
 
@@ -68,6 +70,14 @@ PATJetCorrector::PATJetCorrector(const edm::ParameterSet& iConfig) :
   catch (...){
     throw cms::Exception("Invalid JSON file") << "Filepath: " << scaleFileName_;
   }
+
+  jesName_ = config_ + (isMC_? "_MC" : "_DATA") + "_L1L2L3Res_" + algo_;
+  auto it = scaleFile_->compound().begin();
+  for (;it != scaleFile_->compound().end(); it++)
+    if (it->first == jesName_) break;
+  if (it == scaleFile_->compound().end())
+    throw cms::Exception("Invalid JES config") << "Config: " << jesName_;
+
 
   produces<JetCollection>();
   if (systematics_){
@@ -93,14 +103,14 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::unique_ptr<JetCollection> out_jesUp(new JetCollection());
   std::unique_ptr<JetCollection> out_jesDn(new JetCollection());
 
-  std::string jesName = config_ + (isMC_? "_MC" : "_DATA") + "_L1L2L3Res_" + algo_;
-
   for (size_t i = 0; i<in->size(); ++i)
   {
     const Jet& jet = in->at(i);
 
     // JES
-    double jes = scaleFile_->compound().at(jesName)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho});
+    double jes = jesName_.find("BPix") == std::string::npos ?
+      scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho}) :
+      scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.phi(), jet.pt(), *rho});
     out->push_back(jet);
     out->back().setP4(math::XYZTLorentzVector(jes * jet.p4()));
 
