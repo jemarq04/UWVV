@@ -105,7 +105,7 @@ class JetBaseFlow(AnalysisFlowBase):
                 )
                 jerConfig = "Summer23%sPrompt23_%s_JRV1" % (
                     "" if self.calibEra23 == "preBPix" else "BPix",
-                    "_RunCv4" if self.calibEra23 == "preBPix" else "_RunD" # TODO: how to decide from Cv123 or Cv4?
+                    "RunCv4" if self.calibEra23 == "preBPix" else "RunD" # TODO: how to decide from Cv123 or Cv4?
                 )
 
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
