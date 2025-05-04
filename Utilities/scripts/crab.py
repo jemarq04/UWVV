@@ -68,7 +68,7 @@ dataPeriod = ""
 if not isMC:
     dataPeriod = conditions.split("Run%s" % year)[1][0]
     if year == "2023":
-        dataPeriod += "v" + conditions[-1]
+        dataPeriod += "v" + conditions.split("_v")[1][0]
     print("dataPeriod:", dataPeriod)
 
 def getUnitsPerJob(ds):
