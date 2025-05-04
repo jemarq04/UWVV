@@ -211,7 +211,7 @@ elif options.isMC:
         if not options.postBPix:
             gt = "130X_mcRun3_2023_realistic_v14"
         else:
-            gt = " 130X_mcRun3_2023_realistic_postBPix_v2"
+            gt = "130X_mcRun3_2023_realistic_postBPix_v2"
 else:
     if options.year == "2022":
         if not options.isPrompt:
