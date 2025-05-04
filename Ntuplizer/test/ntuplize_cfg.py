@@ -138,7 +138,7 @@ if options.outputFile == outputFileDefault:
     options.outputFile = "ntuple%s.root" % options.year
 print("Output:", options.outputFile)
 if not options.isMC:
-    print("isPrompt: %s" % options.isPrompt)
+    print("isPrompt: %i" % options.isPrompt)
 for var in ["jetsUL", "electronsUL", "debug"]:
     if getattr(options, var):
         print("%s flag on" % var)
