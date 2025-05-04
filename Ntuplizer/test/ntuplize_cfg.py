@@ -130,8 +130,6 @@ if options.year == "2022":
     print("postEE: %i" % options.postEE)
 elif options.year == "2023":
     print("postBPix: %i" % options.postBPix)
-    print("2023 is still in progress")
-    exit(1)
 else:
     print("Run3 config still in progresss. Only 2022 is able to be processed.")
     exit(1)
@@ -161,15 +159,16 @@ else:
     if not options.dataPeriod:
         print("ERROR: for jet corrections, the data period must be provided (e.g. A, B, C, ...)")
         exit(1)
-    options.dataPeriod = options.dataPeriod.upper()
-    if not options.dataPeriod.split("v")[0].isalpha() or not options.dataPeriod.split("v")[1].isdigit():
+    vals = options.dataPeriod.split("v")
+    if not vals[0].isalpha() or (len(vals) == 2 and not vals[1].isdigit()):
         print("ERROR: Invalid data period '%s'" % options.dataPeriod)
         print("Must be a single character with optional version (e.g. A, Cv3, ...)")
         exit(1)
-    elif options.year == "2023" and len(options.split("v")) != 2:
+    elif options.year == "2023" and len(vals) != 2:
         print("ERROR: Invalid data period '%s'" % options.dataPeriod)
         print("2023 data periods MUST contain a version (e.g. Cv1)")
         exit(1)
+    options.dataPeriod = options.dataPeriod.title()
 
 # Override inputs if input file list provided
 if options.inputFileList:
