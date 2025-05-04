@@ -45,7 +45,7 @@ elif dataTier == 'MINIAODSIM':
 else:
     raise Exception("Dataset malformed? Couldn't deduce isMC parameter")
 
-postEE = 0
+postEE = postBPix = 0
 year = localSettings.get("local", "year")
 if year == "2022":
     if "postEE" in localSettings["local"]:
@@ -55,6 +55,14 @@ if year == "2022":
     else:
         postEE = 1 if "postEE" in conditions else 0
     print("postEE: %s"%postEE)
+elif year == "2023":
+    if "postBPix" in localSettings["local"]:
+        postBPix = int(localSettings.get("local", "postBPix"))
+    elif not isMC:
+        postBPix = 1 if "Run2023D" in conditions else 0
+    else:
+        postBPix = 1 if "postBPix" in conditions else 0
+    print("postBPix: %s" % postBPix)
 
 dataPeriod = ""
 if not isMC:
@@ -80,10 +88,12 @@ config = config()
 config.Data.inputDataset = dataset
 config.Data.outputDatasetTag = conditions
 if (isMC):
-    if not postEE:
-        globalTag=(localSettings.get("local", "mcGlobalTag"))
+    if self.year == "2022" and postEE:
+        globalTag = (localSettings.get("local", "postEEGlobalTag"))
+    elif self.year == "2023" and postBPix:
+        globalTag = (localSettings.get("local", "postBPixGlobalTag"))
     else:
-        globalTag=(localSettings.get("local", "postEEGlobalTag"))
+        globalTag=(localSettings.get("local", "mcGlobalTag"))
 elif (isPrompt):
     globalTag=(localSettings.get("local", "PromptdataGlobalTag"))
 else: 
@@ -102,7 +112,6 @@ configParams = [
     'isMC=%d' % isMC,
     'isPrompt=%i' % isPrompt,
     'jetsUL=%s' % localSettings.get("local", "jetsUL", fallback=0),
-    'postEE=%i' % postEE,
     'datasetName=%s' % dataset,
     "year=%s" % year,
     "channels=%s" % localSettings.get("local", "channels"),
@@ -123,8 +132,12 @@ if isMC:
         config.General.requestName += m.groups()[0]
     #config.Data.splitting = 'FileBased'
     #config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
-    if postEE:
+    if year == "2022" and postEE:
         config.General.requestName += "postEE"
+        configParams.append('postEE=%i' % postEE)
+    elif year == "2023" and postBPix:
+        config.General.requestName += "postBPix"
+        configParams.append("postBPix=%i" % postBPix)
 
 else:
     configParams.append("dataPeriod=%s" % dataPeriod)
@@ -138,6 +151,10 @@ else:
         #2022 JSON
         config.Data.lumiMask = "%s/src/UWVV/Utilities/scripts/JSON/Cert_Collisions2022_355100_362760_Golden.json" % os.environ["CMSSW_BASE"]
         print("Golden JSON: Cert_Collisions2022_355100_362760_Golden.json")
+    elif year == "2023":
+        #2023 JSON
+        config.Data.lumiMask = "%s/src/UWVV/Utilities/scripts/JSON/Cert_Collisions2023_366442_370790_Golden.json" % os.environ["CMSSW_BASE"]
+        print("Golden JSON: Cert_Collisions2023_366442_370790_Golden.json")
     else:
         print("What kind of JSON are you running for?")
         exit()
