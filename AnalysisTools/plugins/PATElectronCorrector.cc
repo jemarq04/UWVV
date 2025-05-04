@@ -69,6 +69,16 @@ PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig) :
     throw cms::Exception("Invalid JSON file") << "Filepath: " << scaleFileName_;
   }
 
+  auto it = scaleFile_->begin();
+  for (;it != scaleFile_->end(); it++)
+    if (it->first == scaleConfig_) break;
+  if (it == scaleFile_->end())
+    throw cms::Exception("Invalid scale config") << "Config: " << scaleConfig_;
+  for (it = scaleFile_->begin(); it != scaleFile_->end(); it++)
+    if (it->first == smearConfig_) break;
+  if (it == scaleFile_->end())
+    throw cms::Exception("Invalid smear config") << "Config: " << smearConfig_;
+
   produces<ElectronCollection>();
 }
 

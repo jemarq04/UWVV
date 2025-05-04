@@ -53,8 +53,9 @@ private:
   edm::EDGetTokenT<double> rhoToken;
   std::string scaleFileName_, smearFileName_, config_, algo_;
   std::unique_ptr<correction::CorrectionSet> scaleFile_, smearFile_;
-
   const bool systematics_, useUL_;
+
+  std::string jerName_, jersfName_;
 };
 
 
@@ -87,6 +88,20 @@ PATJetSmearing::PATJetSmearing(const edm::ParameterSet& iConfig) :
     throw cms::Exception("Invalid JER Smear file") << smearFileName_;
   }
 
+  jerName_ = config_ + "_MC_PtResolution_" + algo_;
+  jersfName_ = config_ + "_MC_ScaleFactor_" + algo_;
+  auto it = scaleFile_->begin();
+  for (;it != scaleFile_->end(); it++)
+    if (it->first == jerName_) break;
+  if (it == scaleFile_->end())
+    throw cms::Exception("Invalid JER config") << "Config: " << jerName_;
+  for (it = scaleFile_->begin(); it != scaleFile_->end(); it++)
+    if (it->first == jersfName_) break;
+  if (it == scaleFile_->end())
+    throw cms::Exception("Invalid JERSF config") << "Config: " << jerName_;
+  
+
+
   produces<JetCollection>();
   if(systematics_)
   {
@@ -106,9 +121,6 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::unique_ptr<JetCollection> out(new JetCollection());
   std::unique_ptr<JetCollection> outUp(new JetCollection());
   std::unique_ptr<JetCollection> outDn(new JetCollection());
-  
-  std::string jerName = config_ + "_MC_PtResolution_" + algo_;
-  std::string jersfName = config_ + "_MC_ScaleFactor_" + algo_;
 
   for (size_t i=0; i<in->size(); ++i)
   {
@@ -125,9 +137,9 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float genpt = (gen!=nullptr)? gen->pt() : -1.0;
 
     // JER
-    double jer       = scaleFile_->at(jerName)->evaluate({eta, pt, *rho});
-    double jersf     = useUL_? scaleFile_->at(jersfName)->evaluate({eta, "nom"}) :
-                               scaleFile_->at(jersfName)->evaluate({eta, pt, "nom"});
+    double jer       = scaleFile_->at(jerName_)->evaluate({eta, pt, *rho});
+    double jersf     = useUL_? scaleFile_->at(jersfName_)->evaluate({eta, "nom"}) :
+                               scaleFile_->at(jersfName_)->evaluate({eta, pt, "nom"});
     double jerCorr   = smearFile_->at("JERSmear")->evaluate({pt, eta, genpt, *rho, int(iEvent.id().event()), jer, jersf});
     out->back().setP4(math::XYZTLorentzVector(jerCorr * jet.p4()));
     out->back().addUserFloat("jerCorrInverse", 1./jerCorr);
@@ -135,10 +147,10 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(systematics_)
     {
       // JER Uncertainty
-      double jersfUp   = useUL_? scaleFile_->at(jersfName)->evaluate({eta, "up"}) :
-                                 scaleFile_->at(jersfName)->evaluate({eta, pt, "up"});
-      double jersfDn   = useUL_? scaleFile_->at(jersfName)->evaluate({eta, "down"}) :
-                                 scaleFile_->at(jersfName)->evaluate({eta, pt, "down"});
+      double jersfUp   = useUL_? scaleFile_->at(jersfName_)->evaluate({eta, "up"}) :
+                                 scaleFile_->at(jersfName_)->evaluate({eta, pt, "up"});
+      double jersfDn   = useUL_? scaleFile_->at(jersfName_)->evaluate({eta, "down"}) :
+                                 scaleFile_->at(jersfName_)->evaluate({eta, pt, "down"});
       double jerCorrUp = smearFile_->at("JERSmear")->evaluate({pt, eta, genpt, *rho, int(iEvent.id().event()), jer, jersfUp});
       double jerCorrDn = smearFile_->at("JERSmear")->evaluate({pt, eta, genpt, *rho, int(iEvent.id().event()), jer, jersfDn});
 
