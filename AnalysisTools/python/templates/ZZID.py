@@ -45,7 +45,6 @@ class ZZID(AnalysisFlowBase):
                 "PATMuonZZIDEmbedder",
                 src = step.getObjTag('m'),
                 vtxSrc = step.getObjTag('v'),
-                rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
                 setup = cms.int32(int(self.year)),
                 ptCut = cms.double(5.),
                 etaCut = cms.double(2.4),

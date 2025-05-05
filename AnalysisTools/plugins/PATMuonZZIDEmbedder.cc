@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -30,151 +29,128 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+using pat::Muon, pat::MuonCollection;
+typedef edm::View<Muon> MuonView;
+
 class PATMuonZZIDEmbedder : public edm::stream::EDProducer<>
 {
-public:
-  explicit PATMuonZZIDEmbedder(const edm::ParameterSet&);
-  ~PATMuonZZIDEmbedder() {}
+  public:
+    explicit PATMuonZZIDEmbedder(const edm::ParameterSet&);
+    ~PATMuonZZIDEmbedder() {}
 
 
-private:
-  // Methods
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  private:
+    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  bool passKinematics(const edm::Ptr<pat::Muon>& mu) const;
-  bool passVertex(const edm::Ptr<pat::Muon>& mu) const;
-  bool passType(const edm::Ptr<pat::Muon>& mu) const;
+    bool passKinematics(const Muon& mu) const;
+    bool passVertex(const Muon& mu) const;
+    bool passType(const Muon& mu) const;
 
+    edm::EDGetTokenT<MuonView> muonCollectionToken_;
+    const std::string idLabel_; // label for the decision userfloat
+    const edm::EDGetTokenT<reco::VertexCollection> vtxSrcToken_; // primary vertex (for veto PV and SIP cuts)
 
-  // Data
-  edm::EDGetTokenT<edm::View<pat::Muon> > muonCollectionToken_;
-  const std::string idLabel_; // label for the decision userfloat
-  const std::string isoLabel_;
-  const edm::EDGetTokenT<reco::VertexCollection> vtxSrcToken_; // primary vertex (for veto PV and SIP cuts)
-  edm::Handle<reco::VertexCollection> vertices;
-  edm::EDGetTokenT<double> rhoToken_;
-  edm::Handle<double> rhoHandle;
+    const double ptCut;
+    const double etaCut;
+    const double sipCut;
+    const double pvDXYCut;
+    const double pvDZCut;
 
-  const double ptCut;
-  const double etaCut;
-  const double sipCut;
-  const double pvDXYCut;
-  const double pvDZCut;
-
-  // MVA Reader
-  //MuonGBRForestReader *r;
-
+    // MVA Reader
+    //MuonGBRForestReader *r;
 };
 
 
-// Constructors and destructors
-
 PATMuonZZIDEmbedder::PATMuonZZIDEmbedder(const edm::ParameterSet& iConfig):
-  muonCollectionToken_(consumes<edm::View<pat::Muon> >(iConfig.exists("src") ?
-						       iConfig.getParameter<edm::InputTag>("src") :
-						       edm::InputTag("slimmedMuons"))),
+  muonCollectionToken_(consumes<MuonView>(iConfig.exists("src") ?
+      iConfig.getParameter<edm::InputTag>("src") :
+      edm::InputTag("slimmedMuons"))),
   idLabel_(iConfig.exists("idLabel") ?
-	   iConfig.getParameter<std::string>("idLabel") :
-	   std::string("HZZ4lIDPass")),
-  isoLabel_(iConfig.exists("isoLabel") ?
-	   iConfig.getParameter<std::string>("isoLabel") :
-	   std::string("HZZ4lIsoPass")),
+      iConfig.getParameter<std::string>("idLabel") :
+      std::string("HZZ4lIDPass")),
   vtxSrcToken_(consumes<reco::VertexCollection>(iConfig.exists("vtxSrc") ?
-                                                iConfig.getParameter<edm::InputTag>("vtxSrc") :
-                                                edm::InputTag("selectedPrimaryVertex"))),
-  rhoToken_(consumes<double>(iConfig.exists("rhoSrc") ?
-                                                iConfig.getParameter<edm::InputTag>("rhoSrc") :
-                                                edm::InputTag("fixedGridRhoFastjetAll"))),
+      iConfig.getParameter<edm::InputTag>("vtxSrc") :
+      edm::InputTag("selectedPrimaryVertex"))),
   ptCut(iConfig.exists("ptCut") ? iConfig.getParameter<double>("ptCut") : 5.),
   etaCut(iConfig.exists("etaCut") ? iConfig.getParameter<double>("etaCut") : 2.4),
   sipCut(iConfig.exists("sipCut") ? iConfig.getParameter<double>("sipCut") : 4.),
   pvDXYCut(iConfig.exists("pvDXYCut") ? iConfig.getParameter<double>("pvDXYCut") : 0.5),
   pvDZCut(iConfig.exists("pvDZCut") ? iConfig.getParameter<double>("pvDZCut") : 1.)
 {
-  produces<std::vector<pat::Muon> >();
+  produces<MuonCollection>();
 }
 
 
 void PATMuonZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::unique_ptr<std::vector<pat::Muon> > out = std::make_unique<std::vector<pat::Muon> >();
-
-  edm::Handle<edm::View<pat::Muon> > muonsIn;
+  edm::Handle<MuonView> muonsIn;
   iEvent.getByToken(muonCollectionToken_, muonsIn);
 
-  iEvent.getByToken(vtxSrcToken_,vertices);
+  std::unique_ptr<MuonCollection> out = std::make_unique<MuonCollection>();
+
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByToken(vtxSrcToken_, vertices);
   
   const reco::Vertex& pv = *vertices->begin();
   
-  iEvent.getByToken(rhoToken_, rhoHandle);
+  for(MuonView::const_iterator mi = muonsIn->begin(); mi != muonsIn->end(); mi++) // loop over muons
+  {
+    out->push_back(*mi); // copy muon to save correctly in event
+    Muon& mu = out->back();
 
-  for(edm::View<pat::Muon>::const_iterator mi = muonsIn->begin();
-      mi != muonsIn->end(); mi++) // loop over muons
-    {
-      const edm::Ptr<pat::Muon> mptr(muonsIn, mi - muonsIn->begin());
+    bool vtxResult = vertices->size() && passVertex(mu);
+    bool kinResult = passKinematics(mu);
+    bool typeResult = passType(mu);
+    bool idResultNoVtx = kinResult && typeResult;
+    bool idResult = idResultNoVtx && vtxResult;
 
-      out->push_back(*mi); // copy muon to save correctly in event
+    mu.addUserFloat(idLabel_, float(idResult)); // 1 for true, 0 for false
+    mu.addUserFloat(idLabel_+"NoVtx", float(idResultNoVtx)); // 1 for true, 0 for false
 
-      bool vtxResult = passVertex(mptr);
-      bool kinResult = passKinematics(mptr);
-      bool typeResult = passType(mptr);
+    mu.addUserFloat(idLabel_+"PF", float(idResult && mi->isPFMuon())); // 1 for true, 0 for false
+    mu.addUserFloat(idLabel_+"PFNoVtx", float(idResultNoVtx && mi->isPFMuon())); // 1 for true, 0 for false
 
-      bool idResultNoVtx = kinResult && typeResult;
-      bool idResult = idResultNoVtx && vtxResult;
+    bool trackerHighPtID = mi->passed(reco::Muon::CutBasedIdTrkHighPt) && mi->pt() > 200.;
+    mu.addUserFloat(idLabel_+"HighPt", float(idResult && trackerHighPtID));
+    mu.addUserFloat(idLabel_+"HighPtNoVtx", float(idResultNoVtx && trackerHighPtID));
 
-      out->back().addUserFloat(idLabel_, float(idResult)); // 1 for true, 0 for false
-      out->back().addUserFloat(idLabel_+"NoVtx", float(idResultNoVtx)); // 1 for true, 0 for false
+    // PAS2019 version of TightMuonID (both PASID and Tight store the same result)
+    mu.addUserFloat(idLabel_+"Tight", float(idResult && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
+    mu.addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
 
-      out->back().addUserFloat(idLabel_+"PF", float(idResult && mi->isPFMuon())); // 1 for true, 0 for false
-      out->back().addUserFloat(idLabel_+"PFNoVtx", float(idResultNoVtx && mi->isPFMuon())); // 1 for true, 0 for false
-
-      bool trackerHighPtID = mi->passed(reco::Muon::CutBasedIdTrkHighPt) && mi->pt() > 200.;
-      out->back().addUserFloat(idLabel_+"HighPt", float(idResult && trackerHighPtID));
-      out->back().addUserFloat(idLabel_+"HighPtNoVtx", float(idResultNoVtx && trackerHighPtID));
-
-      // PAS2019 version of TightMuonID (both PASID and Tight store the same result)
-      out->back().addUserFloat(idLabel_+"Tight", float(idResult && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
-      out->back().addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
-      
-      //Now both electrons and muons have BDT for ZZTightID and thats how its stored in "leptonBranches"
-      //Some cut-based IDs for validation with other frameworks if needed 
-      out->back().addUserInt("isTightMuon",mi->isTightMuon(pv));
-      out->back().addUserInt("CutBasedIdLoose",mi->passed(reco::Muon::CutBasedIdLoose));
-      out->back().addUserInt("CutBasedIdMedium",mi->passed(reco::Muon::CutBasedIdMedium));
-      out->back().addUserInt("CutBasedIdTight",mi->passed(reco::Muon::CutBasedIdTight));
-      out->back().addUserInt("PFIsoLoose",mi->passed(reco::Muon::PFIsoLoose));
-      out->back().addUserInt("PFIsoMedium",mi->passed(reco::Muon::PFIsoMedium));
-      out->back().addUserInt("PFIsoTight",mi->passed(reco::Muon::PFIsoTight));
-      out->back().addUserInt("PFIsoVeryTight",mi->passed(reco::Muon::PFIsoVeryTight));
-    }
+    //Now both electrons and muons have BDT for ZZTightID and thats how its stored in "leptonBranches"
+    //Some cut-based IDs for validation with other frameworks if needed 
+    mu.addUserInt("isTightMuon",mi->isTightMuon(pv));
+    mu.addUserInt("CutBasedIdLoose",mi->passed(reco::Muon::CutBasedIdLoose));
+    mu.addUserInt("CutBasedIdMedium",mi->passed(reco::Muon::CutBasedIdMedium));
+    mu.addUserInt("CutBasedIdTight",mi->passed(reco::Muon::CutBasedIdTight));
+    mu.addUserInt("PFIsoLoose",mi->passed(reco::Muon::PFIsoLoose));
+    mu.addUserInt("PFIsoMedium",mi->passed(reco::Muon::PFIsoMedium));
+    mu.addUserInt("PFIsoTight",mi->passed(reco::Muon::PFIsoTight));
+    mu.addUserInt("PFIsoVeryTight",mi->passed(reco::Muon::PFIsoVeryTight));
+  }
 
   iEvent.put(std::move(out));
 }
 
-bool PATMuonZZIDEmbedder::passKinematics(const edm::Ptr<pat::Muon>& mu) const
+bool PATMuonZZIDEmbedder::passKinematics(const Muon& mu) const
 {
-  return mu->pt() > ptCut && fabs(mu->eta()) < etaCut;
+  return mu.pt() > ptCut && fabs(mu.eta()) < etaCut;
 }
 
 
-bool PATMuonZZIDEmbedder::passVertex(const edm::Ptr<pat::Muon>& mu) const
+bool PATMuonZZIDEmbedder::passVertex(const Muon& mu) const
 {
-  if(!vertices->size())
-    return false;
-
-  return fabs(mu->dB(pat::Muon::PV3D))/mu->edB(pat::Muon::PV3D) < sipCut &&
-    fabs(mu->dB(pat::Muon::PV2D)) < pvDXYCut && fabs(mu->dB(pat::Muon::PVDZ)) < pvDZCut;
-	  //(fabs(mu->muonBestTrack()->dxy(vertices->at(0).position())) < pvDXYCut &&
-	  //fabs(mu->muonBestTrack()->dz(vertices->at(0).position())) < pvDZCut);
+  return fabs(mu.dB(Muon::PV3D))/mu.edB(Muon::PV3D) < sipCut &&
+    fabs(mu.dB(Muon::PV2D)) < pvDXYCut && fabs(mu.dB(Muon::PVDZ)) < pvDZCut;
 }
 
 
-bool PATMuonZZIDEmbedder::passType(const edm::Ptr<pat::Muon>& mu) const
+bool PATMuonZZIDEmbedder::passType(const Muon& mu) const
 {
   // Global muon or (arbitrated) tracker muon
-  return (mu->isGlobalMuon() || (mu->isTrackerMuon() && mu->numberOfMatchedStations() > 0));
+  return (mu.isGlobalMuon() || (mu.isTrackerMuon() && mu.numberOfMatchedStations() > 0));
 }
 
-
-//define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATMuonZZIDEmbedder);
