@@ -46,10 +46,9 @@ class JetBaseFlow(AnalysisFlowBase):
                     self.process.pileupJetIdUpdated = cms.EDProducer(
                         "PATJetValueMapProducer",
                         src = step.getObjTag('j'),
-                        intVal = cms.int32(7),
-                        label = cms.string("fullId"),
+                        intVals = cms.vint32(7),
+                        intLabels = cms.vstring("fullId"),
                     )
-                    step.addModule("pileupJetIdUpdated", self.process.pileupJetIdUpdated, "puID", puID="fullId")
                     '''
                     self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
                     self.process.pileupJetIdUpdated = self.process.pileupJetId.clone(
