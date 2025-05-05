@@ -149,17 +149,21 @@ else:
     #    #2016 JSON
     #    config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt'
     #    print("Golden JSON: Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt")
+    jsonFileName = ""
     if year == "2022":
         #2022 JSON
-        config.Data.lumiMask = "%s/src/UWVV/Utilities/scripts/JSON/Cert_Collisions2022_355100_362760_Golden.json" % os.environ["CMSSW_BASE"]
-        print("Golden JSON: Cert_Collisions2022_355100_362760_Golden.json")
+        jsonFileName = "Cert_Collisions2022_355100_362760_Golden.json"
     elif year == "2023":
         #2023 JSON
-        config.Data.lumiMask = "%s/src/UWVV/Utilities/scripts/JSON/Cert_Collisions2023_366442_370790_Golden.json" % os.environ["CMSSW_BASE"]
-        print("Golden JSON: Cert_Collisions2023_366442_370790_Golden.json")
+        jsonFileName = "Cert_Collisions2023_366442_370790_Golden.json"
+    elif year == "2024":
+        #2024 JSON
+        jsonFileName = "Cert_Collisions2024_378981_386951_Golden.json"
     else:
         print("What kind of JSON are you running for?")
         exit()
+    config.Data.lumiMask = "%s/src/UWVV/Utilities/scripts/JSON/%s" % (os.environ["CMSSW_BASE"], jsonFileName)
+    print("Golden JSON: %s" % jsonFileName)
     # Comment out in the (hopefully very rare) case where resubmit needs to 
     # be done manually
     #config.General.requestName = '_'.join([campaign_name, primaryDS, conditions, "resubmit"])

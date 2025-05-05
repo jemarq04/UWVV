@@ -32,14 +32,16 @@ class MuonCalibration(AnalysisFlowBase):
                 yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
             scaleFile = os.path.join(UWVV_BASE_PATH, "data", "MuonCorrections", "%s.json" % yearstring)
 
-            # Muon corrections
-            muCalibrator = cms.EDProducer(
-                "PATMuonCorrector",
-                src = step.getObjTag('m'),
-                isMC = cms.bool(self.isMC),
-                scaleFile = cms.string(scaleFile),
-            )
-            step.addModule('calibratedPatMuons', muCalibrator, 'm')
+            if self.year != "2024":
+                # TODO: add 2024 electron calibrations when available
+                # Muon corrections
+                muCalibrator = cms.EDProducer(
+                    "PATMuonCorrector",
+                    src = step.getObjTag('m'),
+                    isMC = cms.bool(self.isMC),
+                    scaleFile = cms.string(scaleFile),
+                )
+                step.addModule('calibratedPatMuons', muCalibrator, 'm')
 
             # need to re-sort now that we're calibrated
             mSort = cms.EDProducer(

@@ -107,6 +107,10 @@ class JetBaseFlow(AnalysisFlowBase):
                     "" if self.calibEra23 == "preBPix" else "BPix",
                     "RunCv4" if self.calibEra23 == "preBPix" else "RunD" # TODO: how to decide from Cv123 or Cv4?
                 )
+            elif self.year == "2024":
+                yearstring = "2024_Winter24"
+                jesConfig = "Winter24Prompt24_V3"
+                jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
 
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
                                     yearstring, "jet_jerc.json.gz")

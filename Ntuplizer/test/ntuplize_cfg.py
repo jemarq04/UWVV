@@ -130,8 +130,11 @@ if options.year == "2022":
     print("postEE: %i" % options.postEE)
 elif options.year == "2023":
     print("postBPix: %i" % options.postBPix)
+elif options.year == "2024":
+    print("Still undergoing testing")
+    exit(1)
 else:
-    print("Run3 config still in progresss. Only 2022 is able to be processed.")
+    print("Run3 config only allows 2022-2024")
     exit(1)
 
 if options.outputFile == outputFileDefault:
@@ -211,6 +214,8 @@ elif options.isMC:
             gt = "130X_mcRun3_2023_realistic_v14"
         else:
             gt = "130X_mcRun3_2023_realistic_postBPix_v2"
+    elif options.year == "2024":
+        gt = "140X_mcRun3_2024_realistic_v26"
 else:
     if options.year == "2022":
         if not options.isPrompt:
@@ -222,6 +227,11 @@ else:
             gt = "auto:run3_data" # TODO: replace when available
         else:
             gt = "130X_dataRun3_PromptAnalysis_v1"
+    elif options.year == "2024":
+        if not options.isPrompt:
+            gt = "140X_dataRun3_v20"
+        else:
+            gt = "140X_dataRun3_Prompt_v4"
 
 print("globalTag: %s" % gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
@@ -399,7 +409,7 @@ process.schedule.append(process.metaTreePath)
 
 # Get trigger branches
 if not wz:
-    if options.year in ["2022", "2023"]:
+    if options.year in ["2022", "2023", "2024"]:
         from UWVV.Ntuplizer.templates.triggerBranches import triggerBranches_2022
         trgBranches = triggerBranches_2022
 else:

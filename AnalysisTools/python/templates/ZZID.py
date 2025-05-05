@@ -19,8 +19,8 @@ class ZZID(AnalysisFlowBase):
         step = super(ZZID, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == 'embedding':
-            if self.year in ["2022", "2023"]:
-                # TODO: update 2023 when available
+            if self.year in ["2022", "2023", "2024"]:
+                # TODO: update 2023-2024 when available
                 eIDEmbedder = cms.EDProducer(
                     "PATElectronZZIDEmbedder",
                     src = step.getObjTag('e'),

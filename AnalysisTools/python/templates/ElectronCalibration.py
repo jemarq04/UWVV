@@ -42,7 +42,7 @@ class ElectronCalibration(AnalysisFlowBase):
             from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq, _defaultEleIDModules
 
             # Embed MVAs and BDT scores
-            if self.year in ["2022", "2023"]:
+            if self.year in ["2022", "2023", "2024"]:
                 # TODO: update 2023 when available
                 eleIDModules = _defaultEleIDModules
                 if int(environ["CMSSW_VERSION"].split("_")[1]) >= 14:
@@ -83,16 +83,18 @@ class ElectronCalibration(AnalysisFlowBase):
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/EGM",
                                     yearstring, "electronSS.json.gz")
 
-            # Electron corrections
-            eCorr = cms.EDProducer(
-                "PATElectronCorrector",
-                src = step.getObjTag('e'),
-                scaleFile = cms.string(scaleFileP),
-                isMC = cms.bool(self.isMC),
-                scaleConfig = cms.string(scaleConfig),
-                smearConfig = cms.string(smearConfig),
-            )
-            step.addModule("calibratedPatElectrons", eCorr, 'e')
+            if self.year != "2024":
+                # TODO: add 2024 electron calibrations when available
+                # Electron corrections
+                eCorr = cms.EDProducer(
+                    "PATElectronCorrector",
+                    src = step.getObjTag('e'),
+                    scaleFile = cms.string(scaleFileP),
+                    isMC = cms.bool(self.isMC),
+                    scaleConfig = cms.string(scaleConfig),
+                    smearConfig = cms.string(smearConfig),
+                )
+                step.addModule("calibratedPatElectrons", eCorr, 'e')
 
             # need to re-sort now that we're calibrated
             eSort = cms.EDProducer(
