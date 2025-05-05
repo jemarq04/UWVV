@@ -42,63 +42,63 @@ typedef edm::View<pat::Jet> JetView;
 
 class PATJetFSRCleaner : public edm::stream::EDProducer<>
 {
-public:
-  explicit PATJetFSRCleaner(const edm::ParameterSet&);
-  ~PATJetFSRCleaner() {}
+  public:
+    explicit PATJetFSRCleaner(const edm::ParameterSet&);
+    ~PATJetFSRCleaner() {}
 
-private:
-  //// Methods
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  private:
+    //// Methods
+    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  // Get all FSR photons
-  std::vector<CandPtr> getFSR(const edm::Handle<ElecView>& elecs,
-                              const edm::Handle<MuonView>& muons) const;
-  // Helper for getFSR()
-  template<typename Lep>
-  void addFSR(const edm::Handle<edm::View<Lep> >& leps,
-              std::vector<CandPtr>& addTo) const;
-  bool selectFSRLep(const ElecPtr& e) const;
-  bool selectFSRLep(const MuonPtr& m) const;
+    // Get all FSR photons
+    std::vector<CandPtr> getFSR(const edm::Handle<ElecView>& elecs,
+        const edm::Handle<MuonView>& muons) const;
+    // Helper for getFSR()
+    template<typename Lep>
+      void addFSR(const edm::Handle<edm::View<Lep> >& leps,
+          std::vector<CandPtr>& addTo) const;
+    bool selectFSRLep(const ElecPtr& e) const;
+    bool selectFSRLep(const MuonPtr& m) const;
 
-  //// Data
-  edm::EDGetTokenT<JetView> collectionTokenJ;
-  edm::EDGetTokenT<ElecView> collectionTokenE;
-  edm::EDGetTokenT<MuonView> collectionTokenM;
+    //// Data
+    edm::EDGetTokenT<JetView> collectionTokenJ;
+    edm::EDGetTokenT<ElecView> collectionTokenE;
+    edm::EDGetTokenT<MuonView> collectionTokenM;
 
-  // Consider fsr from leptons passing these selections
-  StringCutObjectSelector<Elec> fsrElecSelection;
-  StringCutObjectSelector<Muon> fsrMuonSelection;
+    // Consider fsr from leptons passing these selections
+    StringCutObjectSelector<Elec> fsrElecSelection;
+    StringCutObjectSelector<Muon> fsrMuonSelection;
 
-  // Label of FSR userCand
-  const std::string fsrLabel;
+    // Label of FSR userCand
+    const std::string fsrLabel;
 
-  // Size of cleaning cone
-  const double coneDR;
+    // Size of cleaning cone
+    const double coneDR;
 };
 
 
 PATJetFSRCleaner::PATJetFSRCleaner(const edm::ParameterSet& iConfig):
   collectionTokenJ(consumes<JetView>(iConfig.exists("src") ?
-                                      iConfig.getParameter<edm::InputTag>("src") :
-                                      edm::InputTag("slimmedJets"))),
+      iConfig.getParameter<edm::InputTag>("src") :
+      edm::InputTag("slimmedJets"))),
   collectionTokenE(consumes<ElecView>(iConfig.exists("srcE") ?
-                                      iConfig.getParameter<edm::InputTag>("srcE") :
-                                      edm::InputTag("slimmedElectrons"))),
+      iConfig.getParameter<edm::InputTag>("srcE") :
+      edm::InputTag("slimmedElectrons"))),
   collectionTokenM(consumes<MuonView>(iConfig.exists("srcMu") ?
-                                      iConfig.getParameter<edm::InputTag>("srcMu") :
-                                      edm::InputTag("slimmedMuons"))),
+      iConfig.getParameter<edm::InputTag>("srcMu") :
+      edm::InputTag("slimmedMuons"))),
   fsrElecSelection(iConfig.exists("fsrElecSelection") ?
-                   iConfig.getParameter<std::string>("fsrElecSelection") :
-                   ""),
+      iConfig.getParameter<std::string>("fsrElecSelection") :
+      ""),
   fsrMuonSelection(iConfig.exists("fsrMuonSelection") ?
-                   iConfig.getParameter<std::string>("fsrMuonSelection") :
-                   ""),
+      iConfig.getParameter<std::string>("fsrMuonSelection") :
+      ""),
   fsrLabel(iConfig.exists("fsrLabel") ?
-           iConfig.getParameter<std::string>("fsrLabel") :
-           std::string("dretFSRCand")),
+      iConfig.getParameter<std::string>("fsrLabel") :
+      "dretFSRCand"),
   coneDR(iConfig.exists("deltaR") ?
-         iConfig.getParameter<double>("deltaR") :
-         0.4)
+      iConfig.getParameter<double>("deltaR") :
+      0.4)
 {
   produces<JetCollection>();
 }
@@ -107,11 +107,12 @@ PATJetFSRCleaner::PATJetFSRCleaner(const edm::ParameterSet& iConfig):
 void PATJetFSRCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<JetView> jetsIn;
-  edm::Handle<ElecView> elecsIn;
-  edm::Handle<MuonView> muonsIn;
-
   iEvent.getByToken(collectionTokenJ, jetsIn);
+
+  edm::Handle<ElecView> elecsIn;
   iEvent.getByToken(collectionTokenE, elecsIn);
+
+  edm::Handle<MuonView> muonsIn;
   iEvent.getByToken(collectionTokenM, muonsIn);
 
   std::vector<CandPtr> fsr = getFSR(elecsIn, muonsIn);
@@ -119,18 +120,17 @@ void PATJetFSRCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::unique_ptr<JetCollection> out(new JetCollection());
 
   for(size_t iJ = 0; iJ < jetsIn->size(); ++iJ)
-    {
-      JetPtr jet = jetsIn->ptrAt(iJ);
+  {
+    JetPtr jet = jetsIn->ptrAt(iJ);
 
-      bool rejected = false;
-      for(size_t iFSR = 0; iFSR < fsr.size(); ++iFSR)
-        {
-          rejected = reco::deltaR(fsr.at(iFSR)->p4(), jet->p4()) < coneDR;
-          if(rejected) break;
-        }
-      if(!rejected)
-        out->push_back(*jet);
+    bool rejected = false;
+    for(size_t iFSR = 0; iFSR < fsr.size(); ++iFSR)
+    {
+      rejected = reco::deltaR(fsr.at(iFSR)->p4(), jet->p4()) < coneDR;
+      if (rejected) break;
     }
+    if (!rejected) out->push_back(*jet);
+  }
 
   iEvent.put(std::move(out));
 }
@@ -152,13 +152,13 @@ template<typename Lep>
 void PATJetFSRCleaner::addFSR(const edm::Handle<edm::View<Lep> >& leps, std::vector<CandPtr>& fsr) const
 {
   for(size_t iLep = 0; iLep < leps->size(); ++iLep)
-    {
-      edm::Ptr<Lep> lep = leps->ptrAt(iLep);
-      if(!selectFSRLep(lep)) continue;
+  {
+    edm::Ptr<Lep> lep = leps->ptrAt(iLep);
+    if (!selectFSRLep(lep)) continue;
 
-      if(lep->hasUserCand(fsrLabel))
-        fsr.push_back(lep->userCand(fsrLabel));
-    }
+    if (lep->hasUserCand(fsrLabel))
+      fsr.push_back(lep->userCand(fsrLabel));
+  }
 }
 
 

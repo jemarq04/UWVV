@@ -28,7 +28,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -172,21 +171,23 @@ PATObjectFSREmbedder::~PATObjectFSREmbedder()
 // a sensible order
 void PATObjectFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::unique_ptr<std::vector<Muon> > mOut = std::make_unique<std::vector<Muon> > ();
-  std::unique_ptr<std::vector<Elec> > eOut = std::make_unique<std::vector<Elec> > ();
   edm::Handle<PCandView> cands;
   iEvent.getByToken(cands_, cands);
+
   edm::Handle<edm::View<Elec> > elecs;
   iEvent.getByToken(electrons_, elecs);
+
   edm::Handle<edm::View<Muon> > mus;
   iEvent.getByToken(muons_, mus);
 
+  std::unique_ptr<std::vector<Muon> > mOut = std::make_unique<std::vector<Muon> > ();
+  std::unique_ptr<std::vector<Elec> > eOut = std::make_unique<std::vector<Elec> > ();
 
   // associate photons to their closest leptons
   std::vector<std::vector<PCandRef> > phosByEle = std::vector<std::vector<PCandRef> >(elecs->size());
   std::vector<std::vector<PCandRef> > phosByMu = std::vector<std::vector<PCandRef> >(mus->size());
 
-  for( size_t iPho = 0; iPho != cands->size(); ++iPho )
+  for ( size_t iPho = 0; iPho != cands->size(); ++iPho )
   {
     PCandRef pho = cands->refAt(iPho).castTo<PCandRef>();
 
@@ -200,18 +201,17 @@ void PATObjectFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
     std::list<std::pair<size_t, float> > closeEles;
     std::list<std::pair<size_t, float> > closeMus;
 
-    if (phoEdecision){
-      for(size_t iE = 0; iE < elecs->size(); ++iE)
+    if (phoEdecision)
+    {
+      for (size_t iE = 0; iE < elecs->size(); ++iE)
       {
         float deltaR = reco::deltaR(pho->p4(), elecs->at(iE).p4());
 
-        if(deltaR > maxDR_ || !eSelection_(elecs->at(iE)))
+        if (deltaR > maxDR_ || !eSelection_(elecs->at(iE)))
           continue;
 
-        if(closeEles.empty() || deltaR < closeEles.front().second)
-        {
+        if (closeEles.empty() || deltaR < closeEles.front().second)
           closeEles.emplace_front(std::pair<size_t, float>(iE, deltaR));
-        }
         else
         {
           // we almost never need the second one, so don't waste time
@@ -222,17 +222,15 @@ void PATObjectFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }
 
     if (phoMdecision){
-      for(size_t iM = 0; iM < mus->size(); ++iM)
+      for (size_t iM = 0; iM < mus->size(); ++iM)
       {
         float deltaR = reco::deltaR(pho->p4(), mus->at(iM).p4());
 
-        if(deltaR > maxDR_ || !mSelection_(mus->at(iM)))
+        if (deltaR > maxDR_ || !mSelection_(mus->at(iM)))
           continue;
 
-        if(closeMus.empty() || deltaR < closeMus.front().second)
-        {
+        if (closeMus.empty() || deltaR < closeMus.front().second)
           closeMus.emplace_front(std::pair<size_t, float>(iM, deltaR));
-        }
         else
         {
           // we almost never need the second one, so don't waste time
@@ -243,18 +241,15 @@ void PATObjectFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }
 
 
-    if(closeEles.size() &&
-        (closeMus.empty() ||
-         closeEles.front().second < closeMus.front().second)
-      )
+    if (closeEles.size() && (closeMus.empty() || closeEles.front().second < closeMus.front().second))
     {
       // Make sure electron isn't removed by cross cleaning
       bool crossCleaned = false;
-      for(auto& m : closeMus)
+      for (auto& m : closeMus)
       {
-        if(std::abs(closeEles.front().second - m.second) < eMuCrossCleaningDR_)
+        if (std::abs(closeEles.front().second - m.second) < eMuCrossCleaningDR_)
         {
-          if(reco::deltaR(elecs->at(closeEles.front().first).p4(),
+          if (reco::deltaR(elecs->at(closeEles.front().first).p4(),
                 mus->at(m.first)) < eMuCrossCleaningDR_)
           {
             crossCleaned = true;
@@ -263,7 +258,7 @@ void PATObjectFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
         }
       }
 
-      if(!crossCleaned)
+      if (!crossCleaned)
         phosByEle.at(closeEles.front().first).push_back(pho);
       else
       {
@@ -281,17 +276,17 @@ void PATObjectFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
         closeEles.sort(f);
 
         // if there are only muons left, use them
-        if(closeEles.empty())
+        if (closeEles.empty())
         {
-          if(closeMus.size() && closeMus.front().second < maxDR_)
+          if (closeMus.size() && closeMus.front().second < maxDR_)
             phosByMu.at(closeMus.front().first).push_back(pho);
         }
         else
         {
-          for(auto& e : closeEles)
+          for (auto& e : closeEles)
           {
             // if the best muon is better, use that
-            if(closeMus.size() && e.second > closeMus.front().second)
+            if (closeMus.size() && e.second > closeMus.front().second)
             {
               phosByMu.at(closeMus.front().first).push_back(pho);
               break;
@@ -299,11 +294,11 @@ void PATObjectFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
             // is this electron also cross cleaned?
             bool crossCleaned = false;
-            for(auto& m : closeMus)
+            for (auto& m : closeMus)
             {
-              if(std::abs(e.second - m.second) < eMuCrossCleaningDR_)
+              if (std::abs(e.second - m.second) < eMuCrossCleaningDR_)
               {
-                if(reco::deltaR(elecs->at(e.first).p4(),
+                if (reco::deltaR(elecs->at(e.first).p4(),
                       mus->at(m.first)) < eMuCrossCleaningDR_)
                 {
                   crossCleaned = true;
@@ -312,7 +307,7 @@ void PATObjectFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
               }
             }
 
-            if(!crossCleaned)
+            if (!crossCleaned)
             {
               phosByEle.at(e.first).push_back(pho);
               break;
@@ -321,7 +316,7 @@ void PATObjectFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
         }
       }
     }
-    else if(closeMus.size() && closeMus.front().second < maxDR_)
+    else if (closeMus.size() && closeMus.front().second < maxDR_)
       phosByMu.at(closeMus.front().first).push_back(pho);
   }
 
@@ -330,30 +325,30 @@ void PATObjectFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
   std::vector<PCandRef> nIsoCands;
   std::vector<PCandRef> chIsoCands;
 
-  for(size_t iE = 0; iE < elecs->size(); ++iE)
+  for (size_t iE = 0; iE < elecs->size(); ++iE)
   {
     Elec e = elecs->at(iE);
 
     PCandRef bestPho;
     float dREtBestPho = 9999.;
 
-    for(size_t iPho = 0; iPho < phosByEle[iE].size(); ++iPho)
+    for (size_t iPho = 0; iPho < phosByEle[iE].size(); ++iPho)
     {
       PCandRef pho = phosByEle[iE][iPho];
 
       float drEt = reco::deltaR(e.p4(), pho->p4()) / pow(pho->et(), etPower_);
 
-      if(drEt > cut_ || drEt > dREtBestPho) continue;
+      if (drEt > cut_ || drEt > dREtBestPho) continue;
 
-      if(candInSuperCluster(pho, elecs)) continue;
+      if (candInSuperCluster(pho, elecs)) continue;
 
-      if(!passIso(pho, nIsoCands, chIsoCands, cands)) continue;
+      if (!passIso(pho, nIsoCands, chIsoCands, cands)) continue;
 
       dREtBestPho = drEt;
       bestPho = pho;
     }
 
-    if(bestPho.isNonnull())
+    if (bestPho.isNonnull())
     {
       e.addUserCand(fsrLabel_, edm::refToPtr(bestPho));
       e.addUserFloat(fsrLabel_+"DREt", dREtBestPho);
@@ -362,30 +357,30 @@ void PATObjectFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
     eOut->push_back(e);
   }
 
-  for(size_t iM = 0; iM < mus->size(); ++iM)
+  for (size_t iM = 0; iM < mus->size(); ++iM)
   {
     Muon m = mus->at(iM);
 
     PCandRef bestPho;
     float dREtBestPho = 9999.;
 
-    for(size_t iPho = 0; iPho < phosByMu[iM].size(); ++iPho)
+    for (size_t iPho = 0; iPho < phosByMu[iM].size(); ++iPho)
     {
       PCandRef pho = phosByMu[iM][iPho];
 
       float drEt = reco::deltaR(m.p4(), pho->p4()) / pow(pho->et(), etPower_);
 
-      if(drEt > cut_ || drEt > dREtBestPho) continue;
+      if (drEt > cut_ || drEt > dREtBestPho) continue;
 
-      if(candInSuperCluster(pho, elecs)) continue;
+      if (candInSuperCluster(pho, elecs)) continue;
 
-      if(!passIso(pho, nIsoCands, chIsoCands, cands)) continue;
+      if (!passIso(pho, nIsoCands, chIsoCands, cands)) continue;
 
       dREtBestPho = drEt;
       bestPho = pho;
     }
 
-    if(bestPho.isNonnull())
+    if (bestPho.isNonnull())
     {
       m.addUserCand(fsrLabel_, edm::refToPtr(bestPho));
       m.addUserFloat(fsrLabel_+"DREt", dREtBestPho);
@@ -402,19 +397,14 @@ void PATObjectFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
 bool PATObjectFSREmbedder::candInSuperCluster(const PCandRef& pho,
     const edm::Handle<edm::View<Elec> >& elecs) const
 {
-  for(size_t iE = 0; iE < elecs->size(); ++iE)
+  for (size_t iE = 0; iE < elecs->size(); ++iE)
   {
     ElecPtr elec = elecs->ptrAt(iE);
-    if(eSelection_(*elec))
-    {
-      for(auto& cand : elec->associatedPackedPFCandidates())
-      {
-        if(pho == cand)
+    if (eSelection_(*elec))
+      for (auto& cand : elec->associatedPackedPFCandidates())
+        if (pho == cand)
           return true;
-      }
-    }
   }
-
   return false;
 }
 
@@ -425,37 +415,35 @@ bool PATObjectFSREmbedder::passIso(const PCandRef& pho,
     const edm::Handle<edm::View<PCand> >& allCands) const
 {
   // fill iso cand lists if needed
-  if(nIsoCands.size() == 0 && chIsoCands.size() == 0)
+  if (nIsoCands.size() == 0 && chIsoCands.size() == 0)
   {
-    for(size_t i = 0; i < allCands->size(); ++i)
+    for (size_t i = 0; i < allCands->size(); ++i)
     {
-      if(nIsoSelection_(allCands->at(i)))
+      if (nIsoSelection_(allCands->at(i)))
         nIsoCands.push_back(allCands->refAt(i).castTo<PCandRef>());
-      else if(chIsoSelection_(allCands->at(i)))
+      else if (chIsoSelection_(allCands->at(i)))
         chIsoCands.push_back(allCands->refAt(i).castTo<PCandRef>());
     }
   }
 
   double iso = 0.;
 
-  for(auto& cand : nIsoCands)
+  for (auto& cand : nIsoCands)
   {
     double dR = reco::deltaR(pho->p4(), cand->p4());
-    if(dR < isoDR_ && dR > nIsoVetoDR_)
+    if (dR < isoDR_ && dR > nIsoVetoDR_)
       iso += cand->pt();
   }
 
-  for(auto& cand : chIsoCands)
+  for (auto& cand : chIsoCands)
   {
     double dR = reco::deltaR(pho->p4(), cand->p4());
-    if(dR < isoDR_ && dR > chIsoVetoDR_)
+    if (dR < isoDR_ && dR > chIsoVetoDR_)
       iso += cand->pt();
   }
 
   return iso / pho->pt() < relIsoCut_;
 }
 
-
-//define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATObjectFSREmbedder);
-

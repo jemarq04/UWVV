@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/Common/interface/View.h"
@@ -31,28 +30,26 @@ typedef edm::Ptr<CCand> CCandPtr;
 
 class GenZZCleaner : public edm::stream::EDProducer<>
 {
+  public:
+    explicit GenZZCleaner(const edm::ParameterSet& iConfig);
+    virtual ~GenZZCleaner() {};
 
-public:
-  explicit GenZZCleaner(const edm::ParameterSet& iConfig);
-  virtual ~GenZZCleaner() {};
+  private:
+    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-private:
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+    bool passOSSFCuts(const Cand* p1, const Cand* p2) const;
 
-  bool passOSSFCuts(const Cand* p1, const Cand* p2) const;
-
-  const edm::EDGetTokenT<edm::View<CCand> > srcToken;
-
-  const double l1PtCut;
-  const double l2PtCut;
-  const double l3PtCut;
-  const double l4PtCut;
-  const double etaCut;
-  const double ossfMassCut;
-  const double z1MassMin;
-  const double z1MassMax;
-  const double z2MassMin;
-  const double z2MassMax;
+    const edm::EDGetTokenT<edm::View<CCand> > srcToken;
+    const double l1PtCut;
+    const double l2PtCut;
+    const double l3PtCut;
+    const double l4PtCut;
+    const double etaCut;
+    const double ossfMassCut;
+    const double z1MassMin;
+    const double z1MassMax;
+    const double z2MassMin;
+    const double z2MassMax;
 };
 
 
@@ -83,92 +80,86 @@ GenZZCleaner::GenZZCleaner(const edm::ParameterSet& iConfig) :
 }
 
 
-void GenZZCleaner::produce(edm::Event& iEvent,
-                           const edm::EventSetup& iSetup)
+void GenZZCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<edm::View<CCand> > in;
-  std::unique_ptr<std::vector<CCand> > out(new std::vector<CCand>);
-
   iEvent.getByToken(srcToken, in);
+
+  std::unique_ptr<std::vector<CCand> > out(new std::vector<CCand>);
 
   size_t bestCand = 9999;
   float bestDZ = 9999.;
 
   for(size_t i = 0; i < in->size(); ++i)
+  {
+    CCandPtr c = in->ptrAt(i);
+
+    float mZ1 = c->daughter(0)->mass();
+    float mZ2 = c->daughter(1)->mass();
+
+    float dz1 = std::abs(mZ1 - 91.1876);
+    float dz2 = std::abs(mZ2 - 91.1876);
+    float betterDZ = (dz1 < dz2 ? dz1 : dz2);
+
+    if (dz2 < dz1)
     {
-      CCandPtr c = in->ptrAt(i);
-
-      float mZ1 = c->daughter(0)->mass();
-      float mZ2 = c->daughter(1)->mass();
-
-      float dz1 = std::abs(mZ1 - 91.1876);
-      float dz2 = std::abs(mZ2 - 91.1876);
-      float betterDZ = (dz1 < dz2 ? dz1 : dz2);
-
-      if(dz2 < dz1)
-        {
-          float temp = mZ1;
-          mZ1 = mZ2;
-          mZ2 = temp;
-        }
-
-      bool best = betterDZ < bestDZ;
-      if(!best)
-        continue;
-
-      bestDZ = betterDZ;
-      bestCand = 9999; // don't use previous best even if this one fails
-
-      if(mZ1 < z1MassMin || mZ1 > z1MassMax)
-        continue;
-      if(mZ2 < z2MassMin || mZ2 > z2MassMax)
-        continue;
-
-      std::vector<const Cand*> daughters;
-      daughters.push_back(c->daughter(0)->daughter(0));
-      daughters.push_back(c->daughter(0)->daughter(1));
-      daughters.push_back(c->daughter(1)->daughter(0));
-      daughters.push_back(c->daughter(1)->daughter(1));
-
-      bool passl1Pt = false;
-      bool passEta = true;
-      size_t nPassl2Pt = 0;
-      size_t nPassl3Pt = 0;
-      bool passl4Pt = true;
-      for(size_t d = 0; d < daughters.size(); ++d)
-        {
-          float pt = daughters.at(d)->pt();
-          passl1Pt |= pt > l1PtCut;
-          if(pt > l2PtCut)
-            {
-              nPassl3Pt++;
-              nPassl2Pt++;
-            }
-          else if(pt > l3PtCut)
-            nPassl3Pt++;
-
-          passEta &= std::abs(daughters.at(d)->eta()) < etaCut;
-          passl4Pt &= pt > l4PtCut;
-        }
-
-      best &= (passl1Pt && passl4Pt && passEta &&
-               nPassl2Pt >= 2 && nPassl3Pt >= 3);
-
-      if(!best)
-        continue;
-
-      best &= (passOSSFCuts(daughters.at(0), daughters.at(2)) &&
-               passOSSFCuts(daughters.at(0), daughters.at(3)) &&
-               passOSSFCuts(daughters.at(1), daughters.at(2)) &&
-               passOSSFCuts(daughters.at(1), daughters.at(3)));
-
-      if(!best)
-        continue;
-
-      bestCand = i;
+      float temp = mZ1;
+      mZ1 = mZ2;
+      mZ2 = temp;
     }
 
-  if(bestCand < in->size())
+    bool best = betterDZ < bestDZ;
+    if (!best) continue;
+
+    bestDZ = betterDZ;
+    bestCand = 9999; // don't use previous best even if this one fails
+
+    if (mZ1 < z1MassMin || mZ1 > z1MassMax) continue;
+    if (mZ2 < z2MassMin || mZ2 > z2MassMax) continue;
+
+    std::vector<const Cand*> daughters;
+    daughters.push_back(c->daughter(0)->daughter(0));
+    daughters.push_back(c->daughter(0)->daughter(1));
+    daughters.push_back(c->daughter(1)->daughter(0));
+    daughters.push_back(c->daughter(1)->daughter(1));
+
+    bool passl1Pt = false;
+    bool passEta = true;
+    size_t nPassl2Pt = 0;
+    size_t nPassl3Pt = 0;
+    bool passl4Pt = true;
+    for(size_t d = 0; d < daughters.size(); ++d)
+    {
+      float pt = daughters.at(d)->pt();
+      passl1Pt |= pt > l1PtCut;
+      if (pt > l2PtCut)
+      {
+        nPassl3Pt++;
+        nPassl2Pt++;
+      }
+      else if (pt > l3PtCut)
+        nPassl3Pt++;
+
+      passEta &= std::abs(daughters.at(d)->eta()) < etaCut;
+      passl4Pt &= pt > l4PtCut;
+    }
+
+    best &= (passl1Pt && passl4Pt && passEta &&
+        nPassl2Pt >= 2 && nPassl3Pt >= 3);
+
+    if (!best) continue;
+
+    best &= (passOSSFCuts(daughters.at(0), daughters.at(2)) &&
+        passOSSFCuts(daughters.at(0), daughters.at(3)) &&
+        passOSSFCuts(daughters.at(1), daughters.at(2)) &&
+        passOSSFCuts(daughters.at(1), daughters.at(3)));
+
+    if (!best) continue;
+
+    bestCand = i;
+  }
+
+  if (bestCand < in->size())
     out->push_back(in->at(bestCand));
 
   iEvent.put(std::move(out));
@@ -180,6 +171,5 @@ bool GenZZCleaner::passOSSFCuts(const Cand* p1, const Cand* p2) const
     (p1->p4() + p2->p4()).mass() > ossfMassCut;
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GenZZCleaner);
-
-

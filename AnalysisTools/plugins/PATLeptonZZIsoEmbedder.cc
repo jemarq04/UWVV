@@ -205,24 +205,24 @@ PATLeptonZZIsoEmbedder::makeCollection(const edm::Handle<edm::View<Lep> >& lepsI
     std::unique_ptr<std::vector<Lep> >(new std::vector<Lep>);
 
   for(size_t iLep = 0; iLep < lepsIn->size(); ++iLep)
+  {
+    const edm::Ptr<Lep> lep = lepsIn->ptrAt(iLep);
+
+    out->push_back(*lep); // copy lepton to save correctly in event
+
+    // Something about the HZZ electron energy corrections causes
+    // some electrons to have pt of 0; do this to avoid an infinity
+    float iso = 9999.;
+    bool decision  = false;
+    if (out->back().pt() > 0.)
     {
-      const edm::Ptr<Lep> lep = lepsIn->ptrAt(iLep);
-
-      out->push_back(*lep); // copy lepton to save correctly in event
-
-      // Something about the HZZ electron energy corrections causes
-      // some electrons to have pt of 0; do this to avoid an infinity
-      float iso = 9999.;
-      bool decision  = false;
-      if(out->back().pt() > 0.)
-        {
-          iso = relPFIsoFSR(lep, fsrs);
-          decision = (iso < getIsoCut(lep));
-        }
-      out->back().addUserFloat(isoValueLabel, iso);
-      out->back().addUserFloat(isoDecisionLabel, float(decision)); // 1 for true, 0 for false
-
+      iso = relPFIsoFSR(lep, fsrs);
+      decision = (iso < getIsoCut(lep));
     }
+    out->back().addUserFloat(isoValueLabel, iso);
+    out->back().addUserFloat(isoDecisionLabel, float(decision)); // 1 for true, 0 for false
+
+  }
 
   return out;
 }
@@ -239,7 +239,7 @@ float PATLeptonZZIsoEmbedder::relPFIsoFSR(const edm::Ptr<Lep>& lep, const std::v
   float fsrCorrection = isoFSRCorrection(lep, fsrs);
 
   float neutralIso = nHadIso + phoIso - puCorrection - fsrCorrection;
-  if(neutralIso < 0.)
+  if (neutralIso < 0.)
     neutralIso = 0.;
 
   return ((chHadIso + neutralIso) / lep->pt());
@@ -278,10 +278,8 @@ float PATLeptonZZIsoEmbedder::isoFSRCorrection(const edm::Ptr<Lep>& lep, const s
   float corr = 0.;
 
   for(auto iFSR = fsrs.begin(); iFSR != fsrs.end(); iFSR++)
-    {
-      if(fsrInIsoCone(lep, *iFSR))
-         corr += (*iFSR)->pt();
-    }
+    if (fsrInIsoCone(lep, *iFSR))
+      corr += (*iFSR)->pt();
 
   return corr;
 }
@@ -293,8 +291,8 @@ bool PATLeptonZZIsoEmbedder::fsrInIsoCone(const ElecPtr& e, const CandPtr& fsr) 
   float fsrDR = reco::deltaR(fsr->p4(), e->p4());
 
   bool inCone = (fsrDR < isoConeDRMaxE &&
-                 (e->superCluster()->eta() < isoConeVetoEtaThresholdE ||
-                  fsrDR > isoConeDRMinE));
+      (e->superCluster()->eta() < isoConeVetoEtaThresholdE ||
+       fsrDR > isoConeDRMinE));
 
   return inCone;
 }
@@ -323,14 +321,14 @@ template<typename Lep>
 void PATLeptonZZIsoEmbedder::addFSR(const edm::Handle<edm::View<Lep> >& leps, std::vector<CandPtr>& fsr) const
 {
   for(size_t iLep = 0; iLep < leps->size(); ++iLep)
-    {
-      edm::Ptr<Lep> lep = leps->ptrAt(iLep);
+  {
+    edm::Ptr<Lep> lep = leps->ptrAt(iLep);
 
-      if(!selectFSRLep(lep)) continue;
+    if (!selectFSRLep(lep)) continue;
 
-      if(lep->hasUserCand(fsrLabel))
-        fsr.push_back(lep->userCand(fsrLabel));
-    }
+    if (lep->hasUserCand(fsrLabel))
+      fsr.push_back(lep->userCand(fsrLabel));
+  }
 }
 
 

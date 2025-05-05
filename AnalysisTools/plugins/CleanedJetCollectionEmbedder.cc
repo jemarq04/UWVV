@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-//      CleanedJetCollectionEmbedder.cc
-//
-//      Create new jet collection from input collection by removing all
-//      jets which overlap a lepton candidate contained in the initial state.
-//      Overlap is defined as dR(lepton candidate, jet) < DR_input. Default
-//      overlap value is 0.4.Collection is named cleanedJets by default.
-//
+//      CleanedJetCollectionEmbedder.cc                                      //
+//                                                                           //
+//      Create new jet collection from input collection by removing all      //
+//      jets which overlap a lepton candidate contained in the initial state.//
+//      Overlap is defined as dR(lepton candidate, jet) < DR_input. Default  //
+//      overlap value is 0.4.Collection is named cleanedJets by default.     //
+//                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
 // system includes
@@ -14,6 +14,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+
 // CMS includes
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -29,7 +30,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "UWVV/Utilities/interface/helpers.h"
-
 #include "correction.h"
 
 // ROOT includes
@@ -44,7 +44,6 @@ typedef edm::View<Jet> JetView;
 
 class CleanedJetCollectionEmbedder : public edm::stream::EDProducer<>
 {
-
   public:
     explicit CleanedJetCollectionEmbedder(const edm::ParameterSet &iConfig);
     virtual ~CleanedJetCollectionEmbedder(){};

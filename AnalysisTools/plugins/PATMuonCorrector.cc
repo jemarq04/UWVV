@@ -33,23 +33,23 @@ typedef edm::View<Muon> MuonView;
 
 class PATMuonCorrector : public edm::stream::EDProducer<>
 {
-public:
-  explicit PATMuonCorrector(const edm::ParameterSet&);
-  ~PATMuonCorrector() {if (corrector_ != nullptr) delete corrector_;}
+  public:
+    explicit PATMuonCorrector(const edm::ParameterSet&);
+    ~PATMuonCorrector() {if (corrector_ != nullptr) delete corrector_;}
 
 
-private:
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  private:
+    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  double getCorrectedPt(const Muon& muon, std::string var="nom");
+    double getCorrectedPt(const Muon& muon, std::string var="nom");
 
-  edm::EDGetTokenT<MuonView> srcToken_;
-  const bool isMC_;
-  const double maxPt_;
-  std::string scaleFileName_;
-  const bool hasSeed_;
-  const ULong64_t seed_;
-  MuonScaRe *corrector_;
+    edm::EDGetTokenT<MuonView> srcToken_;
+    const bool isMC_;
+    const double maxPt_;
+    std::string scaleFileName_;
+    const bool hasSeed_;
+    const ULong64_t seed_;
+    MuonScaRe *corrector_;
 };
 
 PATMuonCorrector::PATMuonCorrector(const edm::ParameterSet& iConfig):

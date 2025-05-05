@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -34,22 +33,21 @@
 template<typename T>
 class PATObjectCounter : public edm::stream::EDProducer<>
 {
+  public:
+    explicit PATObjectCounter(const edm::ParameterSet& iConfig);
+    virtual ~PATObjectCounter() {};
 
-public:
-  explicit PATObjectCounter(const edm::ParameterSet& iConfig);
-  virtual ~PATObjectCounter() {};
+  private:
+    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-private:
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+    void printInfo(edm::Ptr<T> obj, int index=0);
 
-  void printInfo(edm::Ptr<T> obj, int index=0);
-
-  const edm::InputTag srcTag_;
-  const edm::EDGetTokenT<edm::View<T> > srcToken_;
-  const std::vector<std::string> cut_strings_;
-  const std::vector<std::string> labels_;
-  const bool verbose_, doPrintInfo_;
-  std::vector<StringCutObjectSelector<T>> cuts_;
+    const edm::InputTag srcTag_;
+    const edm::EDGetTokenT<edm::View<T> > srcToken_;
+    const std::vector<std::string> cut_strings_;
+    const std::vector<std::string> labels_;
+    const bool verbose_, doPrintInfo_;
+    std::vector<StringCutObjectSelector<T>> cuts_;
 };
 
 
@@ -70,48 +68,45 @@ PATObjectCounter<T>::PATObjectCounter(const edm::ParameterSet& iConfig) :
              iConfig.getParameter<bool>("printInfo") :
              false)
 {
-  if(cut_strings_.size() != labels_.size())
+  if (cut_strings_.size() != labels_.size())
       throw cms::Exception("InvalidParams")
           << "You must supply an equal number of labels and cuts" << std::endl
           << "Given: labels_->size() == " << labels_.size()
           << "; cut_strings_->size() == " << cut_strings_.size()
           << std::endl;
-  size_t i = 0;
-  for (const auto& label : labels_) 
-    { 
-      produces<int>(label);
-      cuts_.push_back(cut_strings_[i]);
-      i++;
-    }
-  
+
+  for (size_t i=0; i<labels_.size(); i++)
+  {
+    produces<int>(labels_[i]);
+    cuts_.push_back(cut_strings_[i]);
+  }
 }
 
 
 template<typename T>
-void PATObjectCounter<T>::produce(edm::Event& iEvent,
-                                         const edm::EventSetup& iSetup)
+void PATObjectCounter<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<edm::View<T> > in;
   iEvent.getByToken(srcToken_, in);
   
   for (size_t i = 0; i < cut_strings_.size(); i++) 
+  {
+    std::unique_ptr<int> num(new int(0));
+    if (cut_strings_[i] != "")
     {
-      std::unique_ptr<int> num(new int(0));
-      if (cut_strings_[i] != "")
-        {
-          for(size_t j = 0; j < in->size(); j++)
-            {
-              if (cuts_[i](in->at(j)))
-                  (*num)++;
-            }
-        }
-      else
-          *num = in->size();
-      if (verbose_) std::cout << srcTag_.label() << " Count: " << labels_[i] << " = " << *num << std::endl;
-      iEvent.put(std::move(num), labels_[i]);
+      for (size_t j = 0; j < in->size(); j++)
+        if (cuts_[i](in->at(j)))
+          (*num)++;
     }
-  if (doPrintInfo_){
-    for (size_t j=0; j<in->size(); j++){
+    else *num = in->size();
+    if (verbose_) std::cout << srcTag_.label() << " Count: " << labels_[i] << " = " << *num << std::endl;
+    iEvent.put(std::move(num), labels_[i]);
+  }
+
+  if (doPrintInfo_)
+  {
+    for (size_t j=0; j<in->size(); j++)
+    {
       edm::Ptr<T> obj(in, j);
       printInfo(obj, j);
     }
@@ -142,6 +137,7 @@ typedef PATObjectCounter<pat::Tau> PATTauCounter;
 typedef PATObjectCounter<pat::Jet> PATJetCounter;
 typedef PATObjectCounter<pat::CompositeCandidate> PATCompositeCandidateCounter;
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATElectronCounter);
 DEFINE_FWK_MODULE(PATMuonCounter);
 DEFINE_FWK_MODULE(PATTauCounter);

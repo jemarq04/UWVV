@@ -30,17 +30,17 @@ typedef edm::View<Electron> ElectronView;
 
 class PATElectronEAEmbedder : public edm::stream::EDProducer<>
 {
-public:
-  explicit PATElectronEAEmbedder(const edm::ParameterSet&);
-  virtual ~PATElectronEAEmbedder() {}
+  public:
+    explicit PATElectronEAEmbedder(const edm::ParameterSet&);
+    virtual ~PATElectronEAEmbedder() {}
 
-private:
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  private:
+    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  edm::EDGetTokenT<ElectronView> srcToken_;
-  const std::string label_; // label for the embedded userfloat
-  const std::string filename_; //filename for effective area
-  EffectiveAreas effectiveAreas_;
+    edm::EDGetTokenT<ElectronView> srcToken_;
+    const std::string label_; // label for the embedded userfloat
+    const std::string filename_; //filename for effective area
+    EffectiveAreas effectiveAreas_;
 };
 
 

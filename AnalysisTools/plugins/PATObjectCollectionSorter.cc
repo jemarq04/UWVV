@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -50,18 +49,17 @@ namespace
 template<class T>
 class PATObjectCollectionSorter : public edm::stream::EDProducer<>
 {
+  public:
+    explicit PATObjectCollectionSorter(const edm::ParameterSet& iConfig);
+    virtual ~PATObjectCollectionSorter() {;}
 
-public:
-  explicit PATObjectCollectionSorter(const edm::ParameterSet& iConfig);
-  virtual ~PATObjectCollectionSorter() {;}
+  private:
+    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-private:
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
-
-  const edm::EDGetTokenT<edm::View<T> > srcToken_;
-  const StringObjectFunction<T,true> fun_;
-  const bool ascending_;
-  const std::function<bool(const T&,const T&)> comp_;
+    const edm::EDGetTokenT<edm::View<T> > srcToken_;
+    const StringObjectFunction<T,true> fun_;
+    const bool ascending_;
+    const std::function<bool(const T&,const T&)> comp_;
 };
 
 
@@ -82,14 +80,13 @@ template<class T>
 void PATObjectCollectionSorter<T>::produce(edm::Event& iEvent,
                                            const edm::EventSetup& iSetup)
 {
-  std::unique_ptr<std::vector<T> > out = std::make_unique<std::vector<T> >();
   edm::Handle<edm::View<T> > in;
   iEvent.getByToken(srcToken_, in);
 
+  std::unique_ptr<std::vector<T> > out = std::make_unique<std::vector<T> >();
+
   for(size_t i = 0; i < in->size(); ++i)
-    {
-      out->push_back(in->at(i));
-    }
+    out->push_back(in->at(i));
 
   std::sort(out->begin(), out->end(), comp_);
 
@@ -103,6 +100,7 @@ typedef PATObjectCollectionSorter<pat::Tau> PATTauCollectionSorter;
 typedef PATObjectCollectionSorter<pat::Jet> PATJetCollectionSorter;
 typedef PATObjectCollectionSorter<pat::CompositeCandidate> PATCompositeCandidateCollectionSorter;
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATElectronCollectionSorter);
 DEFINE_FWK_MODULE(PATMuonCollectionSorter);
 DEFINE_FWK_MODULE(PATTauCollectionSorter);

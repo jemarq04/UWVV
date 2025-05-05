@@ -19,25 +19,25 @@ typedef reco::Muon RecoMuon;
 
 class PATMuonIDEmbedder : public edm::stream::EDProducer<>
 {
-public:
-  explicit PATMuonIDEmbedder(const edm::ParameterSet&);
-  ~PATMuonIDEmbedder() {}
+  public:
+    explicit PATMuonIDEmbedder(const edm::ParameterSet&);
+    ~PATMuonIDEmbedder() {}
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-private:
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  private:
+    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  bool isWZTightMuon(const Muon& patMu, const reco::Vertex& pv);
-  bool isMediumMuonICHEP(const RecoMuon& recoMu);
-  bool isWZMediumMuon(const Muon& patMu, const reco::Vertex& pv);
-  bool isWZTightMuonNoIso(const Muon& patMu, const reco::Vertex& pv);
-  bool isWZLooseMuon(const Muon& patMu, const reco::Vertex& pv);
-  bool isWZLooseMuonNoIso(const Muon& patMu, const reco::Vertex& pv);
-  bool isSoftMuonICHEP(const RecoMuon& recoMu, const reco::Vertex& pv);
+    bool isWZTightMuon(const Muon& patMu, const reco::Vertex& pv);
+    bool isMediumMuonICHEP(const RecoMuon& recoMu);
+    bool isWZMediumMuon(const Muon& patMu, const reco::Vertex& pv);
+    bool isWZTightMuonNoIso(const Muon& patMu, const reco::Vertex& pv);
+    bool isWZLooseMuon(const Muon& patMu, const reco::Vertex& pv);
+    bool isWZLooseMuonNoIso(const Muon& patMu, const reco::Vertex& pv);
+    bool isSoftMuonICHEP(const RecoMuon& recoMu, const reco::Vertex& pv);
 
-  edm::EDGetTokenT<MuonView> srcToken_;
-  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+    edm::EDGetTokenT<MuonView> srcToken_;
+    edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 };
 
 PATMuonIDEmbedder::PATMuonIDEmbedder(const edm::ParameterSet& iConfig):
@@ -58,7 +58,8 @@ void PATMuonIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   const reco::Vertex& pv = *vertices->begin();
   std::unique_ptr<MuonCollection> out(new MuonCollection());
 
-  for (MuonView::const_iterator imu = muonsIn->begin(); imu != muonsIn->end(); imu++){
+  for (MuonView::const_iterator imu = muonsIn->begin(); imu != muonsIn->end(); imu++)
+  {
     out->push_back(*imu);
     Muon &mu = out->back();
 
