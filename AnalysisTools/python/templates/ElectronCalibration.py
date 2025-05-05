@@ -8,8 +8,6 @@ class ElectronCalibration(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
         if not hasattr(self, 'isMC'):
             self.isMC = kwargs.pop('isMC', True)
-        if not hasattr(self, 'isSync'):
-            self.isSync = self.isMC and kwargs.pop('isSync', False)
         if not hasattr(self, 'year'):
             self.year = kwargs.pop('year', '2022')
         if not hasattr(self, 'calibEra22'):
