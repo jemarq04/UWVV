@@ -51,7 +51,6 @@ private:
   bool domatch_;
   std::string sfFileN_;
   std::string effFileN_;
-  const int setup_;
   int PUid;
   int evtcount = 0;
   int jetcount = 0;
@@ -62,8 +61,6 @@ PATJetPUSFEmbedder::PATJetPUSFEmbedder(const edm::ParameterSet &pset) : srcToken
                                                                     domatch_(pset.exists("domatch") ? pset.getParameter<bool>("domatch") : false),
                                                                     sfFileN_(pset.exists("jsfFile") ? pset.getParameter<std::string>("jsfFile") : "sfFileNone"),
                                                                     effFileN_(pset.exists("jeffFile") ? pset.getParameter<std::string>("jeffFile") : "sfFileNone"),
-                                                                    // Which year JET ID we need
-                                                                    setup_(pset.exists("setup") ? pset.getParameter<int>("setup") : 2022)
 {
   std::string notSF = "sfFileNone";
   if (domatch_ && sfFileN_ != notSF) // if sfFile and effFile names are input, also the hists name should be there
