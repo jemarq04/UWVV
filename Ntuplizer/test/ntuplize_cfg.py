@@ -10,7 +10,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 
 # UWVV Modules
 from UWVV.AnalysisTools.analysisFlowMaker import createFlow
-from UWVV.Utilities.helpers import parseChannels, expandChannelName, pset2Dict, dict2PSet
+from UWVV.Utilities.helpers import parseChannels, expandChannelName
 from UWVV.Ntuplizer.makeBranchSet import makeBranchSet, makeGenBranchSet
 from UWVV.Ntuplizer.eventParams import makeEventParams, makeGenEventParams
 
@@ -54,6 +54,10 @@ options.register("globalTag", "",
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.string,
         "global tag for analysis. if empty, auto tag is chosen")
+options.register("lumiMask", "",
+        VarParsing.VarParsing.multiplicity.singleton,
+        VarParsing.VarParsing.varType.string,
+        "lumi mask (for data only)")
 options.register("isMC", 0,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
@@ -124,7 +128,9 @@ options.register("skipEvents", 0,
         "number of events to skip (for debugging)")
 options.parseArguments()
 
-# Error checking
+#############################################################################
+#    Error checking and process configuration                               #
+#############################################################################
 print("Running", options.year, "MC" if options.isMC else "Data")
 if options.year == "2022":
     print("postEE: %i" % options.postEE)
@@ -181,6 +187,10 @@ if options.inputFileList:
 # Switch off LHE if (1) data or (2) matches a given MC generator
 if not options.isMC: #or all(any(x in fname.lower() for x in ["mcfm", "sherpa", "phantom"]) for fname in options.inputFiles):
     options.lheWeights = 0
+
+#############################################################################
+#    Prepare CMSSW workflow                                                 #
+#############################################################################
 
 # Load CMS configs
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
@@ -247,6 +257,14 @@ process.source = cms.Source(
     skipEvents = cms.untracked.uint32(options.skipEvents),
     eventsToProcess = cms.untracked.VEventRange(options.eventsToProcess)
 )
+if options.lumiMask:
+    if not os.path.exists(options.lumiMask):
+        raise IOError("Lumi mask file %s not found." % options.lumiMask)
+    lumiList = LumiList.LumiList(filename=options.lumiMask)
+    runs = lumiList.getRuns()
+    lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
+    lumisToProcess.extend(lumiList.getCMSSWString().split(","))
+    process.source.lumisToProcess = lumisToProcess
 process.TFileService = cms.Service(
     "TFileService",
     fileName = cms.string(options.outputFile)
@@ -270,8 +288,9 @@ extraFinalObjectBranches = {
 FlowSteps = []
 
 # Vertex cleaning
-from UWVV.AnalysisTools.templates.VertexCleaning import VertexCleaning
-FlowSteps.append(VertexCleaning)
+if not wz:
+    from UWVV.AnalysisTools.templates.VertexCleaning import VertexCleaning
+    FlowSteps.append(VertexCleaning)
 
 # Basic lepton steps
 from UWVV.AnalysisTools.templates.ElectronBaseFlow import ElectronBaseFlow
@@ -292,7 +311,7 @@ if options.muCalib:
     from UWVV.Ntuplizer.templates.muonBranches import muonCalibrationBranches
     extraFinalObjectBranches["m"].append(muonCalibrationBranches)
 
-# Basic jet steps + JEC
+# Basic jet steps + JERC
 from UWVV.AnalysisTools.templates.JetBaseFlow import JetBaseFlow
 FlowSteps.append(JetBaseFlow)
 if options.isMC:
