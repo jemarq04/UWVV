@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -35,45 +34,74 @@
 template<typename T>
 class PATObjectValueMapEmbedder : public edm::stream::EDProducer<>
 {
+  public:
+    explicit PATObjectValueMapEmbedder(const edm::ParameterSet& iConfig);
+    virtual ~PATObjectValueMapEmbedder() {};
 
-public:
-  explicit PATObjectValueMapEmbedder(const edm::ParameterSet& iConfig);
-  virtual ~PATObjectValueMapEmbedder() {};
+  private:
+    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-private:
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
-  //void embedvalue(const T& object, const V& value, const std::string& label) const;
-  void embedValue(T& object, const int& value, const std::string& label) const;
-  void embedValue(T& object, const float& value, const std::string& label) const;
-  void embedValue(T& object, const bool& value, const std::string& label) const;
-
-  const edm::EDGetTokenT<edm::View<T>> srcToken_;
-  const std::vector<std::string> floatLabels_;
-  const std::vector<std::string> boolLabels_;
-  const std::vector<std::string> intLabels_;
-  const std::vector<edm::EDGetTokenT<edm::ValueMap<float>>> floatValTokens_;
-  const std::vector<edm::EDGetTokenT<edm::ValueMap<bool>>> boolValTokens_;
-  const std::vector<edm::EDGetTokenT<edm::ValueMap<int>>> intValTokens_;
+    const edm::EDGetTokenT<edm::View<T>> srcToken_;
+    const std::vector<std::string> intLabels_;
+    const std::vector<std::string> boolLabels_;
+    const std::vector<std::string> doubleLabels_;
+    const std::vector<std::string> floatLabels_;
+    const std::vector<edm::EDGetTokenT<edm::ValueMap<int>>> intTokens_;
+    const std::vector<edm::EDGetTokenT<edm::ValueMap<bool>>> boolTokens_;
+    const std::vector<edm::EDGetTokenT<edm::ValueMap<double>>> doubleTokens_;
+    const std::vector<edm::EDGetTokenT<edm::ValueMap<float>>> floatTokens_;
 };
 
 
 template<typename T>
 PATObjectValueMapEmbedder<T>::PATObjectValueMapEmbedder(const edm::ParameterSet& iConfig) :
   srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
-  floatLabels_(iConfig.getUntrackedParameter<std::vector<std::string>>("floatLabels", std::vector<std::string>())),
-  boolLabels_(iConfig.getUntrackedParameter<std::vector<std::string>>("boolLabels", std::vector<std::string>())),
   intLabels_(iConfig.getUntrackedParameter<std::vector<std::string>>("intLabels", std::vector<std::string>())),
-  floatValTokens_(edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >(
-    "floatVals", std::vector<edm::InputTag>()), 
-      [this](edm::InputTag const& tag){return consumes<edm::ValueMap<float> >(tag);})),
-  boolValTokens_(edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >(
+  boolLabels_(iConfig.getUntrackedParameter<std::vector<std::string>>("boolLabels", std::vector<std::string>())),
+  doubleLabels_(iConfig.getUntrackedParameter<std::vector<std::string>>("doubleLabels", std::vector<std::string>())),
+  floatLabels_(iConfig.getUntrackedParameter<std::vector<std::string>>("floatLabels", std::vector<std::string>())),
+  intTokens_(edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >(
+    "intVals", std::vector<edm::InputTag>()), 
+      [this](edm::InputTag const& tag){return consumes<edm::ValueMap<int> >(tag);})),
+  boolTokens_(edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >(
     "boolVals", std::vector<edm::InputTag>()), 
       [this](edm::InputTag const& tag){return consumes<edm::ValueMap<bool> >(tag);})),
-  intValTokens_(edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >(
-    "intVals", std::vector<edm::InputTag>()), 
-      [this](edm::InputTag const& tag){return consumes<edm::ValueMap<int> >(tag);}))
+  doubleTokens_(edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >(
+    "doubleVals", std::vector<edm::InputTag>()), 
+      [this](edm::InputTag const& tag){return consumes<edm::ValueMap<double> >(tag);})),
+  floatTokens_(edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >(
+    "floatVals", std::vector<edm::InputTag>()), 
+      [this](edm::InputTag const& tag){return consumes<edm::ValueMap<float> >(tag);}))
 {
   produces<std::vector<T> >();
+
+  if (intTokens_.size() != intLabels_.size())
+    throw cms::Exception("InvalidParams")
+      << "You must supply exactly one label for each int you want to embed" 
+      << "Given: intLabels_.size() == " << intLabels_.size()
+      << "; intTokens_.size() == " << intTokens_.size()
+      << std::endl;
+
+  if (boolTokens_.size() != boolLabels_.size())
+    throw cms::Exception("InvalidParams")
+      << "You must supply exactly one label for each bool you want to embed" 
+      << "Given: boolLabels_.size() == " << boolLabels_.size()
+      << "; boolTokens_.size() == " << boolTokens_.size()
+      << std::endl;
+
+  if (doubleTokens_.size() != doubleLabels_.size())
+    throw cms::Exception("InvalidParams")
+      << "You must supply exactly one label for each double you want to embed" 
+      << "Given: doubleLabels_.size() == " << doubleLabels_.size()
+      << "; doubleTokens_.size() == " << doubleTokens_.size()
+      << std::endl;
+
+  if (floatTokens_.size() != floatLabels_.size())
+    throw cms::Exception("InvalidParams")
+      << "You must supply exactly one label for each float you want to embed" 
+      << "Given: floatLabels_.size() == " << floatLabels_.size()
+      << "; floatTokens_.size() == " << floatTokens_.size()
+      << std::endl;
 }
 
 
@@ -81,90 +109,45 @@ template<typename T>
 void PATObjectValueMapEmbedder<T>::produce(edm::Event& iEvent,
                                            const edm::EventSetup& iSetup)
 {
-  std::unique_ptr<std::vector<T> > out(new std::vector<T>);
   edm::Handle<edm::View<T> > in;
   iEvent.getByToken(srcToken_, in);
 
-  //TODO: template, cleanup 
-  if (floatValTokens_.size() != floatLabels_.size())
-    {
-      throw cms::Exception("InvalidParams")
-        << "Must have equal number of values and labels";
-    }
-  if (boolValTokens_.size() != boolLabels_.size())
-    {
-      throw cms::Exception("InvalidParams")
-        << "Must have equal number of values and labels";
-    }
-  if (intValTokens_.size() != intLabels_.size())
-    {
-      throw cms::Exception("InvalidParams")
-        << "Must have equal number of values and labels";
-    }
-  std::vector<size_t> lengths = {floatLabels_.size(), boolLabels_.size(), intLabels_.size()};
-
+  std::unique_ptr<std::vector<T> > out(new std::vector<T>);
   for (size_t i = 0; i < in->size(); i++) 
-    {
-      out->push_back(in->at(i));
-    }
+    out->push_back(in->at(i));
+
+  std::vector<size_t> lengths = {doubleLabels_.size(), floatLabels_.size(), boolLabels_.size(), intLabels_.size()};
   for (size_t i = 0; i < (*std::max_element(lengths.begin(), lengths.end())); i++)
+  {
+    edm::Handle<edm::ValueMap<int> > intVals;
+    edm::Handle<edm::ValueMap<bool> > boolVals;
+    edm::Handle<edm::ValueMap<double> > doubleVals;
+    edm::Handle<edm::ValueMap<float> > floatVals;
+    if (i < intLabels_.size())
+      iEvent.getByToken(intTokens_[i], intVals);
+    if (i < boolLabels_.size())
+      iEvent.getByToken(boolTokens_[i], boolVals);
+    if (i < doubleLabels_.size())
+      iEvent.getByToken(doubleTokens_[i], doubleVals);
+    if (i < floatLabels_.size())
+      iEvent.getByToken(floatTokens_[i], floatVals);
+
+    for(size_t j = 0; j < in->size(); ++j)
     {
-      edm::Handle<edm::ValueMap<float> > floatVals;
-      edm::Handle<edm::ValueMap<bool> > boolVals;
-      edm::Handle<edm::ValueMap<int> > intVals;
-      if(i < floatLabels_.size())
-        {
-          iEvent.getByToken(floatValTokens_[i], floatVals);
-        }
-      if(i < boolLabels_.size())
-        {
-          iEvent.getByToken(boolValTokens_[i], boolVals);
-        }
-      if(i < intLabels_.size())
-        {
-          iEvent.getByToken(intValTokens_[i], intVals);
-        }
-      
-      for(size_t j = 0; j < in->size(); ++j)
-        {
-          T& obj = out->at(j);
-          edm::Ptr<T> t = in->ptrAt(j);
-          if(i < floatLabels_.size())
-            {
-              embedValue(obj, (*floatVals)[t], floatLabels_[i]);
-            }
-          if(i < boolLabels_.size())
-            {
-              embedValue(obj, (*boolVals)[t], boolLabels_[i]);
-            }
-          if(i < intLabels_.size())
-            {
-              embedValue(obj, (*intVals)[t], intLabels_[i]);
-            }
-        }
+      T& obj = out->at(j);
+      edm::Ptr<T> t = in->ptrAt(j);
+
+      if (i < intLabels_.size())
+        obj.addUserInt(intLabels_[i], (*intVals)[t]);
+      if (i < boolLabels_.size())
+        obj.addUserFloat(boolLabels_[i], (*boolVals)[t]);
+      if (i < doubleLabels_.size())
+        obj.addUserFloat(doubleLabels_[i], (*doubleVals)[t]);
+      if (i < floatLabels_.size())
+        obj.addUserFloat(floatLabels_[i], (*floatVals)[t]);
     }
+  }
   iEvent.put(std::move(out));
-}
-
-template<typename T>
-void PATObjectValueMapEmbedder<T>::embedValue(T& object,
-                                              const float& value, const std::string& label) const
-{
-  object.addUserFloat(label, value);
-}
-
-template<typename T>
-void PATObjectValueMapEmbedder<T>::embedValue(T& object,
-                                              const bool& value, const std::string& label) const
-{
-  object.addUserFloat(label, value);
-}
-
-template<typename T>
-void PATObjectValueMapEmbedder<T>::embedValue(T& object,
-                                              const int& value, const std::string& label) const
-{
-  object.addUserInt(label, value);
 }
 
 
@@ -174,6 +157,7 @@ typedef PATObjectValueMapEmbedder<pat::Tau> PATTauValueMapEmbedder;
 typedef PATObjectValueMapEmbedder<pat::Jet> PATJetValueMapEmbedder;
 typedef PATObjectValueMapEmbedder<pat::CompositeCandidate> PATCompositeCandidateValueMapEmbedder;
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATElectronValueMapEmbedder);
 DEFINE_FWK_MODULE(PATMuonValueMapEmbedder);
 DEFINE_FWK_MODULE(PATTauValueMapEmbedder);
