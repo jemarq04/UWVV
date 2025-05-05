@@ -60,7 +60,7 @@ PATJetPUSFEmbedder::PATJetPUSFEmbedder(const edm::ParameterSet &pset) : srcToken
                                                                     matchToken_(consumes<MatchMap>(edm::InputTag("patJetGenJetMatch2"))),
                                                                     domatch_(pset.exists("domatch") ? pset.getParameter<bool>("domatch") : false),
                                                                     sfFileN_(pset.exists("jsfFile") ? pset.getParameter<std::string>("jsfFile") : "sfFileNone"),
-                                                                    effFileN_(pset.exists("jeffFile") ? pset.getParameter<std::string>("jeffFile") : "sfFileNone"),
+                                                                    effFileN_(pset.exists("jeffFile") ? pset.getParameter<std::string>("jeffFile") : "sfFileNone")
 {
   std::string notSF = "sfFileNone";
   if (domatch_ && sfFileN_ != notSF) // if sfFile and effFile names are input, also the hists name should be there
