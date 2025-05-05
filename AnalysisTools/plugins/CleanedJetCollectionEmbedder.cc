@@ -66,7 +66,7 @@ class CleanedJetCollectionEmbedder : public edm::stream::EDProducer<>
     edm::EDGetTokenT<MatchMap> matchToken_;
     std::unique_ptr<correction::CorrectionSet> scaleFile_;
     bool domatch_;
-    std::string scaleFileN_;
+    std::string scaleFileName_;
 
     const double deltaR;
     const std::string workingPoint;
@@ -91,7 +91,7 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   collectionName(iConfig.getUntrackedParameter<std::string>("collectionName", "cleanedJets")),
   matchToken_(consumes<MatchMap>(edm::InputTag("patJetGenJetMatch2"))),
   domatch_(iConfig.exists("domatch") ? iConfig.getParameter<bool>("domatch") : false),
-  scaleFileN_(iConfig.exists("scaleFile") ? iConfig.getParameter<std::string>("scaleFile") : "sfFileNone"),
+  scaleFileName_(iConfig.exists("scaleFile") ? iConfig.getParameter<std::string>("scaleFile") : "sfFileNone"),
   // Which year JET ID we need
   deltaR(iConfig.getUntrackedParameter<double>("deltaR", 0.4)),
   workingPoint(iConfig.exists("workingPoint") ? iConfig.getParameter<std::string>("workingPoint") : "T"),
@@ -109,15 +109,15 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   if (jerDownTagExists)
     jerDownJetSrcToken = consumes<JetView>(iConfig.getParameter<edm::InputTag>("jerDownJetSrc"));
 
-  if (scaleFileN_ != "sfFileNone" && domatch_)
+  if (scaleFileName_ != "sfFileNone" && domatch_)
   {
     // Define correction set here
     try{
-      scaleFile_ = correction::CorrectionSet::from_file(scaleFileN_);
-      if (scaleFile_ == nullptr) throw cms::Exception("Invalid POG file") << "Filepath: " << scaleFileN_;
+      scaleFile_ = correction::CorrectionSet::from_file(scaleFileName_);
+      if (scaleFile_ == nullptr) throw cms::Exception("Invalid POG file") << "Filepath: " << scaleFileName_;
     }
     catch (...){
-      throw cms::Exception("Invalid POG file") << "Filepath: " << scaleFileN_;
+      throw cms::Exception("Invalid POG file") << "Filepath: " << scaleFileName_;
     }
   }
 
@@ -195,7 +195,7 @@ VJetPtr CleanedJetCollectionEmbedder::getCleanedJetCollection(edm::Event &iEvent
       if (PUID >= 7 || jet.pt() > 50)
         cleanedJets.push_back(uncleanedJets->ptrAt(j));
 
-      if (checkPUID && scaleFileN_ != "sfFileNone" && domatch_)
+      if (checkPUID && scaleFileName_ != "sfFileNone" && domatch_)
       {
         edm::Ref<JetView> jetRef(uncleanedJets, j);
         const auto genMatched = (*match)[jetRef];

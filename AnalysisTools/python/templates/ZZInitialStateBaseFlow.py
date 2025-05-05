@@ -41,8 +41,8 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
                 )
                 step.addModule(chan+'AlternatePairs', mod, chan)
 
-                #TODO: Wait for Run3 Jet PUSFs to be added to JME POG under jmar.json
                 if self.isMC:
+                    #TODO: Wait for Run3 Jet PUSFs to be added to JME POG under jmar.json
                     mod = cms.EDProducer(
                         "CleanedJetCollectionEmbedder",
                         src = step.getObjTag(chan),
@@ -51,7 +51,8 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
                         jesDownJetSrc = step.getObjTag('j_jesDown'),
                         jerUpJetSrc = step.getObjTag('j_jerUp'),
                         jerDownJetSrc = step.getObjTag('j_jerDown'),
-                        domatch = cms.bool(True)
+                        domatch = cms.bool(True),
+                        scaleFile = cms.string("sfFileNone"),
                     )
                 else:
                     mod = cms.EDProducer(
