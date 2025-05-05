@@ -41,7 +41,7 @@ elif dataTier == 'MINIAODSIM':
 else:
     raise Exception("Dataset malformed? Couldn't deduce isMC parameter")
 
-postEE = 0
+postEE = postBPix = 0
 year = localSettings.get("local", "year")
 if year == "2022":
     if "postEE" in localSettings["local"]:
@@ -51,6 +51,21 @@ if year == "2022":
     else:
         postEE = 1 if "postEE" in conditions else 0
     print("postEE: %s"%postEE)
+elif year == "2023":
+    if "postBPix" in localSettings["local"]:
+        postBPix = int(localSettings.get("local", "postBPix"))
+    elif not isMC:
+        postBPix = 1 if "Run2023D" in conditions else 0
+    else:
+        postBPix = 1 if "postBPix" in conditions else 0
+    print("postBPix: %s" % postBPix)
+
+dataPeriod = ""
+if not isMC:
+    dataPeriod = conditions.split("Run%s" % year)[1][0]
+    if year == "2023":
+        dataPeriod += "v" + conditions.split("_v")[1][0]
+    print("dataPeriod:", dataPeriod)
 
 def getUnitsPerJob(ds):
     if isMC == 0:
@@ -73,10 +88,12 @@ with open(localSettings.get("local", "datalist"), "r") as infile:
     config.Data.userInputFiles = infile.readlines()
 config.Data.outputDatasetTag = conditions
 if (isMC):
-    if not postEE:
-        globalTag=(localSettings.get("local", "mcGlobalTag"))
+    if self.year == "2022" and postEE:
+        globalTag = (localSettings.get("local", "postEEGlobalTag"))
+    elif self.year == "2023" and postBPix:
+        globalTag = (localSettings.get("local", "postBPixGlobalTag"))
     else:
-        globalTag=(localSettings.get("local", "postEEGlobalTag"))
+        globalTag=(localSettings.get("local", "mcGlobalTag"))
 elif (isPrompt):
     globalTag=(localSettings.get("local", "PromptdataGlobalTag"))
 else: 
@@ -94,7 +111,7 @@ print("lheWeights:",lheWeight)
 configParams = [
     'isMC=%d' % isMC,
     'isPrompt=%i' % isPrompt,
-    'postEE=%i' % postEE,
+    'jetsUL=%s' % localSettings.get("local", "jetsUL", fallback=0),
     'datasetName=%s' % dataset, #Checked the config, shouldn't matter
     "year=%s" % year,
     "channels=%s" % localSettings.get("local", "channels"),
@@ -107,7 +124,6 @@ configParams = [
 ]
 today = (datetime.date.today()).strftime("%d%b%Y")
 campaign_name = localSettings.get("local", "campaign").replace("$DATE", today)
-#campaign_name = localSettings.get("local", "campaign").replace("$DATE", "25Jan2019")
 if isMC:
     config.General.requestName = '_'.join([campaign_name, localSettings.get("local", "requestName")])
     # Check for extension dataset, force unique request name
@@ -116,23 +132,36 @@ if isMC:
         config.General.requestName += m.groups()[0]
     #config.Data.splitting = 'FileBased'
     #config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
-    if postEE:
+    if year == "2022" and postEE:
         config.General.requestName += "postEE"
+        configParams.append('postEE=%i' % postEE)
+    elif year == "2023" and postBPix:
+        config.General.requestName += "postBPix"
+        configParams.append("postBPix=%i" % postBPix)
 
 else:
+    configParams.append("dataPeriod=%s" % dataPeriod)
     # Since a PD will have several eras, add conditions to name to differentiate
     config.General.requestName = '_'.join([campaign_name, primaryDS, conditions])
     #if "Run2016" in conditions:
     #    #2016 JSON
     #    config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt'
     #    print("Golden JSON: Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt")
+    jsonFileName = ""
     if year == "2022":
         #2022 JSON
-        config.Data.lumiMask = "%s/src/UWVV/Utilities/scripts/JSON/Cert_Collisions2022_355100_362760_Golden.json" % os.environ["CMSSW_BASE"]
-        print("Golden JSON: Cert_Collisions2022_355100_362760_Golden.json")
+        jsonFileName = "Cert_Collisions2022_355100_362760_Golden.json"
+    elif year == "2023":
+        #2023 JSON
+        jsonFileName = "Cert_Collisions2023_366442_370790_Golden.json"
+    elif year == "2024":
+        #2024 JSON
+        jsonFileName = "Cert_Collisions2024_378981_386951_Golden.json"
     else:
         print("What kind of JSON are you running for?")
         exit()
+    config.Data.lumiMask = "%s/src/UWVV/Utilities/scripts/JSON/%s" % (os.environ["CMSSW_BASE"], jsonFileName)
+    print("Golden JSON: %s" % jsonFileName)
     # Comment out in the (hopefully very rare) case where resubmit needs to 
     # be done manually
     #config.General.requestName = '_'.join([campaign_name, primaryDS, conditions, "resubmit"])
