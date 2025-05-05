@@ -43,7 +43,7 @@ class ElectronCalibration(AnalysisFlowBase):
 
             # Embed MVAs and BDT scores
             if self.year in ["2022", "2023", "2024"]:
-                # TODO: update 2023 when available
+                # TODO: update 2023-2024 when available
                 eleIDModules = _defaultEleIDModules
                 if int(environ["CMSSW_VERSION"].split("_")[1]) >= 14:
                     eleIDModules += ["RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff"]

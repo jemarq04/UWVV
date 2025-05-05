@@ -33,7 +33,7 @@ class MuonCalibration(AnalysisFlowBase):
             scaleFile = os.path.join(UWVV_BASE_PATH, "data", "MuonCorrections", "%s.json" % yearstring)
 
             if self.year != "2024":
-                # TODO: add 2024 electron calibrations when available
+                # TODO: add 2024 muon calibrations when available
                 # Muon corrections
                 muCalibrator = cms.EDProducer(
                     "PATMuonCorrector",
