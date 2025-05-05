@@ -3,6 +3,10 @@
 if [[ -z $CMSSW_BASE ]]; then
   echo "CMSSW environment not set. Don't forget to run cmsenv!"
   exit 1
+elif [[ ! -d $CMSSW_BASE/src/.git ]]; then
+  echo "CMSSW environment has not been set up yet"
+  echo "Please run 'git cms-init' before cloning this directory"
+  exit 2
 fi
 
 pushd $CMSSW_BASE/src
