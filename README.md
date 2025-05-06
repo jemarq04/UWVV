@@ -62,7 +62,7 @@ For example, the file `Utilities/test/datasets/2022MC_qqZZ.dat` contains the fol
 ```
 
 Empty lines or lines beginning with `#` are ignored so that the files can be made readable. The second argument of the `crabSubmit.sh` script is optional and is the year
-of the analysis. If this is provided, the file `Utilities/test/CrabTemplates/local.allweights<YEAR>.cfg` will be copied to your current directory as `local.cfg`. 
+of the analysis. If this is provided, the file `Utilities/test/CrabTemplates/local.<YEAR>.cfg` will be copied to your current directory as `local.cfg`. 
 **NOTE**: This will overwrite a pre-existing config file in that directory! If you do not provide this argument, the script will search for a config file in your directory 
 named `local.cfg`. This can be helpful to avoid overwriting any temporary changes made to the config.
 
