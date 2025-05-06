@@ -2,6 +2,25 @@
 
 UWVV analysis flows are intended to be as modular as possible, to allow multiple analyses to live together in harmony, and to make modifications and additions to analyses as painless as possible. For every discrete task you want to do, like calculating electron IDs and embedding them in the `pat::Electron` objects, you make a Python class that sets up the desired action. These classes are combined into one Flow class that by the magic of multiple inheritance puts all desired EDM modules into several AnalysisStep objects which handle the collection input tags and similar sundries.
 
+## Table of Contents
+
+- [Building and executing a flow](#building-and-executing-a-flow)
+- [Analysis steps](#analysis-steps)
+   * [List of steps](#list-of-steps)
+   * [Using the steps](#using-the-steps)
+      + [Get the input tag for a collection](#get-the-input-tag-for-a-collection)
+      + [Add a module](#add-a-module)
+      + [Auto-generated selectors](#auto-generated-selectors)
+   * [Order of modules within a step](#order-of-modules-within-a-step)
+- [Flow base classes](#flow-base-classes)
+   * [Adding modules](#adding-modules)
+   * [Extra arguments and initial input tags](#extra-arguments-and-initial-input-tags)
+   * [Example](#example)
+   * [Getting the final collection tags](#getting-the-final-collection-tags)
+- [Composite states](#composite-states)
+   * [Building composite candidates](#building-composite-candidates)
+   * [Accessing the daughters](#accessing-the-daughters)
+
 
 ## Building and executing a flow
 
