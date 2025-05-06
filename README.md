@@ -87,9 +87,10 @@ especially useful for seeing how much luminosity was processed out of the expect
 
 ### Submitting CRAB jobs for custom MC
 
-To submit jobs with custom MC, once again you should go to `Utilities/test` and use the helper script `crabSubmitCustom.sh`. This script will submit a CRAB job using
-`Utilities/scripts/crab_CustomTemplate.py` and configure it with the `local.cfg` file in your current directory. The python script is almost identical to the one 
-mentioned above, except it requires three new variables in the config file that are normally commented out. The lines are the following:
+To submit jobs with custom MC, once again you should go to `Utilities/test` and use the helper script `crabSubmitCustom.sh`. This script will also submit a CRAB job using
+`Utilities/scripts/crab.py` and configure it with the `local.cfg` file in your current directory. Calling the `crabSubmitCustom.sh` helper script will run the python script
+with a new flag, so that it recognizes it is running private MC samples. The python script will act almost identically to the process 
+mentioned above, except it requires three new variables in the config file that are normally ignored. The lines are the following:
 
 ```
 dataset: /CustomSet/%(mcGlobalTag)s/MINIAODSIM
@@ -99,8 +100,8 @@ datalist: CustomData.dat
 #postBPix: 1
 ```
 
-Feel free to edit the values in these lines however you wish for the submission. The only exception is "MINIAODSIM" must be kept for the script to recognize the job
-as MC. The `datalist` option points to an input file (similar to those mentioned in the local job submission section) that lists all input files for the job. Once again,
+Feel free to edit the values in these lines however you wish for the submission. The only exception is "MINIAODSIM" must be kept to denote this as MC. 
+The `datalist` option points to an input file (similar to those mentioned in the local job submission section) that lists all input files for the job. Once again,
 empty lines or lines beginning with `#` are ignored.
 
 **NOTE**: The `postEE` and `postBPix` options are derived from the dataset conditions (the second string in the /-separated list), so for these custom submissions
