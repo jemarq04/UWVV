@@ -2,6 +2,19 @@
 
 Each row in a UWVV ntuple represents one initial state candidate (not one event). The columns are information about the candidate, its daughters (and their daughters, recursively), and the event they live in. The format is essentially the same as in [FSA ntuples](https://github.com/uwcms/InitialStateAnalysis/tree/miniAOD_dev_80X/NtupleTools/test).
 
+## Table of Contents
+
+- [Tree generation](#tree-generation)
+   * [Defining a single branch](#defining-a-single-branch)
+      + [Scalar branches](#scalar-branches)
+      + [Vector branches](#vector-branches)
+   * [Specifying all branches](#specifying-all-branches)
+   * [Function library](#function-library)
+   * [Trigger branches](#trigger-branches)
+   * [Branch naming convention](#branch-naming-convention)
+   * [Gen ntuples](#gen-ntuples)
+- [Metadata](#metadata)
+- [Event info](#event-info)
 
 ## Tree generation
 
