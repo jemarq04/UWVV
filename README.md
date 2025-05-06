@@ -3,7 +3,8 @@
 The main reference for Run 3 analysis is the [PdmV recipe](https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVRun3Analysis).
 Additional README files can be found in `AnalysisTools/` and `Ntuplizer/` that explain how to create/modify new analysis steps and 
 how to understand event/object branches, respectively. The README in `AnalysisTools/` is essential for understanding the analysis workflow.
-You can also look through `Utilities/Ntuplizer/ntuplize_cfg.py`, as it is carefully commented and organized to make things easy to understand.
+You can also look through `Utilities/Ntuplizer/ntuplize_cfg.py`, as it is carefully commented and organized to make things easy to understand. Note that this
+framework has been upgraded to Run 3, but only for anything necessary for Run 3 ZZ analysis. You may need to edit modules if you want anything other than ZZ.
 
 ## Table of Contents
 
