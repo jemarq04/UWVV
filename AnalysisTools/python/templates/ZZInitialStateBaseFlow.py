@@ -7,6 +7,8 @@ from UWVV.Utilities.helpers import UWVV_BASE_PATH
 
 class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
     def __init__(self, *args, **kwargs):
+        if not hasattr(self, 'isMC'):
+            self.isMC = kwargs.pop('isMC', True)
         super(ZZInitialStateBaseFlow, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
@@ -41,6 +43,7 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
                 )
                 step.addModule(chan+'AlternatePairs', mod, chan)
 
+                #Add modules to embed jet collection in the initial state object
                 if self.isMC:
                     #TODO: Wait for Run3 Jet PUSFs to be added to JME POG under jmar.json
                     mod = cms.EDProducer(

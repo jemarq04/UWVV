@@ -2,7 +2,6 @@ from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 
 import FWCore.ParameterSet.Config as cms
 
-
 class WZID(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
         super(WZID, self).__init__(*args, **kwargs)
@@ -10,16 +9,14 @@ class WZID(AnalysisFlowBase):
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(WZID, self).makeAnalysisStep(stepName, **inputs)
         if stepName == 'embedding':
-            self.addWZIDs(step)
-        return step
+            mod = cms.EDProducer(
+                'PATElectronWZIDEmbedder',
+                src = step.getObjTag('e'),
+                vertexSrc = step.getObjTag('v'),
+                )
+            step.addModule("ElectronWZIDEmbedder", mod, 'e')
 
-    def addWZIDs(self, step):
-        mod = cms.EDProducer(
-            'ElectronWZIDEmbedder',
-            src = step.getObjTag('e'),
-            vertexSrc = step.getObjTag('v'),
-            )
-        step.addModule("ElectronWZIDEmbedder", mod, 'e')
+        return step
 
     def getWZLooseMuonID(self):
         return 'userInt("isWZLooseMuon") && ' \

@@ -1,7 +1,18 @@
-// PATElectronWWIDEmbedder.cc
-// Embeds WW ID defined in section 5.2.1 of AN-15-299
-// Devin Taylor, U. Wisconsin
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+//    PATElectronWZIDEmbedder                                                //
+//                                                                           //
+//    Embeds WW ID defined in section 5.2.1 of AN-15-299                     //
+//                                                                           //
+//    Devin Taylor, U. Wisconsin                                             //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
 
+// system includes
+#include <memory>
+#include <vector>
+
+// CMS includes
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -12,40 +23,51 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+using pat::Electron, pat::ElectronCollection;
+typedef edm::View<Electron> ElectronView;
 
-class ElectronWZIDEmbedder : public edm::stream::EDProducer<> {
+using reco::Vertex;
+typedef edm::View<Vertex> VertexView;
+
+class PATElectronWZIDEmbedder : public edm::stream::EDProducer<>
+{
   public:
-    ElectronWZIDEmbedder(const edm::ParameterSet& pset);
-    virtual ~ElectronWZIDEmbedder(){}
-    void produce(edm::Event& evt, const edm::EventSetup& es);
+    PATElectronWZIDEmbedder(const edm::ParameterSet& iConfig);
+    virtual ~PATElectronWZIDEmbedder(){}
+
   private:
-    edm::EDGetTokenT<edm::View<pat::Electron> > srcToken_;
-    edm::EDGetTokenT<edm::View<reco::Vertex> > vertexToken_;
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+
+    const edm::EDGetTokenT<ElectronView> srcToken_;
+    const edm::EDGetTokenT<VertexView> vertexToken_;
+    std::vector<std::string> pogIDNames_;
 };
 
-ElectronWZIDEmbedder::ElectronWZIDEmbedder(const edm::ParameterSet& pset):
-  srcToken_(consumes<edm::View<pat::Electron> >(pset.getParameter<edm::InputTag>("src"))),
-  vertexToken_(consumes<edm::View<reco::Vertex> >(pset.getParameter<edm::InputTag>("vertexSrc")))
+PATElectronWZIDEmbedder::PATElectronWZIDEmbedder(const edm::ParameterSet& iConfig):
+  srcToken_(consumes<ElectronView>(iConfig.getParameter<edm::InputTag>("src"))),
+  vertexToken_(consumes<VertexView>(iConfig.getParameter<edm::InputTag>("vertexSrc"))),
+  pogIDNames_(iConfig.getUntrackedParameter<std::vector<std::string>>("pogIDs", 
+        std::vector<std::string>({"IsCBVIDTight", "IsCBVIDMedium",
+      "IsCBVIDLoose", "IsCBVIDVeto", "IsCBVIDHLTSafe"})))
 {
-  produces<pat::ElectronCollection>();
+  produces<ElectronCollection>();
 }
 
-void ElectronWZIDEmbedder::produce(edm::Event& evt, const edm::EventSetup& es) {
-  std::unique_ptr<pat::ElectronCollection> output = std::make_unique<pat::ElectronCollection>();
-  // TODO This should really be passed into the module
-  std::vector<std::string> pogIDNames = { "IsCBVIDTight", "IsCBVIDMedium",
-      "IsCBVIDLoose", "IsCBVIDVeto", "IsCBVIDHLTSafe" };
-  edm::Handle<edm::View<pat::Electron> > input;
-  evt.getByToken(srcToken_, input);
+void PATElectronWZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::Handle<ElectronView> in;
+  iEvent.getByToken(srcToken_, in);
 
-  edm::Handle<edm::View<reco::Vertex> > vertices;
-  evt.getByToken(vertexToken_, vertices);
+  edm::Handle<VertexView> vertices;
+  iEvent.getByToken(vertexToken_, vertices);
 
-  const reco::Vertex& thePV = *vertices->begin();
+  const Vertex& thePV = *vertices->begin();
+  
+  std::unique_ptr<ElectronCollection> out(new ElectronCollection());
 
-  output->reserve(input->size());
-  for (size_t i = 0; i < input->size(); ++i) {
-    pat::Electron electron = input->at(i);
+  for (size_t i = 0; i < in->size(); ++i)
+  {
+    out->push_back(in->at(i));
+    Electron& electron = out->back();
 
     double pt = electron.pt();
     double dEtaIn = std::abs(electron.deltaEtaSuperClusterTrackAtVtx());
@@ -114,24 +136,21 @@ void ElectronWZIDEmbedder::produce(edm::Event& evt, const edm::EventSetup& es) {
       if (!passConversionVeto)
         passLoose = false;
     }
-    else {
+    else
       passLoose = false;
-    }
 
     electron.addUserInt("IsWWLoose", passLoose);
-    for (auto& id : pogIDNames) {
-        if (!electron.hasUserFloat(id.c_str()))
-            continue;
+    for (auto& id : pogIDNames_){
+        if (!electron.hasUserFloat(id.c_str())) continue;
         bool passesDXY = electron.isEB() ? dxy < 0.05 : dxy < 0.1;
         bool passesDZ = electron.isEB() ? dz < 0.1 : dz < 0.2;
         bool passesAll = electron.userFloat(id.c_str()) && passesDXY && passesDZ;
         electron.addUserFloat(id+"wIP", passesAll);
     }
-    output->push_back(electron);
   }
 
-  evt.put(std::move(output));
+  iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(ElectronWZIDEmbedder);
+DEFINE_FWK_MODULE(PATElectronWZIDEmbedder);

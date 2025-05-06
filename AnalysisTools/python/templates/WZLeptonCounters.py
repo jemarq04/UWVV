@@ -1,14 +1,12 @@
 from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 
-from UWVV.Utilities.helpers import parseChannels
-
 import FWCore.ParameterSet.Config as cms
 
+from UWVV.Utilities.helpers import parseChannels
 
 class WZLeptonCounters(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
         super(WZLeptonCounters, self).__init__(*args, **kwargs)
-
 
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(WZLeptonCounters, self).makeAnalysisStep(stepName, **inputs)
@@ -25,10 +23,11 @@ class WZLeptonCounters(AnalysisFlowBase):
                 src = step.getObjTag('m'),
                 labels = cms.vstring(*muCounters.keys()),
                 cuts = cms.vstring(*muCounters.values()),
-                )
+            )
             step.addModule("muCounter", mod)
 
-            eCounters = {"CBVIDTightElec" : 'pt() > 10 && abs(eta) < 2.5 && userFloat("IsCBVIDTightwIP")',
+            eCounters = {
+                "CBVIDTightElec" : 'pt() > 10 && abs(eta) < 2.5 && userFloat("IsCBVIDTightwIP")',
                 "CBVIDMediumElec" :  'pt() > 10 && abs(eta) < 2.5 && userFloat("IsCBVIDMediumwIP")',
                 "CBVIDLooseElec" :  'pt() > 10 && abs(eta) < 2.5 && userFloat("IsCBVIDLoosewIP")',
                 "CBVIDVetoElec" :  'pt() > 10 && abs(eta) < 2.5 && userFloat("IsCBVIDVetowIP")',
@@ -44,7 +43,7 @@ class WZLeptonCounters(AnalysisFlowBase):
                 src = step.getObjTag('e'),
                 labels = cms.vstring(*eCounters.keys()),
                 cuts = cms.vstring(*eCounters.values()),
-                )
+            )
             step.addModule("elecCounter", mod)
 
             counters = {'n'+label : 'muCounter:'+label for label in muCounters.keys()}
@@ -59,7 +58,7 @@ class WZLeptonCounters(AnalysisFlowBase):
                     src = step.getObjTag(chan),
                     intLabels = cms.vstring(*labels),
                     intSrc = cms.VInputTag(*tags),
-                    )
+                )
                 step.addModule(chan+'CountEmbedding', countEmbedding, chan)
 
         return step
