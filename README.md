@@ -2,7 +2,8 @@
 
 The main reference for Run 3 analysis is the [PdmV recipe](https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVRun3Analysis).
 Additional README files can be found in `AnalysisTools/` and `Ntuplizer/` that explain how to create/modify new analysis steps and 
-how to understand event/object branches, respectively.
+how to understand event/object branches, respectively. The README in `AnalysisTools/` is essential for understanding the analysis workflow.
+You can also look through `Utilities/Ntuplizer/ntuplize_cfg.py`, as it is carefully commented and organized to make things easy to understand.
 
 ## Table of Contents
 
@@ -33,7 +34,8 @@ source UWVV/setup.sh
 
 Jobs can be run locally in the `Ntuplizer/test` directory with the command `cmsRun ntuplize_cfg.py <OPTIONS>`, where `<OPTIONS>` denotes your desired processing settings. 
 Available options are listed within `ntuplize_cfg.py`, and in theory you should be able to specify modifications to the job using the command-line (instead of hard-coding
-it into the config script). 
+it into the config script). To get information on all of the available options, you can run `cmsRun ntuplize_cfg.py --help`. This will display each option, its default, and
+its description.
 
 There are two helper scripts for quick submission (and can act as a template for commands): `runMC.sh` and `runData.sh`. You can get a basic
 help screen for these commands by running them without any arguments. The first argument for these scripts is a file that lists each of the input files for the process.
