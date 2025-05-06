@@ -219,7 +219,7 @@ zz = any(len(c) == 4 for c in channels)
 zl = any(len(c) == 3 for c in channels)
 z  = any(len(c) == 2 for c in channels)
 l  = any(len(c) == 1 for c in channels)
-wz = any("wz" in c   for c in channels)
+wz = "wz" in options.channels
 
 # Determine global tag
 # https://docs.google.com/presentation/d/1F4ndU7DBcyvrEEyLfYqb29NGkBPs20EAnBxe_l7AEII/edit#slide=id.g289f499aa6b_2_52
@@ -355,7 +355,7 @@ if not wz:
 
 # Create final states
 if zz or l:
-    # Add ZZ information (including jetPUSF)
+    # Add ZZ information (including jets + jetPUSF)
     if zz:
         from UWVV.AnalysisTools.templates.ZZInitialStateBaseFlow import ZZInitialStateBaseFlow
         FlowSteps.append(ZZInitialStateBaseFlow)
@@ -368,15 +368,16 @@ elif zl or z or wz:
 
     if wz or zl:
         from UWVV.AnalysisTools.templates.ZPlusXInitialStateBaseFlow import ZPlusXInitialStateBaseFlow
-        FlowSteps.append(ZPlusXInitialStateBaseFlow)
+        FlowSteps.append(ZPlusXInitialStateBaseFlow) # also embeds jets (channel zl)
 
-        from UWVV.AnalysisTools.templates.WZID import WZID
-        FlowSteps.append(WZID)
-        from UWVV.AnalysisTools.templates.WZLeptonCounters import WZLeptonCounters
-        FlowSteps.append(WZLeptonCounters)
+        from UWVV.AnalysisTools.templates.WZFlow import WZFlow
+        FlowSteps.append(WZFlow)
 
         from UWVV.Ntuplizer.templates.countBranches import wzCountBranches
         extraInitialStateBranches.append(wzCountBranches)
+    else:
+        from UWVV.AnalysisTools.templates.ZInitialStateBaseFlow import ZInitialStateBaseFlow
+        FlowSteps.append(ZInitialStateBaseFlow) # also embeds jets (channel z)
 
 if (zz or zl or z) and not wz:
     for step in FlowSteps:
