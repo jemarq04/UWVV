@@ -25,12 +25,19 @@ localSettings.read(settingsFile)
 #    gitDescription += "*"
 #print("Git status is %s" % gitDescription)
 # We have to hack our way around how crab parses command line arguments :<
+customMC = False
 for arg in sys.argv:
     if 'Data.inputDataset=' in arg:
         dataset = arg.split('=')[1]
+        print("Submitting job for %s" % dataset)
         break
 else:
-    raise Exception("Must pass dataset argument as Data.inputDataset=...")
+    if "dataset" in localSettings["local"]:
+        dataset = localSettings.get("local", "dataset")
+        customMC = True
+        print("No input dataset provided. Submitting custom job for %s" % dataset)
+    else:
+        raise Exception("Must pass dataset argument as Data.inputDataset=... or include dataset argument in config file")
 
 (_, primaryDS, conditions, dataTier) = dataset.split('/')
 isPrompt = 0
@@ -44,6 +51,14 @@ elif dataTier == 'MINIAODSIM':
     isMC = 1
 else:
     raise Exception("Dataset malformed? Couldn't deduce isMC parameter")
+
+if customMC:
+    if not isMC:
+        raise Exception("Custom jobs can only be submitted for private MC samples!")
+    if any(name not in localSettings["local"] for name in ["requestName", "datalist"]):
+        raise Exception("Custom jobs require three extra options: dataset, requestName, and datalist.")
+    if not os.path.isfile(localSettings.get("local", "datalist")):
+        raise Exception("Datalist file not found: %s" % localSettings.get("local", "datalist"))
 
 postEE = postBPix = 0
 year = localSettings.get("local", "year")
@@ -87,7 +102,11 @@ def getUnitsPerJob(ds):
         return 20
 
 config = config()
-config.Data.inputDataset = dataset
+if not customMC:
+    config.Data.inputDataset = dataset
+else:
+    with open(localSettings.get("local", "datalist"), "r") as infile:
+        config.Data.userInputFiles = [line for line in infile.readlines() if line and line[0] != "#"]
 config.Data.outputDatasetTag = conditions
 if (isMC):
     if self.year == "2022" and postEE:
@@ -127,7 +146,7 @@ configParams = [
 today = (datetime.date.today()).strftime("%d%b%Y")
 campaign_name = localSettings.get("local", "campaign").replace("$DATE", today)
 if isMC:
-    config.General.requestName = '_'.join([campaign_name, primaryDS])
+    config.General.requestName = '_'.join([campaign_name, primaryDS if not customMC else localSettings.get("local", "requestName")])
     # Check for extension dataset, force unique request name
     m = re.match(r".*(_ext[0-9]*)-", conditions)
     if m:
@@ -140,7 +159,6 @@ if isMC:
     elif year == "2023" and postBPix:
         config.General.requestName += "postBPix"
         configParams.append("postBPix=%i" % postBPix)
-
 else:
     configParams.append("dataPeriod=%s" % dataPeriod)
     # Since a PD will have several eras, add conditions to name to differentiate
@@ -208,5 +226,7 @@ config.Data.publication = False
 #config.Site.blacklist = ['T2_ES_IFCA']
 config.Data.outLFNDirBase = localSettings.get("local", "outLFNDirBase").replace("$USER", username).replace("$DATE", today)
 config.Data.ignoreLocality = False
+if customMC:
+    config.Data.outputPrimaryDataset = primaryDS
 
 config.Site.storageSite = localSettings.get("local", "storageSite")
