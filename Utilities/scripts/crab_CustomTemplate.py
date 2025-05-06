@@ -85,7 +85,7 @@ def getUnitsPerJob(ds):
 config = config()
 #config.Data.inputDataset = dataset #commented out since it can not be used along with userInputFiles
 with open(localSettings.get("local", "datalist"), "r") as infile:
-    config.Data.userInputFiles = infile.readlines()
+    config.Data.userInputFiles = [line for line in infile.readlines() if line and line[0] != "#"]
 config.Data.outputDatasetTag = conditions
 if (isMC):
     if self.year == "2022" and postEE:
