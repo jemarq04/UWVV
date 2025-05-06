@@ -25,7 +25,7 @@ localSettings.read(settingsFile)
 #    gitDescription += "*"
 #print("Git status is %s" % gitDescription)
 if "dataset" not in localSettings["local"]:
-    raise Exception("Must pass dataset argument as Data.inputDataset=...")
+    raise Exception("Must pass dataset argument in config file...")
 dataset = localSettings.get("local", "dataset")
 
 (_, primaryDS, conditions, dataTier) = dataset.split('/')
@@ -40,6 +40,9 @@ elif dataTier == 'MINIAODSIM':
     isMC = 1
 else:
     raise Exception("Dataset malformed? Couldn't deduce isMC parameter")
+
+if not isMC:
+    raise Exception("Custom jobs can only be submitted for private MC samples!")
 
 postEE = postBPix = 0
 year = localSettings.get("local", "year")
@@ -112,7 +115,7 @@ configParams = [
     'isMC=%d' % isMC,
     'isPrompt=%i' % isPrompt,
     'jetsUL=%s' % localSettings.get("local", "jetsUL", fallback=0),
-    'datasetName=%s' % dataset, #Checked the config, shouldn't matter
+    'datasetName=%s' % dataset,
     "year=%s" % year,
     "channels=%s" % localSettings.get("local", "channels"),
     "lheWeights=%s" % lheWeight,
@@ -138,7 +141,6 @@ if isMC:
     elif year == "2023" and postBPix:
         config.General.requestName += "postBPix"
         configParams.append("postBPix=%i" % postBPix)
-
 else:
     configParams.append("dataPeriod=%s" % dataPeriod)
     # Since a PD will have several eras, add conditions to name to differentiate
