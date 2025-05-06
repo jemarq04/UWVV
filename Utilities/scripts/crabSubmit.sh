@@ -1,21 +1,21 @@
 # Modified from N. Smith, U. Wisconsin
 # Usage examples:
-# . crabSubmit.sh twoLepton-tranche4.txt | grep 'DYJets' | . /dev/stdin
-# . crabSubmit.sh twoLepton-data.txt | . /dev/stdin
+#  crabSubmit.sh datasets/2022all.dat | grep 'EGamma' | . /dev/stdin
+#  crabSubmit.sh datasets/2022MC_qqZZ.dat | . /dev/stdin
 if [ $# -eq 0 ]; then
     echo "You need to specify a file containing your list of datasets"
     echo "You can also specify a year so that a template can be copied to local.cfg"
-    echo "    Usage: ${0##*/} datasetList.txt [year]"
+    echo "    Usage: ${0##*/} datasetList.dat [year]"
     exit 1
 fi
 scripts_path=$CMSSW_BASE/src/UWVV/Utilities/scripts
 config_path=$CMSSW_BASE/src/UWVV/Utilities/test/CrabTemplates
 if [[ $2 == "2022" ]]; then
-  config=$config_path/local.allweights2022UL.cfg
-elif [[ $2 == *"NoLHEWeights"* ]]; then
-  config=$config_path/local.noweights.cfg
-elif [[ $2 == *"LHEScaleWeights"* ]]; then
-  config=$config_path/local.onlyscaleweights.cfg
+  config=$config_path/local.2022.cfg
+elif [[ $2 == "2023" ]]; then
+  config=$config_path/local.2023.cfg
+elif [[ $2 == "2024" ]]; then
+  config=$config_path/local.2024.cfg
 elif [[ ! -z $2 ]]; then
   echo "Template not found for $2"
   exit 1
