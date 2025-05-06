@@ -4,6 +4,13 @@ The main reference for Run 3 analysis is the [PdmV recipe](https://twiki.cern.ch
 Additional README files can be found in `AnalysisTools/` and `Ntuplizer/` that explain how to create/modify new analysis steps and 
 how to understand event/object branches, respectively.
 
+## Table of Contents
+
+- [Setup](#setup)
+- [Running local jobs](#running-local-jobs)
+- [Submitting CRAB jobs](#submitting-crab-jobs)
+   * [Submitting CRAB jobs for custom MC](#submitting-crab-jobs-for-custom-mc)
+
 ## Setup
 
 To use this framework, you must be in a fresh CMSSW environment. Instructions are below.
