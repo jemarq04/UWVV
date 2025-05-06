@@ -55,7 +55,8 @@ For example, the file `Utilities/test/datasets/2022MC_qqZZ.dat` contains the fol
 ```
 
 Empty lines or lines beginning with `#` are ignored so that the files can be made readable. The second argument of the `crabSubmit.sh` script is optional and is the year
-of the analysis. If this is provided, the file `Utilities/test/CrabTemplates/local.allweights<YEAR>.cfg` will be copied to your current directory as `local.cfg`. *NOTE*: This will overwrite a pre-existing config file in that directory! If you do not provide this argument, the script will search for a config file in your directory 
+of the analysis. If this is provided, the file `Utilities/test/CrabTemplates/local.allweights<YEAR>.cfg` will be copied to your current directory as `local.cfg`. 
+**NOTE**: This will overwrite a pre-existing config file in that directory! If you do not provide this argument, the script will search for a config file in your directory 
 named `local.cfg`. This can be helpful to avoid overwriting any temporary changes made to the config.
 
 The helper script will print out commands to run to submit the jobs using `Utilities/scripts/crab.py`. You can pipe this output to `stdin` and run them immediately. 
@@ -66,9 +67,35 @@ cd Utilities/test
 crabSubmit.sh datasets/2022MC_qqZZ.dat | . /dev/stdin
 ```
 
-Again, to preview the commands you can run without piping to `stdin` simply with `crabSubmit.sh datasets/2022MC_qqZZ.dat`.
+Again, to preview the commands you can run without piping to `stdin` simply with `crabSubmit.sh datasets/2022MC_qqZZ.dat`. This script will submit a CRAB job using 
+`Utilities/scripts/crab.py` and configure it with the `local.cfg` file in your current directory. This script will automatically determine certain options not specified
+in the config file, such as whether the sample is MC or data, prompt analysis, pre- or postEE, etc. Based on these checks, the relevant global tag will be read from the
+config file.
+
+Note that Run 3 data CRAB jobs are submitted using the golden JSON files present in `Utilities/scripts/JSON`. These were downloaded from the PdmV website 
+(linked at the beginning of this file), but may need updating later on.
+
+You can view the status of running/completed CRAB jobs with `crab status -d <DIR>` or view the final report of a completed job with `crab report -d <DIR>`. The report is 
+especially useful for seeing how much luminosity was processed out of the expected amount.
 
 ### Submitting CRAB jobs for custom MC
 
-This branch is currently in development - more documentation to come.
+To submit jobs with custom MC, once again you should go to `Utilities/test` and use the helper script `crabSubmitCustom.sh`. This script will submit a CRAB job using
+`Utilities/scripts/crab_CustomTemplate.py` and configure it with the `local.cfg` file in your current directory. The python script is almost identical to the one 
+mentioned above, except it requires three new variables in the config file that are normally commented out. The lines are the following:
+
+```
+dataset: /CustomSet/%(mcGlobalTag)s/MINIAODSIM
+requestName: CustomRequestName
+datalist: CustomData.dat
+#postEE: 1
+#postBPix: 1
+```
+
+Feel free to edit the values in these lines however you wish for the submission. The only exception is "MINIAODSIM" must be kept for the script to recognize the job
+as MC. The `datalist` option points to an input file (similar to those mentioned in the local job submission section) that lists all input files for the job. Once again,
+empty lines or lines beginning with `#` are ignored.
+
+**NOTE**: The `postEE` and `postBPix` options are derived from the dataset conditions (the second string in the /-separated list), so for these custom submissions
+you need to specify if you want either of these options yourself. You can uncomment the relevant line in the code snippet above.
 
