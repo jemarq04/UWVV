@@ -1,3 +1,7 @@
+#############################################################################
+#    Module imports                                                         #
+#############################################################################
+
 # System modules
 import os
 
@@ -14,6 +18,10 @@ from UWVV.Utilities.helpers import parseChannels, expandChannelName
 from UWVV.Ntuplizer.makeBranchSet import makeBranchSet, makeGenBranchSet
 from UWVV.Ntuplizer.eventParams import makeEventParams, makeGenEventParams
 
+#############################################################################
+#    Configuring command-line options                                       #
+#############################################################################
+
 # Defining constants
 genLepDefault = "hardProcessFS"
 genLepChoices = {
@@ -26,11 +34,8 @@ genLepChoices = {
     "dressedPromptFS": "isPromptFinalState()"
 }
 yearDefault = "2022"
-yearChoices = ["2022", "2023", "2024"]
+yearChoices = ["2022", "2023"]#, "2024"]
 outputFileDefault = "ntuple.root"
-
-# Initializing process
-process = cms.Process("Ntuple")
 
 # Parsing command-line arguments
 options = VarParsing.VarParsing("analysis")
@@ -131,26 +136,11 @@ options.parseArguments()
 #############################################################################
 #    Error checking and process configuration                               #
 #############################################################################
-print("Running", options.year, "MC" if options.isMC else "Data")
-if options.year == "2022":
-    print("postEE: %i" % options.postEE)
-elif options.year == "2023":
-    print("postBPix: %i" % options.postBPix)
-elif options.year == "2024":
-    print("Still undergoing testing")
+if options.year not in yearChoices:
+    print("ERROR: Invalid year %s" % options.year)
+    print("Valid options are %s" % ", ".join(yearChoices))
+    print("Default: %s" % yearDefault)
     exit(1)
-else:
-    print("Run3 config only allows 2022-2024")
-    exit(1)
-
-if options.outputFile == outputFileDefault:
-    options.outputFile = "ntuple%s.root" % options.year
-print("Output:", options.outputFile)
-if not options.isMC:
-    print("isPrompt: %i" % options.isPrompt)
-for var in ["jetsUL", "electronsUL", "debug"]:
-    if getattr(options, var):
-        print("%s flag on" % var)
 
 if options.genLeptonType not in genLepChoices:
     print("ERROR: Invalid GEN lepton type %s" % options.genLeptonType)
@@ -188,9 +178,31 @@ if options.inputFileList:
 if not options.isMC: #or all(any(x in fname.lower() for x in ["mcfm", "sherpa", "phantom"]) for fname in options.inputFiles):
     options.lheWeights = 0
 
+# Print configuration information (output file, flags, etc.)
+print("Running", options.year, "MC" if options.isMC else "Data")
+
+if options.outputFile == outputFileDefault:
+    options.outputFile = "ntuple%s.root" % options.year
+print("Output:", options.outputFile)
+
+if options.year == "2022":
+    print("postEE: %i" % options.postEE)
+elif options.year == "2023":
+    print("postBPix: %i" % options.postBPix)
+
+if not options.isMC:
+    print("isPrompt: %i" % options.isPrompt)
+for var in ["jetsUL", "electronsUL", "debug"]:
+    if getattr(options, var):
+        print("%s flag on" % var)
+
+
 #############################################################################
 #    Prepare CMSSW workflow                                                 #
 #############################################################################
+
+# Initializing process
+process = cms.Process("Ntuple")
 
 # Load CMS configs
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
