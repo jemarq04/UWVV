@@ -222,7 +222,9 @@ l  = any(len(c) == 1 for c in channels)
 wz = "wz" in options.channels
 
 # Determine global tag
-# https://docs.google.com/presentation/d/1F4ndU7DBcyvrEEyLfYqb29NGkBPs20EAnBxe_l7AEII/edit#slide=id.g289f499aa6b_2_52
+# 2022: https://docs.google.com/presentation/d/1F4ndU7DBcyvrEEyLfYqb29NGkBPs20EAnBxe_l7AEII/edit?usp=sharing
+# 2023: https://docs.google.com/presentation/d/1TjPem5jX0fzqvTGl271_nQFoVBabsrdrO0i8Qo1uD5E/edit?usp=sharing
+# 2024: https://docs.google.com/presentation/d/1EHxQcWzw8IxPgCn8hm1prwSP-EktFtiuaEzH8WkQNVY/edit?usp=sharing
 if options.globalTag:
     gt = options.globalTag
 elif options.isMC:
