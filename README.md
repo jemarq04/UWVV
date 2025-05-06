@@ -42,7 +42,8 @@ An example usage of these scripts is: `./runMC.sh inputs/2022MC.dat 2022 jetsUL=
 
 ## Submitting CRAB jobs
 
-Before submitting any CRAB jobs, you must set up the CMS proxy through `voms-proxy-init`.
+Before submitting any CRAB jobs, you must set up the CMS proxy through `voms-proxy-init`. You must also go into `Utilities/scripts/crab.py` and edit the `username`
+variable near the top of the script to your CERN username.
 
 The relevant scripts for CRAB job submissions are located in `Utilities/scripts`. When the CMSSW environment is compiled with `scram`, 
 these scripts will be copied into `$CMSSW_BASE/bin/$SCRAM_ARCH` and will be available to run from anywhere. To submit jobs, go to the `Utilities/test` directory.
