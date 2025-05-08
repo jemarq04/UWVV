@@ -181,6 +181,8 @@ if not options.isMC: #or all(any(x in fname.lower() for x in ["mcfm", "sherpa", 
 # Print configuration information (output file, flags, etc.)
 print("Running", options.year, "MC" if options.isMC else "Data")
 
+if options.maxEvents != -1:
+    outputFileDefault = outputFileDefault.replace(".root", "_numEvent%i.root" % options.maxEvents)
 if options.outputFile == outputFileDefault:
     options.outputFile = "ntuple%s.root" % options.year
 print("Output:", options.outputFile)
@@ -540,3 +542,4 @@ if zz and options.isMC and options.genInfo:
 
 p = flow.getPath()
 p += process.treeSequence
+exit(1)
