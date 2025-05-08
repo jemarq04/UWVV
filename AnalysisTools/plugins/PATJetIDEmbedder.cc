@@ -63,14 +63,14 @@ PATJetIDEmbedder::PATJetIDEmbedder(const edm::ParameterSet& iConfig) :
     catch (...){
       throw cms::Exception("Invalid JSON file") << "Filename: " << idFileName_;
     }
+
+    auto it = idFile_->begin();
+    for (;it != idFile_->end(); it++)
+      if (it->first == idConfig_) break;
+    if (it == idFile_->end())
+      throw cms::Exception("Invalid jet ID config") << "Config: " << idConfig_;
   }
   
-  auto it = idFile_->begin();
-  for (;it != idFile_->end(); it++)
-    if (it->first == idConfig_) break;
-  if (it == idFile_->end())
-    throw cms::Exception("Invalid jet ID config") << "Config: " << idConfig_;
-
   produces<JetCollection>();
 }
 
