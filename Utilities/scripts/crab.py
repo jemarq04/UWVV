@@ -109,9 +109,9 @@ else:
         config.Data.userInputFiles = [line for line in infile.readlines() if line and line[0] != "#"]
 config.Data.outputDatasetTag = conditions
 if (isMC):
-    if self.year == "2022" and postEE:
+    if year == "2022" and postEE:
         globalTag = (localSettings.get("local", "postEEGlobalTag"))
-    elif self.year == "2023" and postBPix:
+    elif year == "2023" and postBPix:
         globalTag = (localSettings.get("local", "postBPixGlobalTag"))
     else:
         globalTag=(localSettings.get("local", "mcGlobalTag"))
