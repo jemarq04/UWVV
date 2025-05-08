@@ -542,4 +542,3 @@ if zz and options.isMC and options.genInfo:
 
 p = flow.getPath()
 p += process.treeSequence
-exit(1)
