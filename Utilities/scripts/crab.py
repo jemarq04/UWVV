@@ -142,6 +142,8 @@ configParams = [
     "eCalib=%s" % localSettings.get("local", "eCalib"),
     "muCalib=%s" % localSettings.get("local", "muCalib"),
     "globalTag=%s" % globalTag,
+    "postEE=%i" % postEE,
+    "postBPix=%i" % postBPix,
 ]
 today = (datetime.date.today()).strftime("%d%b%Y")
 campaign_name = localSettings.get("local", "campaign").replace("$DATE", today)
@@ -155,10 +157,8 @@ if isMC:
     #config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
     if year == "2022" and postEE:
         config.General.requestName += "postEE"
-        configParams.append('postEE=%i' % postEE)
     elif year == "2023" and postBPix:
         config.General.requestName += "postBPix"
-        configParams.append("postBPix=%i" % postBPix)
 else:
     configParams.append("dataPeriod=%s" % dataPeriod)
     # Since a PD will have several eras, add conditions to name to differentiate
