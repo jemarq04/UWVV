@@ -51,11 +51,12 @@ Before submitting any CRAB jobs, you must set up the CMS proxy through `voms-pro
 and edit the `username` option in the `DEFAULT` section to your CERN username.
 
 The relevant scripts for CRAB job submissions are located in [`Utilities/scripts`](Utilities/scripts). When the CMSSW environment is compiled with `scram`, 
-these scripts will be copied into `$CMSSW_BASE/bin/$SCRAM_ARCH` and will be available to run from anywhere. To submit jobs, go to the [`Utilities/test`](Utilities/test) 
-directory. CRAB jobs for central samples are submitted using a helper script [`crabSubmit.sh`](Utilities/scripts/crabSubmit.sh). 
-To see how to use this script, run it without any arguments.
+any executable scripts in this directory will be copied into `$CMSSW_BASE/bin/$SCRAM_ARCH` and will be available to run from anywhere.
+The main script in this directory is a helper script to submit CRAB jobs for central samples: [`crabSubmit.sh`](Utilities/scripts/crabSubmit.sh). 
+To see how to use this script, run it without any arguments. **NOTE**: To submit jobs, go to the [`Utilities/test`](Utilities/test) directory. This is just
+to avoid cluttering other directories (and possible recursive tarballs for submissions - ouch!).
 
-An important file for CRAB submissions is the file [`local.cfg`](Utilities/test/local.cfg) found in this directory. This file defines all of the settings that the 
+Another important file for CRAB submissions is the file [`Utilities/test/local.cfg`](Utilities/test/local.cfg). This file defines all of the settings that the 
 CRAB script will use to configure the job. The values in the `DEFAULT` section should remain untouched - the only exception is the `setup` value. This option should 
 name a section in the config file for the CRAB script to access. For example, if you want to submit jobs with the `2022` settings, the line would read `setup: 2022`.
 
@@ -79,6 +80,7 @@ the `local.cfg` file will be modified to change the `setup` value to the provide
 will look for a section name matching the first four characters of the base filename provided as the first argument. For example:
 
 ```bash
+cd Utilities/test
 crabSubmit.sh datasets/2022MC.dat auto
 # With 'auto' specified, the script will look at the base filename '2022MC'
 #  and look for a section named '2022'. Since it exists, it will change the
