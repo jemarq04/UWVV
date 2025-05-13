@@ -12,10 +12,10 @@ import hashlib,pdb
 username = "marquez"
 settingsFile = "local.cfg"
 if not os.path.exists(settingsFile):
-    print("Please copy local.template.cfg to local.cfg and edit as appropriate")
-    exit()
-localSettings = configparser.ConfigParser()
-localSettings.read(settingsFile)
+    raise Exception("Settings file %s not found" % settingsFile)
+settings = configparser.ConfigParser()
+settings.read(settingsFile)
+localSettings = settings[settings.get("DEFAULT", "setup")]
 
 #gitDescription = subprocess.check_output(["git", "describe", "--always"]).strip()
 #gitStatus = subprocess.check_output(["git", "status", "--porcelain", "-uno"])
@@ -32,8 +32,8 @@ for arg in sys.argv:
         print("Submitting job for %s" % dataset)
         break
 else:
-    if "dataset" in localSettings["local"]:
-        dataset = localSettings.get("local", "dataset")
+    if "dataset" in localSettings:
+        dataset = localSettings["dataset"]
         customMC = True
         print("No input dataset provided. Submitting custom job for %s" % dataset)
     else:
@@ -55,24 +55,25 @@ else:
 if customMC:
     if not isMC:
         raise Exception("Custom jobs can only be submitted for private MC samples!")
-    if any(name not in localSettings["local"] for name in ["requestName", "datalist"]):
+    if any(name not in localSettings for name in ["requestName", "datalist"]):
         raise Exception("Custom jobs require three extra options: dataset, requestName, and datalist.")
-    if not os.path.isfile(localSettings.get("local", "datalist")):
-        raise Exception("Datalist file not found: %s" % localSettings.get("local", "datalist"))
+    if not os.path.isfile(localSettings["datalist"]):
+        raise Exception("Datalist file not found: %s" % localSettings["datalist"])
 
 postEE = postBPix = 0
-year = localSettings.get("local", "year")
+year = localSettings["year"]
+print("year: %s" % year)
 if year == "2022":
-    if "postEE" in localSettings["local"]:
-        postEE = int(localSettings.get("local", "postEE"))
+    if "postEE" in localSettings:
+        postEE = int(localSettings["postEE"])
     elif not isMC:
         postEE = 1 if any("Run2022%s" % subera in conditions for subera in ["E", "F", "G"]) else 0
     else:
         postEE = 1 if "postEE" in conditions else 0
     print("postEE: %s"%postEE)
 elif year == "2023":
-    if "postBPix" in localSettings["local"]:
-        postBPix = int(localSettings.get("local", "postBPix"))
+    if "postBPix" in localSettings:
+        postBPix = int(localSettings["postBPix"])
     elif not isMC:
         postBPix = 1 if "Run2023D" in conditions else 0
     else:
@@ -84,6 +85,7 @@ if not isMC:
     dataPeriod = conditions.split("Run%s" % year)[1][0]
     if year == "2023":
         dataPeriod += "v" + conditions.split("_v")[1][0]
+    print("isPrompt: %s" % isPrompt)
     print("dataPeriod:", dataPeriod)
 
 def getUnitsPerJob(ds):
@@ -105,50 +107,50 @@ config = config()
 if not customMC:
     config.Data.inputDataset = dataset
 else:
-    with open(localSettings.get("local", "datalist"), "r") as infile:
+    with open(localSettings["datalist"], "r") as infile:
         config.Data.userInputFiles = [line for line in infile.readlines() if line and line[0] != "#"]
 config.Data.outputDatasetTag = conditions
 if (isMC):
     if year == "2022" and postEE:
-        globalTag = (localSettings.get("local", "postEEGlobalTag"))
+        globalTag = (localSettings["postEEGlobalTag"])
     elif year == "2023" and postBPix:
-        globalTag = (localSettings.get("local", "postBPixGlobalTag"))
+        globalTag = (localSettings["postBPixGlobalTag"])
     else:
-        globalTag=(localSettings.get("local", "mcGlobalTag"))
+        globalTag=(localSettings["mcGlobalTag"])
 elif (isPrompt):
-    globalTag=(localSettings.get("local", "PromptdataGlobalTag"))
+    globalTag=(localSettings["PromptdataGlobalTag"])
 else: 
-    globalTag=(localSettings.get("local", "dataGlobalTag"))
-print(globalTag)
-print("primaryDS:",primaryDS.lower())
+    globalTag=(localSettings["dataGlobalTag"])
+print("globalTag:",globalTag)
+print("primaryDS:",primaryDS)
 if isMC:
     if any(generator in primaryDS.lower() for generator in ["mcfm", "phantom", "sherpa"]):
         lheWeight=0
     else:
-        lheWeight=(localSettings.get("local", "lheWeights"))
+        lheWeight=(localSettings["lheWeights"])
 else:
     lheWeight=0
 print("lheWeights:",lheWeight)
 configParams = [
     'isMC=%d' % isMC,
     'isPrompt=%i' % isPrompt,
-    'jetsUL=%s' % localSettings.get("local", "jetsUL", fallback=0),
+    'jetsUL=%s' % localSettings.get("jetsUL", 0),
     'datasetName=%s' % dataset,
     "year=%s" % year,
-    "channels=%s" % localSettings.get("local", "channels"),
+    "channels=%s" % localSettings["channels"],
     "lheWeights=%s" % lheWeight,
-    "genInfo=%s" % localSettings.get("local", "genInfo"),
-    "genLeptonType=%s" % localSettings.get("local", "genLeptonType"),
-    "eCalib=%s" % localSettings.get("local", "eCalib"),
-    "muCalib=%s" % localSettings.get("local", "muCalib"),
+    "genInfo=%s" % localSettings["genInfo"],
+    "genLeptonType=%s" % localSettings["genLeptonType"],
+    "eCalib=%s" % localSettings["eCalib"],
+    "muCalib=%s" % localSettings["muCalib"],
     "globalTag=%s" % globalTag,
     "postEE=%i" % postEE,
     "postBPix=%i" % postBPix,
 ]
 today = (datetime.date.today()).strftime("%d%b%Y")
-campaign_name = localSettings.get("local", "campaign").replace("$DATE", today)
+campaign_name = localSettings["campaign"].replace("$DATE", today)
 if isMC:
-    config.General.requestName = '_'.join([campaign_name, primaryDS if not customMC else localSettings.get("local", "requestName")])
+    config.General.requestName = '_'.join([campaign_name, primaryDS if not customMC else localSettings["requestName"]])
     # Check for extension dataset, force unique request name
     m = re.match(r".*(_ext[0-9]*)-", conditions)
     if m:
@@ -224,9 +226,9 @@ config.Data.publication = False
 # Useful for VBFNLO samples
 #config.Site.whitelist = ['T2_DE_DESY']
 #config.Site.blacklist = ['T2_ES_IFCA']
-config.Data.outLFNDirBase = localSettings.get("local", "outLFNDirBase").replace("$USER", username).replace("$DATE", today)
+config.Data.outLFNDirBase = localSettings["outLFNDirBase"].replace("$USER", username).replace("$DATE", today)
 config.Data.ignoreLocality = False
 if customMC:
     config.Data.outputPrimaryDataset = primaryDS
 
-config.Site.storageSite = localSettings.get("local", "storageSite")
+config.Site.storageSite = localSettings["storageSite"]

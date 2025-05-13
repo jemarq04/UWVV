@@ -52,6 +52,10 @@ The relevant scripts for CRAB job submissions are located in `Utilities/scripts`
 these scripts will be copied into `$CMSSW_BASE/bin/$SCRAM_ARCH` and will be available to run from anywhere. To submit jobs, go to the `Utilities/test` directory.
 CRAB jobs for central samples are submitted using a helper script `crabSubmit.sh`. To see how to use this script, run it without any arguments.
 
+An important file for CRAB submissions is the file `local.cfg` found in this directory. This file defines all of the settings that the CRAB script will use to 
+configure the job. The values in the `DEFAULT` section should remain untouched - the only exception is the `setup` value. This option should name a section in the config 
+file for the CRAB script to access. For example, if you want to submit jobs with the `2022` settings, the line would read `setup: 2022`.
+
 The first argument of the `crabSubmit.sh` script is an input file listing all the desired input datasets. Input files for Run 3 can be found in `Utilities/test/datasets`. 
 For example, the file `Utilities/test/datasets/2022MC_qqZZ.dat` contains the following:
 
@@ -65,12 +69,20 @@ For example, the file `Utilities/test/datasets/2022MC_qqZZ.dat` contains the fol
 /ZZto4L_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer22EEMiniAODv4-130X_mcRun3_2022_realistic_postEE_v6_ext1-v2/MINIAODSIM
 ```
 
-Empty lines or lines beginning with `#` are ignored so that the files can be made readable. The second argument of the `crabSubmit.sh` script is optional and is the year
-of the analysis. If this is provided, the file `Utilities/test/CrabTemplates/local.<YEAR>.cfg` will be copied to your current directory as `local.cfg`. 
-**NOTE**: This will overwrite a pre-existing config file in that directory! If you do not provide this argument, the script will search for a config file in your directory 
-named `local.cfg`. This can be helpful to avoid overwriting any temporary changes made to the config.
+Empty lines or lines beginning with `#` are ignored so that the files can be made readable. The `crabSubmit.sh` helper script also takes an optional second argument
+specifying the settings you wish to use for the job. If this argument is not provided, the `setup` value in the `DEFAULT` section is unchanged and the CRAB script
+uses the settings from the named section. If a second argument is provided to the script, it will attempt to find a section name matching that argument. If found,
+the `local.cfg` file will be modified to change the `setup` value to the provided name. In the special case that `auto` is provided as the second argument, the script
+will look for a section name matching the first four characters of the base filename provided as the first argument. For example:
 
-The helper script will print out commands to run to submit the jobs using `Utilities/scripts/crab.py`. You can pipe this output to `stdin` and run them immediately. 
+```bash
+crabSubmit.sh datasets/2022MC.dat auto
+# With 'auto' specified, the script will look at the base filename '2022MC'
+#  and look for a section named '2022'. Since it exists, it will change the
+#  value of the 'setup' option to '2022' and run the CRAB script.
+```
+
+The helper script will print out commands to run to submit the jobs using `Utilities/scripts/crab.py`. You can pipe this output to `stdin` to run them immediately. 
 An example usage of the script is:
 
 ```bash
