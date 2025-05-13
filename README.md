@@ -47,8 +47,8 @@ All files included in the [`inputs/`](Ntuplizer/test/inputs) directory are ignor
 
 ## Submitting CRAB jobs
 
-Before submitting any CRAB jobs, you must set up the CMS proxy through `voms-proxy-init`. You must also go into [`Utilities/scripts/crab.py`](Utilities/scripts/crab.py) 
-and edit the `username` variable near the top of the script to your CERN username.
+Before submitting any CRAB jobs, you must set up the CMS proxy through `voms-proxy-init`. You must also go into [`Utilities/test/local.cfg`](Utilities/test/local.cfg)
+and edit the `username` option in the `DEFAULT` section to your CERN username.
 
 The relevant scripts for CRAB job submissions are located in [`Utilities/scripts`](Utilities/scripts). When the CMSSW environment is compiled with `scram`, 
 these scripts will be copied into `$CMSSW_BASE/bin/$SCRAM_ARCH` and will be available to run from anywhere. To submit jobs, go to the [`Utilities/test`](Utilities/test) 

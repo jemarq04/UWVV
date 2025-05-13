@@ -9,7 +9,6 @@ import datetime
 import glob
 import hashlib,pdb
 
-username = "marquez"
 settingsFile = "local.cfg"
 if not os.path.exists(settingsFile):
     raise Exception("Settings file %s not found" % settingsFile)
@@ -226,7 +225,7 @@ config.Data.publication = False
 # Useful for VBFNLO samples
 #config.Site.whitelist = ['T2_DE_DESY']
 #config.Site.blacklist = ['T2_ES_IFCA']
-config.Data.outLFNDirBase = localSettings["outLFNDirBase"].replace("$USER", username).replace("$DATE", today)
+config.Data.outLFNDirBase = localSettings["outLFNDirBase"].replace("$DATE", today)
 config.Data.ignoreLocality = False
 if customMC:
     config.Data.outputPrimaryDataset = primaryDS
