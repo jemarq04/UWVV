@@ -1,10 +1,11 @@
 # UWVV
 
 The main reference for Run 3 analysis is the [PdmV recipe](https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVRun3Analysis).
-Additional README files can be found in `AnalysisTools/` and `Ntuplizer/` that explain how to create/modify new analysis steps and 
-how to understand event/object branches, respectively. The README in `AnalysisTools/` is essential for understanding the analysis workflow.
-You can also look through `Utilities/Ntuplizer/ntuplize_cfg.py`, as it is carefully commented and organized to make things easy to understand. Note that this
-framework has been upgraded to Run 3, but only for anything necessary for Run 3 ZZ analysis. You may need to edit modules if you want anything other than ZZ.
+Additional README files can be found in [`AnalysisTools/`](AnalysisTools/README.md) and [`Ntuplizer/`](Ntuplizer/README.md) that explain how to 
+create/modify new analysis steps and how to understand event/object branches, respectively. The README in `AnalysisTools/` is essential for understanding the 
+analysis workflow. You can also look through [`ntuplize_cfg.py`](Utilities/Ntuplizer/ntuplize_cfg.py), as it is carefully commented and organized to make things easy to 
+understand. Note that this framework has been upgraded to Run 3, but only for anything necessary for Run 3 ZZ analysis. You may need to edit modules if you want 
+anything other than ZZ.
 
 ## Table of Contents
 
@@ -33,31 +34,33 @@ source UWVV/setup.sh
 
 ## Running local jobs
 
-Jobs can be run locally in the `Ntuplizer/test` directory with the command `cmsRun ntuplize_cfg.py <OPTIONS>`, where `<OPTIONS>` denotes your desired processing settings. 
-Available options are listed within `ntuplize_cfg.py`, and in theory you should be able to specify modifications to the job using the command-line (instead of hard-coding
-it into the config script). To get information on all of the available options, you can run `cmsRun ntuplize_cfg.py --help`. This will display each option, its default, and
-its description.
+Jobs can be run locally in the [`Ntuplizer/test`](Ntuplizer/test) directory with the command `cmsRun ntuplize_cfg.py <OPTIONS>`, where `<OPTIONS>` denotes your 
+desired processing settings. Available options are listed within [`ntuplize_cfg.py`](Ntuplizer/test/ntuplize_cfg.py), and in theory you should be able to specify 
+modifications to the job using the command-line (instead of hard-coding it into the config script). To get information on all of the available options, you 
+can run `cmsRun ntuplize_cfg.py --help`. This will display each option, its default, and its description.
 
-There are two helper scripts for quick submission (and can act as a template for commands): `runMC.sh` and `runData.sh`. You can get a basic
-help screen for these commands by running them without any arguments. The first argument for these scripts is a file that lists each of the input files for the process.
-An example can be found in `inputs/template.dat`. All files included in the `inputs/` directory are ignored by git. 
-An example usage of these scripts is: `./runMC.sh inputs/2022MC.dat 2022 jetsUL=1 outputFile=someName.root`.
+There are two helper scripts for quick submission (and can act as a template for commands): [`runMC.sh`](Ntuplizer/test/runMC.sh) and 
+[`runData.sh`](Ntuplizer/test/runData.sh). You can get a basic help screen for these commands by running them without any arguments. The first argument for these 
+scripts is a file that lists each of the input files for the process. An example can be found in [`inputs/template.dat`](Ntuplizer/test/inputs/template.dat). 
+All files included in the [`inputs/`](Ntuplizer/test/inputs) directory are ignored by git. An example usage of these scripts is: 
+`./runMC.sh inputs/2022MC.dat 2022 jetsUL=1 outputFile=someName.root`.
 
 ## Submitting CRAB jobs
 
-Before submitting any CRAB jobs, you must set up the CMS proxy through `voms-proxy-init`. You must also go into `Utilities/scripts/crab.py` and edit the `username`
-variable near the top of the script to your CERN username.
+Before submitting any CRAB jobs, you must set up the CMS proxy through `voms-proxy-init`. You must also go into [`Utilities/scripts/crab.py`](Utilities/scripts/crab.py) 
+and edit the `username` variable near the top of the script to your CERN username.
 
-The relevant scripts for CRAB job submissions are located in `Utilities/scripts`. When the CMSSW environment is compiled with `scram`, 
-these scripts will be copied into `$CMSSW_BASE/bin/$SCRAM_ARCH` and will be available to run from anywhere. To submit jobs, go to the `Utilities/test` directory.
-CRAB jobs for central samples are submitted using a helper script `crabSubmit.sh`. To see how to use this script, run it without any arguments.
+The relevant scripts for CRAB job submissions are located in [`Utilities/scripts`](Utilities/scripts). When the CMSSW environment is compiled with `scram`, 
+these scripts will be copied into `$CMSSW_BASE/bin/$SCRAM_ARCH` and will be available to run from anywhere. To submit jobs, go to the [`Utilities/test`](Utilities/test) 
+directory. CRAB jobs for central samples are submitted using a helper script [`crabSubmit.sh`](Utilities/scripts/crabSubmit.sh). 
+To see how to use this script, run it without any arguments.
 
-An important file for CRAB submissions is the file `local.cfg` found in this directory. This file defines all of the settings that the CRAB script will use to 
-configure the job. The values in the `DEFAULT` section should remain untouched - the only exception is the `setup` value. This option should name a section in the config 
-file for the CRAB script to access. For example, if you want to submit jobs with the `2022` settings, the line would read `setup: 2022`.
+An important file for CRAB submissions is the file [`local.cfg`](Utilities/test/local.cfg) found in this directory. This file defines all of the settings that the 
+CRAB script will use to configure the job. The values in the `DEFAULT` section should remain untouched - the only exception is the `setup` value. This option should 
+name a section in the config file for the CRAB script to access. For example, if you want to submit jobs with the `2022` settings, the line would read `setup: 2022`.
 
-The first argument of the `crabSubmit.sh` script is an input file listing all the desired input datasets. Input files for Run 3 can be found in `Utilities/test/datasets`. 
-For example, the file `Utilities/test/datasets/2022MC_qqZZ.dat` contains the following:
+The first argument of the `crabSubmit.sh` script is an input file listing all the desired input datasets. Input files for Run 3 can be found in 
+[`Utilities/test/datasets`](Utilities/test/datasets). For example, the file [`2022MC_qqZZ.dat`](Utilities/test/datasets/2022MC_qqZZ.dat) contains the following:
 
 ```bash
 #preEE
@@ -91,20 +94,21 @@ crabSubmit.sh datasets/2022MC_qqZZ.dat | . /dev/stdin
 ```
 
 Again, to preview the commands you can run without piping to `stdin` simply with `crabSubmit.sh datasets/2022MC_qqZZ.dat`. This script will submit a CRAB job using 
-`Utilities/scripts/crab.py` and configure it with the `local.cfg` file in your current directory. This script will automatically determine certain options not specified
-in the config file, such as whether the sample is MC or data, prompt analysis, pre- or postEE, etc. Based on these checks, the relevant global tag will be read from the
-config file.
+[`Utilities/scripts/crab.py`](Utilities/scripts/crab.py) and configure it with the `local.cfg` file in your current directory. This script will automatically 
+determine certain options not specified in the config file, such as whether the sample is MC or data, prompt analysis, pre- or postEE, etc. 
+Based on these checks, the relevant global tag will be read from the config file.
 
-Note that Run 3 data CRAB jobs are submitted using the golden JSON files present in `Utilities/scripts/JSON`. These were downloaded from the PdmV website 
-(linked at the beginning of this file), but may need updating later on.
+Note that Run 3 data CRAB jobs are submitted using the golden JSON files present in [`Utilities/scripts/JSON`](Utilities/scripts/JSON). These were downloaded from 
+the PdmV website (linked at the beginning of this file), but may need updating later on.
 
 You can view the status of running/completed CRAB jobs with `crab status -d <DIR>` or view the final report of a completed job with `crab report -d <DIR>`. The report is 
 especially useful for seeing how much luminosity was processed out of the expected amount.
 
 ### Submitting CRAB jobs for custom MC
 
-To submit jobs with custom MC, once again you should go to `Utilities/test` and use the helper script `crabSubmitCustom.sh`. This script will also submit a CRAB job using
-`Utilities/scripts/crab.py` and configure it with the `local.cfg` file in your current directory. Calling the `crabSubmitCustom.sh` helper script will run the python script
+To submit jobs with custom MC, once again you should go to [`Utilities/test`](Utilities/test) and use the helper script 
+[`crabSubmitCustom.sh`](Utilities/scripts/crabSubmitCustom.sh). This script will also submit a CRAB job using [`Utilities/scripts/crab.py`](Utilities/scripts/crab.py) 
+and configure it with the [`local.cfg`](Utilities/test/local.cfg) file in your current directory. Calling the `crabSubmitCustom.sh` helper script will run the python script
 with a new flag, so that it recognizes it is running private MC samples. The python script will act almost identically to the process 
 mentioned above, except it requires three new variables in the config file that are normally ignored. The lines are the following:
 
