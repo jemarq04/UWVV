@@ -156,10 +156,10 @@ if isMC:
         config.General.requestName += m.groups()[0]
     #config.Data.splitting = 'FileBased'
     #config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
-    if year == "2022" and postEE:
-        config.General.requestName += "postEE"
-    elif year == "2023" and postBPix:
-        config.General.requestName += "postBPix"
+    if year == "2022":
+        config.General.requestName += "postEE" if postEE else "preEE"
+    elif year == "2023":
+        config.General.requestName += "postBPix" if postBPix else "postBPix"
 else:
     configParams.append("dataPeriod=%s" % dataPeriod)
     # Since a PD will have several eras, add conditions to name to differentiate
