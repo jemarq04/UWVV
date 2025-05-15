@@ -42,7 +42,6 @@ class JetBaseFlow(AnalysisFlowBase):
                 if self.year in ["2022", "2023"]:
                     # this producer will create a ValueMap<int> filled with the given value,
                     # as a placeholder for the pileup ID until it is available for 2022-2023
-                    '''
                     self.process.pileupJetIdUpdated = cms.EDProducer(
                         "PATJetValueMapProducer",
                         src = step.getObjTag('j'),
@@ -56,6 +55,7 @@ class JetBaseFlow(AnalysisFlowBase):
                         applyJec = False,
                         vertexes = step.getObjTag('v'),
                     )
+                    '''
                 elif self.year == "2024":
                     self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
                     self.process.pileupJetIdUpdated = self.process.pileupJetIdPuppi.clone(
