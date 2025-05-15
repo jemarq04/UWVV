@@ -3,11 +3,8 @@ from CRABClient.UserUtilities import config #, getUsernameFromSiteDB
 import configparser
 import os
 import re
-import subprocess
 import sys
 import datetime
-import glob
-import hashlib,pdb
 
 settingsFile = "local.cfg"
 if not os.path.exists(settingsFile):
@@ -16,6 +13,7 @@ settings = configparser.ConfigParser()
 settings.read(settingsFile)
 localSettings = settings[settings.get("DEFAULT", "setup")]
 
+#import subprocess
 #gitDescription = subprocess.check_output(["git", "describe", "--always"]).strip()
 #gitStatus = subprocess.check_output(["git", "status", "--porcelain", "-uno"])
 #if gitStatus != "":
@@ -197,6 +195,7 @@ config.Data.totalUnits = -1
 
 # Max requestName is 100 characters
 if len(config.General.requestName) > 100:
+    import hashlib
     bits = 5
     h = hashlib.sha256(config.General.requestName).hexdigest()
     # Replace last 5 characters with hash in case of duplicates after truncation
