@@ -121,10 +121,11 @@ else:
 print("globalTag:",globalTag)
 print("primaryDS:",primaryDS)
 if isMC:
-    if any(generator in primaryDS.lower() for generator in ["mcfm", "phantom", "sherpa"]):
-        lheWeight=0
-    else:
-        lheWeight=(localSettings["lheWeights"])
+    lheWeight=localSettings["lheWeights"]
+    #if any(generator in primaryDS.lower() for generator in ["mcfm", "phantom", "sherpa"]):
+    #    lheWeight=0
+    #else:
+    #    lheWeight=(localSettings["lheWeights"])
 else:
     lheWeight=0
 print("lheWeights:",lheWeight)
