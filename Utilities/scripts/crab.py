@@ -158,7 +158,7 @@ if isMC:
     if year == "2022":
         config.General.requestName += "postEE" if postEE else "preEE"
     elif year == "2023":
-        config.General.requestName += "postBPix" if postBPix else "postBPix"
+        config.General.requestName += "postBPix" if postBPix else "preBPix"
 else:
     configParams.append("dataPeriod=%s" % dataPeriod)
     # Since a PD will have several eras, add conditions to name to differentiate
