@@ -87,6 +87,10 @@ crabSubmit.sh datasets/2022MC.dat auto
 #  value of the 'setup' option to '2022' and run the CRAB script.
 ```
 
+There is also an autocompletion helper script for running `crabSubmit.sh`. This will provide options to the terminal when hitting `<Tab>` while typing the command. To
+enable this, run `source Utilities/test/autocomp.sh`. Note that this will need to be run each time you start a new terminal session - it would be good to add to some
+sort of setup script you may have.
+
 The helper script will print out commands to run to submit the jobs using `Utilities/scripts/crab.py`. You can pipe this output to `stdin` to run them immediately. 
 An example usage of the script is:
 
