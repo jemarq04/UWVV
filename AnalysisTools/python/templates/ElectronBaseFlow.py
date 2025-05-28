@@ -24,7 +24,8 @@ class ElectronBaseFlow(AnalysisFlowBase):
                 'PATElectronEAEmbedder',
                 src = step.getObjTag('e'),
                 label = cms.string('EffectiveArea'),
-                configFile = cms.FileInPath('RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt'),
+                #configFile = cms.FileInPath('RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt'),
+                configFile = cms.FileInPath('RecoEgamma/ElectronIdentification/data/Run3_Winter22/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_122X.txt'),
             )
             step.addModule('electronEAEmbedding', EAmod, 'e')
 
