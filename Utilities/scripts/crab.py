@@ -132,7 +132,6 @@ print("lheWeights:",lheWeight)
 configParams = [
     'isMC=%d' % isMC,
     'isPrompt=%i' % isPrompt,
-    'jetsUL=%s' % localSettings.get("jetsUL", 0),
     'datasetName=%s' % dataset,
     "year=%s" % year,
     "channels=%s" % localSettings["channels"],
@@ -145,6 +144,9 @@ configParams = [
     "postEE=%i" % postEE,
     "postBPix=%i" % postBPix,
 ]
+if "jetsUL" in localSettings:
+    configParams.append('jetsUL=%s' % localSettings["jetsUL"])
+
 today = (datetime.date.today()).strftime("%d%b%Y")
 campaign_name = localSettings["campaign"].replace("$DATE", today)
 if isMC:
