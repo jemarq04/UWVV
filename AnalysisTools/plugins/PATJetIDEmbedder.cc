@@ -95,10 +95,12 @@ void PATJetIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     float eta    = jet.eta();
     float chHF   = jet.chargedHadronEnergyFraction();
     float neHF   = jet.neutralHadronEnergyFraction();
+    float chEmEF = jet.chargedEmEnergyFraction();
     float neEmEF = jet.neutralEmEnergyFraction();
-    float chMult = jet.chargedMultiplicity();
-    float neMult = jet.neutralMultiplicity();
-    float mult   = chMult + neMult;
+    float muEF   = jet.muonEnergyFraction();
+    int chMult   = jet.chargedMultiplicity();
+    int neMult   = jet.neutralMultiplicity();
+    int mult     = chMult + neMult;
 
     float passTight = 0;
     if (useUL_){
@@ -111,7 +113,7 @@ void PATJetIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       );
     }
     else 
-      passTight = idFile_->at(idConfig_)->evaluate({eta, chHF, neHF, neEmEF, chMult, neMult, mult});
+      passTight = idFile_->at(idConfig_)->evaluate({eta, chHF, neHF, chEmEF, neEmEF, muEF, chMult, neMult, mult});
     jet.addUserFloat("idTight", float(passTight > 0.5));
 
     if (domatch_){
