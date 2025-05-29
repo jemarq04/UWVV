@@ -4,7 +4,7 @@
 //                                                                          //
 //    Embed basic PF Jet IDs as userFloats                                  //
 //                                                                          //
-//    Author: Nate Woods, U. Wisconsin                                      //
+//    Author: Justin Marquez, U. Wisconsin                                  //
 //                                                                          //
 //////////////////////////////////////////////////////////////////////////////
 
