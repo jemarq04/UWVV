@@ -15,6 +15,6 @@ leptonFSRBranches = _cms.PSet(
         FSREt   = _cms.string('? hasUserCand("fsr") ? userCand("fsr").et() : -999.'),
         FSREta  = _cms.string('? hasUserCand("fsr") ? userCand("fsr").eta() : -999.'),
         FSRPhi  = _cms.string('? hasUserCand("fsr") ? userCand("fsr").phi() : -999.'),
-        FSRDREt = _cms.string('? hasUserFloat("fsrDREt") ? userFloat("fsrDREt") : 999.'),
+        FSRDREt2 = _cms.string('? hasUserFloat("fsrDREt2") ? userFloat("fsrDREt2") : 999.'),
         ),
     )
