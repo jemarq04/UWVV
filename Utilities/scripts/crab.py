@@ -191,8 +191,6 @@ else:
     
     #config.Data.splitting = 'LumiBased'
     #config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
-if "requestNameTag" in localSettings and localSettings["requestNameTag"]:
-    config.General.requestName += "_%s" % localSettings["requestNameTag"]
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
     
