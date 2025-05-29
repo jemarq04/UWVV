@@ -12,6 +12,7 @@
 #include<memory>
 #include<string>
 #include<vector>
+#include <fstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -56,6 +57,10 @@ PATJetIDEmbedder::PATJetIDEmbedder(const edm::ParameterSet& iConfig) :
   useUL_(iConfig.exists("useUL") ? iConfig.getParameter<bool>("useUL") : false)
 {
   if (!useUL_){
+    std::ifstream checkfile(idFileName_);
+    if (!checkfile.good()) idFileName_ = idFileName_.substr(idFileName_.find("/UWVV/") + 6);
+    else checkfile.close();
+
     try{
       idFile_ = correction::CorrectionSet::from_file(idFileName_);
       if (idFile_ == nullptr) throw cms::Exception("Invalid JSON file");

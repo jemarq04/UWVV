@@ -12,6 +12,7 @@
 #include<vector>
 #include<cmath> // std::sqrt, std::abs, std::sin
 #include<algorithm> // std::max
+#include <fstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -63,6 +64,10 @@ PATJetCorrector::PATJetCorrector(const edm::ParameterSet& iConfig) :
   cc(consumesCollector()),
   jecToken(cc.esConsumes(edm::ESInputTag("",algo_)))
 {
+  std::ifstream checkfile(scaleFileName_);
+  if (!checkfile.good()) scaleFileName_ = scaleFileName_.substr(scaleFileName_.find("/UWVV/") + 6);
+  else checkfile.close();
+
   try{
     scaleFile_ = correction::CorrectionSet::from_file(scaleFileName_);
     if (scaleFile_ == nullptr) throw cms::Exception("Invalid JSON file") << scaleFileName_;

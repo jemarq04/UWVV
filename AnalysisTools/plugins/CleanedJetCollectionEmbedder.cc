@@ -111,6 +111,10 @@ CleanedJetCollectionEmbedder::CleanedJetCollectionEmbedder(const edm::ParameterS
   if (scaleFileName_ != "sfFileNone" && domatch_)
   {
     // Define correction set here
+    std::ifstream checkfile(scaleFileName_);
+    if (!checkfile.good()) scaleFileName_ = scaleFileName_.substr(scaleFileName_.find("/UWVV/") + 6);
+    else checkfile.close();
+
     try{
       scaleFile_ = correction::CorrectionSet::from_file(scaleFileName_);
       if (scaleFile_ == nullptr) throw cms::Exception("Invalid POG file") << "Filepath: " << scaleFileName_;

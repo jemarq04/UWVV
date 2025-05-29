@@ -13,6 +13,7 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 // CMS includes
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -61,6 +62,10 @@ PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig) :
   hasSeed_(iConfig.exists("seed")),
   seed_(hasSeed_? iConfig.getParameter<ULong64_t>("seed") : 0)
 {
+  std::ifstream checkfile(scaleFileName_);
+  if (!checkfile.good()) scaleFileName_ = scaleFileName_.substr(scaleFileName_.find("/UWVV/") + 6);
+  else checkfile.close();
+
   try{
     scaleFile_ = correction::CorrectionSet::from_file(scaleFileName_);
     if (scaleFile_ == nullptr) throw cms::Exception("Invalid JSON file");

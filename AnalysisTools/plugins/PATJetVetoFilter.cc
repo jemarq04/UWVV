@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <fstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -47,6 +48,10 @@ PATJetVetoFilter::PATJetVetoFilter(const edm::ParameterSet& iConfig) :
   muonSrcToken_(consumes<MuonView>(iConfig.getParameter<edm::InputTag>("muons"))),
   vetoFileName_(iConfig.getParameter<std::string>("vetoFile"))
 {
+  std::ifstream checkfile(vetoFileName_);
+  if (!checkfile.good()) vetoFileName_ = vetoFileName_.substr(vetoFileName_.find("/UWVV/") + 6);
+  else checkfile.close();
+
   try{
     vetoFile_ = correction::CorrectionSet::from_file(vetoFileName_);
     if (vetoFile_ == nullptr) throw cms::Exception("Invalid JSON file");
