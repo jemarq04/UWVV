@@ -24,26 +24,16 @@ class ZZFSR(AnalysisFlowBase):
 
         if stepName == 'embedding':
             leptonFSREmbedder = cms.EDProducer(
-                "PATObjectFSREmbedder",
-                muSrc = step.getObjTag('m'),
-                eSrc = step.getObjTag('e'),
-                candSrc = step.getObjTag('pfCands'),
-                phoESelection = cms.string("pt > 2 && abs(eta) < 2.5"),
-                phoMSelection = cms.string("pt > 2 && abs(eta) < 2.4"),
-                nIsoSelection = cms.string("pt > 0.5"),
-                chIsoSelection = cms.string("pt > 0.2"),
-                eSelection = cms.string('userFloat("%s") > 0.5'%self.getZZIDLabel()),
-                muSelection = cms.string('userFloat("%s") > 0.5'%self.getZZIDLabel()),
+                "PATLeptonFSREmbedder",
+                candidates = step.getObjTag('pfCands'),
+                electrons = step.getObjTag('e'),
+                muons = step.getObjTag('m'),
+                electronsForVeto = cms.InputTag("slimmedElectrons"),
                 fsrLabel = cms.string(self.getFSRLabel()),
-                etPower = cms.double(2.),
-                maxDR = cms.double(0.5),
-                isoDR = cms.double(0.3),
-                nIsoVetoDR = cms.double(0.01),
-                chIsoVetoDR = cms.double(0.0001),
-                relIsoCut = cms.double(1.8),
-                eMuCrossCleaningDR = cms.double(0.05),
-                )
-            step.addModule('fsrEmbedder', leptonFSREmbedder, 'e', 'm')
+                eCut = cms.string('userFloat("%s") > 0.5' % self.getZZIDLabel()),
+                muCut= cms.string('userFloat("%s") > 0.5' % self.getZZIDLabel()),
+            )
+            step.addModule('fsrEmbedder', leptonFSREmbedder, 'e', 'm', e='electrons', m='muons')
 
         if stepName == 'selection':
             jetFSRCleaner = cms.EDProducer(
