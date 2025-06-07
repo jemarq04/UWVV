@@ -33,8 +33,8 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
                 step.addModule(chan+'Producer', mod, chan)
 
         elif stepName == 'initialStateEmbedding':
-            #Add modules to embed alternate lepton pair (e.g. e1+m1) info.
             for chan in parseChannels('zz'):
+                #Add modules to embed alternate lepton pair (e.g. e1+m1) info.
                 mod = cms.EDProducer(
                     'AlternateDaughterInfoEmbedder',
                     src = step.getObjTag(chan),
@@ -42,6 +42,15 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
                     fsrLabel = cms.string("fsr"),
                 )
                 step.addModule(chan+'AlternatePairs', mod, chan)
+
+                # embed alternate Z candidate masses (Za, Zb) for "smart cut" in 4e and 4mu
+                if chan == chan[0]*len(chan):
+                    mod = cms.EDProducer(
+                        "AlternateZZPairMassEmbedder",
+                        src = step.getObjTag(chan),
+                        names = cms.vstring(*mapObjects(chan)),
+                    )
+                    step.addModule(chan+"AlternateZZPairMass", mod, chan)
 
                 #Add modules to embed jet collection in the initial state object
                 if self.isMC:

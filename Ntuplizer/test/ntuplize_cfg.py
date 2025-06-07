@@ -364,6 +364,9 @@ if zz or l:
         from UWVV.AnalysisTools.templates.ZZInitialStateBaseFlow import ZZInitialStateBaseFlow
         FlowSteps.append(ZZInitialStateBaseFlow)
 
+        from UWVV.Ntuplizer.templates.altZZBranches import altZZBranches
+        extraInitialStateBranches.append(altZZBranches)
+
     from UWVV.AnalysisTools.templates.ZZSkim import ZZSkim
     FlowSteps.append(ZZSkim)
 elif zl or z or wz:
