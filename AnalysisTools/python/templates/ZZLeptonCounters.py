@@ -35,7 +35,7 @@ class ZZLeptonCounters(AnalysisFlowBase):
                 moduleName = 'zz{0}Counter'.format('Elec' if lep == 'e' else 'Mu')
                 step.addModule(moduleName, mod)
 
-                countTags += [cms.InputTag('{name}:{label}'.format(name=moduleName,label=l)) for l in labels]
+                countTags += [cms.InputTag('{name}:{label}'.format(name=moduleName,label=lab)) for lab in labels]
 
             for chan in parseChannels('zz')+parseChannels('zl')+parseChannels('z'):
                 if chan not in step.outputs:
