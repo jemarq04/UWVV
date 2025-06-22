@@ -1,5 +1,3 @@
-#!/usr/bin/bash
-
 if [[ -z $CMSSW_BASE ]]; then
   echo "CMSSW environment not set. Don't forget to run cmsenv!"
   exit 1
