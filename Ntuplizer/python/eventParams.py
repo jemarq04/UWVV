@@ -43,7 +43,7 @@ def makeEventParams(flowOutputs,channel='', **newParams):
     '''
     params = _defaultEventParams.copy()
 
-    objTypes = set(['e', 'm', 't', 'g', 'j'])
+    objTypes = {'e', 'm', 't', 'g', 'j'}
     extras = {ob:{} for ob in objTypes}
     extras['vtx'] = {}
     for fo, tag in flowOutputs.items():
@@ -51,11 +51,11 @@ def makeEventParams(flowOutputs,channel='', **newParams):
             params[fo+'Src'] = tag
         elif fo.split('_')[0] in extras:
             obj = fo.split('_')[0]
-            extras[obj][fo.replace(obj+'_', '', 1)] = tag
+            extras[obj][fo.replace(obj+'_', '', 1)] = cms.InputTag(tag)
         elif fo == 'v':
             params['vtxSrc'] = tag
         elif fo.split('_')[0] == 'v':
-            extras['vtx'][fo.replace('v_', '', 1)] = tag
+            extras['vtx'][fo.replace('v_', '', 1)] = cms.InputTag(tag)
         elif fo.split('_')[0] == channel and channel:
             params['initialStateSrc'] = tag
         elif fo.split('_')[0] == channel+'Gen' and channel:
@@ -63,7 +63,6 @@ def makeEventParams(flowOutputs,channel='', **newParams):
 
     extraCollections = {}
     for obj, tags in extras.items():
-        tags = {n:cms.InputTag(t) for n,t in tags.items()}
         if tags:
             extraCollections[obj+'Extra'] = cms.PSet(**tags)
 
