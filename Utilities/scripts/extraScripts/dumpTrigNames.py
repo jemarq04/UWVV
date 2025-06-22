@@ -7,8 +7,8 @@ ROOT.gROOT.SetBatch(True)
 sys.argv = oldargv
 
 # load FWLite C++ libraries
-ROOT.gSystem.Load("libFWCoreFWLite.so");
-ROOT.gSystem.Load("libDataFormatsFWLite.so");
+ROOT.gSystem.Load("libFWCoreFWLite.so")
+ROOT.gSystem.Load("libDataFormatsFWLite.so")
 ROOT.AutoLibraryLoader.enable()
 
 # load FWlite python libraries
@@ -33,12 +33,13 @@ for iev,event in enumerate(events):
         print("Trigger", names.triggerName(i), ", prescale", triggerPrescales.product().getPrescaleForIndex(i), ":", ("PASS" if triggerBits.product().accept(i) else "fail (or not run)"))
 
     print("\n === TRIGGER OBJECTS ===")
-    for j,to in enumerate(triggerObjects.product()):
-        to.unpackPathNames(names);
+    for _,to in enumerate(triggerObjects.product()):
+        to.unpackPathNames(names)
         print("Trigger object pt %6.2f eta %+5.3f phi %+5.3f  " % (to.pt(),to.eta(),to.phi()))
         print("         collection: ", to.collection())
         print("         type ids: ", ", ".join([str(f) for f in to.filterIds()]))
         print("         filters: ", ", ".join([str(f) for f in to.filterLabels()]))
         pathslast = set(to.pathNames(True))
         print("         paths:   ", ", ".join([("%s*" if f in pathslast else "%s")%f for f in to.filterLabels()]))
-    if iev > 1: break
+    if iev > 1:
+        break

@@ -36,7 +36,7 @@ goodTriggers = [
 ]
 goodTriggers = set(goodTriggers) # for fast lookup
 
-nPass = {t:0 for t in goodTriggers}
+nPass = dict.fromkeys(goodTriggers, 0)
 
 triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","","HLT")
 

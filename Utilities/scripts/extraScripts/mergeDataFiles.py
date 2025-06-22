@@ -8,14 +8,14 @@ Author: Nate Woods, U. Wisconsin
 '''
 
 import logging
-from rootpy import log as rlog; rlog = rlog['mergeDataFiles']
+from rootpy import log as rlog
+rlog = rlog['mergeDataFiles']
 logging.basicConfig(level=logging.WARNING)
 rlog['/rootpy.tree.chain'].setLevel(rlog.WARNING)
 
 
-from rootpy.io import root_open, TemporaryFile
+from rootpy.io import root_open
 from rootpy.tree import Tree, TreeChain
-from rootpy import asrootpy
 
 from UWVV.Utilities.helpers import parseChannels
 
@@ -28,7 +28,7 @@ def mergeChannel(channel, fileList):
         fileList = [fileList]
 
     chain = TreeChain('{}/ntuple'.format(channel), fileList)
-    out = Tree('ntuple'.format(channel))
+    out = Tree('ntuple')
     out.set_buffer(chain._buffer, create_branches=True)
 
     found = set()
