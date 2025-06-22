@@ -206,7 +206,7 @@ class JetBaseFlow(AnalysisFlowBase):
                 muons = step.getObjTag("m"),
                 vetoFile = cms.string(vetoFileP),
             )
-            step.addModule("jetVetoFilter", jetVetoFilter);
+            step.addModule("jetVetoFilter", jetVetoFilter)
 
             if self.isMC:
                 # UWVV Jet ID (JES Up/Down)
