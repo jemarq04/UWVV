@@ -6,11 +6,10 @@ import FWCore.ParameterSet.Config as cms
 from UWVV.AnalysisTools.AnalysisStep import AnalysisStep
 
 from collections import OrderedDict
-import pdb
 
 
 class AnalysisFlowBase(object):
-    def __init__(self, name, process=None, suffix='', *args, **initialInputs):
+    def __init__(self, name, process=None, suffix='', **initialInputs):
         '''
         Keyword arguments are interpreted as changes from the default
         initial object input tags.
@@ -93,7 +92,7 @@ class AnalysisFlowBase(object):
         return it
         '''
         p = cms.Path()
-        for stepName, step in self.steps.items():
+        for step in self.steps.values():
             p *= step.makeSequence(self.process)
 
 
