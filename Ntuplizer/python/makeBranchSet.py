@@ -8,13 +8,14 @@ from UWVV.Ntuplizer.templates.electronBranches import electronBranches
 from UWVV.Ntuplizer.templates.muonBranches import muonBranches
 from UWVV.Ntuplizer.templates.crossDaughterBranches import makeCrossDaughterBranches
 
-from UWVV.Utilities.helpers import pset2Dict, dict2PSet, \
-    recursiveMerge, combinePSets, mapObjects
+from UWVV.Utilities.helpers import combinePSets, mapObjects
 
 
 
 
-def makeLepBranchSet(lep, extraBranches=[]):
+def makeLepBranchSet(lep, extraBranches=None):
+    if extraBranches is None:
+        extraBranches = []
     branches = [objectBranches, leptonBranches]
 
     if lep[0] == 'e':
@@ -30,7 +31,7 @@ def makeLepBranchSet(lep, extraBranches=[]):
 
     return combinePSets(*branches)
 
-def makeZBranchSet(lep, n, extraBranches=[], extraLepBranches=[], addName=False):
+def makeZBranchSet(lep, n, extraBranches=None, extraLepBranches=None, addName=False):
     '''
     lep: 'e' or 'm'
     n: 1 or 2 (so we know whether to make, e.g., e1 and e2 or e3 and e4)
@@ -40,6 +41,10 @@ def makeZBranchSet(lep, n, extraBranches=[], extraLepBranches=[], addName=False)
     extraBranches: see makeBranchSet extraIntermediateBranches
     extraLepBranches: see makeBranchSet extraFinalObjectBranches
     '''
+    if extraBranches is None:
+        extraBranches = []
+    if extraLepBranches is None:
+        extraLepBranches = []
     branches = [objectBranches, zBranches]
     if hasattr(extraBranches, '__iter__'):
         for b in extraBranches:
@@ -66,8 +71,8 @@ def makeZBranchSet(lep, n, extraBranches=[], extraLepBranches=[], addName=False)
 
     return branchSet
 
-def makeBranchSet(channel, extraInitialStateBranches=[],
-                  extraIntermediateStateBranches=[],
+def makeBranchSet(channel, extraInitialStateBranches=None,
+                  extraIntermediateStateBranches=None,
                   **extraFinalObjectBranches):
     '''
     extraInitialStateBranches (PSet or list of PSets): branches for the whole
@@ -77,6 +82,10 @@ def makeBranchSet(channel, extraInitialStateBranches=[],
     extraFinalObjectBranches (PSet or list of PSets keyed to object type,
         e.g. 'e'): branches for individual leptons, jets, etc.
     '''
+    if extraInitialStateBranches is None:
+        extraInitialStateBranches = []
+    if extraIntermediateStateBranches is None:
+        extraIntermediateStateBranches = []
     branches = [eventBranches]
 
     if hasattr(extraInitialStateBranches, '__iter__'):
@@ -150,9 +159,14 @@ def makeBranchSet(channel, extraInitialStateBranches=[],
     return branchSet
 
 
-def makeGenBranchSet(channel, extraInitialStateBranches=[],
-                     extraIntermediateStateBranches=[],
+def makeGenBranchSet(channel, extraInitialStateBranches=None,
+                     extraIntermediateStateBranches=None,
                      **extraFinalObjectBranches):
+    if extraInitialStateBranches is None:
+        extraInitialStateBranches = []
+    if extraIntermediateStateBranches is None:
+        extraIntermediateStateBranches = []
+
     if len(channel) != 4:
         raise RuntimeError("makeGenBranchSet is only implemented for 4l final "
                            "states. Please add it for {}".format(channel))
