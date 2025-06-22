@@ -2,7 +2,6 @@ from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 from UWVV.AnalysisTools.templates.ZPlusXBaseFlow import ZPlusXBaseFlow
 from UWVV.AnalysisTools.templates.ZZInitialStateBaseFlow import ZZInitialStateBaseFlow
 
-import FWCore.ParameterSet.Config as cms
 
 
 class ZZSkim(AnalysisFlowBase):

@@ -3,7 +3,6 @@ from UWVV.Utilities.helpers import mapObjects, parseChannels
 
 import FWCore.ParameterSet.Config as cms
 
-from UWVV.Utilities.helpers import UWVV_BASE_PATH
 
 class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
     def __init__(self, *args, **kwargs):

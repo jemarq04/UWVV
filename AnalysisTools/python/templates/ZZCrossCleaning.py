@@ -1,6 +1,5 @@
 from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 
-import FWCore.ParameterSet.Config as cms
 
 class ZZCrossCleaning(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
