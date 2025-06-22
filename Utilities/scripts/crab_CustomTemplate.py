@@ -3,11 +3,8 @@ from CRABClient.UserUtilities import config #, getUsernameFromSiteDB
 import configparser
 import os
 import re
-import subprocess
-import sys
 import datetime
-import glob
-import hashlib,pdb
+import hashlib
 
 username = "marquez"
 settingsFile = "local.cfg"
