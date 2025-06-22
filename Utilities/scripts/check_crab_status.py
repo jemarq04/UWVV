@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 import subprocess
-import pdb
 import os
-import sys
 import argparse
 
 #=======================================
@@ -86,7 +84,7 @@ if not args.nowriting:
                         continue
 
                     if linecount < 3:
-                        if not "No publication information (publication has been disabled in the CRAB configuration file)" in line:
+                        if "No publication information (publication has been disabled in the CRAB configuration file)" not in line:
                             fout.write(line)
                         linecount += 1
                     else:
