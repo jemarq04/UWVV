@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.SequenceTypes import _ModuleSequenceType
 
-from UWVV.Utilities.helpers import getObjTypes, getObjName
+from UWVV.Utilities.helpers import getObjName
 
 from collections import OrderedDict
 
@@ -9,7 +9,7 @@ class AnalysisStep(object):
     '''
     A class to make a Sequence to run all modules in one step of an analysis
     '''
-    def __init__(self, name, suffix='', *args, **initialInputTags):
+    def __init__(self, name, suffix='', **initialInputTags):
         self.name = name
         self.suffix = suffix
         self.inputs = initialInputTags
@@ -49,11 +49,11 @@ class AnalysisStep(object):
             if isinstance(module, _ModuleSequenceType):
                 try:
                     newTag = module._seq._collection[-1].__str__()
-                except AttributeError:
+                except AttributeError as err:
                     if module._seq is None or module._seq._collection is None:
                         raise AttributeError(("I don't know how to extract an "
                                               "input tag from the sequence in "
-                                              )+name)
+                                              )+name) from err
                     raise
             else:
                 newTag = name + self.suffix
@@ -132,11 +132,11 @@ class AnalysisStep(object):
         modName = 'PAT{}Counter'.format(typeName)
 
         mod = cms.EDProducer(
-           "PAT{}Counter".format(typeName),
-           src = self.getObjTag(obj),
-           labels = cms.vstring(*[label for label in cuts.keys()]),
-           cuts = cms.vstring(*[cut for _,cut in cuts.items()]),
-           verbose = cms.bool(True),
+            modName,
+            src = self.getObjTag(obj),
+            labels = cms.vstring(*cuts.keys()),
+            cuts = cms.vstring(*cuts.values()),
+            verbose = cms.bool(True),
         )
 
         self.addModule(''.join([obj, name if name else "counting", self.name]).replace('_',''), mod)
