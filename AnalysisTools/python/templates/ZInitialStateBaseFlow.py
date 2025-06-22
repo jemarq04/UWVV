@@ -1,3 +1,4 @@
+from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 from UWVV.Utilities.helpers import mapObjects, parseChannels
 
 import FWCore.ParameterSet.Config as cms
