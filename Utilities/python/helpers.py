@@ -28,10 +28,15 @@ def dict2PSet(d):
 
     return cms.PSet(**d)
 
-def recursiveMerge(a, b={}, path=[]):
+def recursiveMerge(a, b=None, path=None):
     '''
     Merge dict b into dict a, recursively in the case of nested dicts.
     '''
+    if b is None:
+        b = {}
+    if path is None:
+        path = []
+
     for k in b:
         if k in a:
             if isinstance(a[k], dict) and isinstance(b[k], dict):
@@ -62,7 +67,7 @@ def parseChannels(channels):
     '''
     Take a string or list of strings and return a list of channels.
     '''
-    if type(channels) == str:
+    if type(channels) is str:
         channels = channels.lower()
         if channels in ['4l', 'zz']:
             return ['eeee', 'eemm', 'mmmm']
