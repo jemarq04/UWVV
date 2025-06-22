@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 if [[ $# -lt 2 ]]; then
   echo "usage: $0 FILE YEAR [EXTRA...]"
   echo 

@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Modified from N. Smith, U. Wisconsin
 # Usage examples:
 #  crabSubmit.sh datasets/2022all.dat | grep 'EGamma' | . /dev/stdin
