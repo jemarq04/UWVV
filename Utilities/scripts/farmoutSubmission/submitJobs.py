@@ -65,16 +65,16 @@ def writeFarmoutCommand(cfg, jobid, dataset, fullDataset,
     #print("dagDir:",dagDir)
     # das throws a lot of exceptions, but they're usually transient, so try a
     # few times if needed
-    for i in range(5):
+    for _ in range(5):
         try:
             dasFiles = get_das_info(dasFilesCmd)
-        except RuntimeError as ex:
+        except RuntimeError:
             continue
         else:
             break
     else:
-        raise RuntimeError("Failed to get file list from DAS with exception {}."
-                           " Check connection to client.".format(ex.message))
+        raise RuntimeError("Failed to get file list from DAS."
+                           " Check connection to client.")
 
     mkdirCmd = "mkdir -p {}inputs".format(dagDir)
     os.system(mkdirCmd)
@@ -162,17 +162,16 @@ def buildScript(cfg, jobid, scriptFile='',
     
     dasDatasetCmd = 'dataset='+datasetStr
     #print(dasDatasetCmd)
-    for i in range(5):
+    for _ in range(5):
         try:
             datasets = get_das_info(dasDatasetCmd)
-        except RuntimeError as ex:
+        except RuntimeError:
             continue
         else:
             break
     else:
-        raise RuntimeError("Failed to get dataset list from DAS with "
-                           "exception {}. Check connection to "
-                           "client.".format(ex.message))
+        raise RuntimeError("Failed to get dataset list from DAS."
+                           "Check connection to client.")
 
     found = set()
     #print("samples:", samples)
@@ -201,12 +200,12 @@ def buildScript(cfg, jobid, scriptFile='',
         log.error("No datasets found matching {}, script will be empty!".format(samples))
 
     if not scriptFile:
-        for l in lines:
-            print(l)
+        for line in lines:
+            print(line)
     else:
         with open(scriptFile, 'w') as f:
-            for l in lines:
-                f.write(l)
+            for line in lines:
+                f.write(line)
 
 
 if __name__ == '__main__':
