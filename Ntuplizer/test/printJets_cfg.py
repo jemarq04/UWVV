@@ -5,9 +5,9 @@ import FWCore.ParameterSet.Types as CfgTypes
 
 from UWVV.AnalysisTools.analysisFlowMaker import createFlow
 
-from UWVV.Utilities.helpers import parseChannels, expandChannelName
-from UWVV.Ntuplizer.makeBranchSet import makeBranchSet, makeGenBranchSet
-from UWVV.Ntuplizer.eventParams import makeEventParams, makeGenEventParams
+from UWVV.Utilities.helpers import parseChannels
+from UWVV.Ntuplizer.makeBranchSet import makeGenBranchSet
+from UWVV.Ntuplizer.eventParams import makeGenEventParams
 
 import os
 
@@ -113,10 +113,11 @@ if options.genLeptonType not in genLepChoices:
     exit(1)
 
 channels = parseChannels(options.channels)
-zz = any(len(c) == 4 for c in channels)
-zl = any(len(c) == 3 for c in channels)
-z  = any(len(c) == 2 for c in channels)
-l  = any(len(c) == 1 for c in channels)
+state_zz = any(len(c) == 4 for c in channels)
+state_zl = any(len(c) == 3 for c in channels)
+state_z  = any(len(c) == 2 for c in channels)
+state_l  = any(len(c) == 1 for c in channels)
+state_wz = "wz" in options.channels
 
 
 ### To use IgProf's neat memory profiling tools, run with the profile
@@ -129,7 +130,7 @@ l  = any(len(c) == 1 for c in channels)
 ### in the first command and remove  -r MEM_LIVE from the second
 ### For interpretation of the output, see http://igprof.org/text-output-format.html
 if options.profile:
-    from IgTools.IgProf.IgProfTrigger import igprof
+    from IgTools.IgProf.IgProfTrigger import igprof #noqa: F401
     process.load("IgTools.IgProf.IgProfTrigger")
     process.igprofPath = cms.Path(process.igprof)
     process.igprof.reportEventInterval     = cms.untracked.int32(250)
@@ -247,7 +248,7 @@ from UWVV.AnalysisTools.templates.ZZFlow import ZZFlow
 FlowSteps.append(ZZFlow)
 
 # make final states
-if zz:
+if state_zz:
     from UWVV.AnalysisTools.templates.ZZInitialStateBaseFlow import ZZInitialStateBaseFlow
     FlowSteps.append(ZZInitialStateBaseFlow)
 
@@ -270,10 +271,10 @@ if zz:
     from UWVV.AnalysisTools.templates.ZZSkim import ZZSkim
     FlowSteps.append(ZZSkim)
 
-elif zl or z:
+elif state_zl or state_z:
     from UWVV.AnalysisTools.templates.ZPlusXBaseFlow import ZPlusXBaseFlow
     FlowSteps.append(ZPlusXBaseFlow)
-    if zl:
+    if state_zl:
         from UWVV.AnalysisTools.templates.ZPlusXInitialStateBaseFlow import ZPlusXInitialStateBaseFlow
         FlowSteps.append(ZPlusXInitialStateBaseFlow)
 
@@ -285,12 +286,12 @@ elif zl or z:
 
         from UWVV.Ntuplizer.templates.countBranches import wzCountBranches
         extraInitialStateBranches.append(wzCountBranches)
-elif l:
+elif state_l:
     from UWVV.AnalysisTools.templates.ZZSkim import ZZSkim
     FlowSteps.append(ZZSkim)
 
 
-if (zz or zl or z) and not "wz" in options.channels:
+if (state_zz or state_zl or state_z) and not state_wz:
     for f in FlowSteps:
         if f.__name__ in ['ZZFSR', 'ZZFlow']:
             from UWVV.Ntuplizer.templates.fsrBranches import compositeObjectFSRBranches, leptonFSRBranches
@@ -321,7 +322,7 @@ if options.muCalib:
 
 
 # VBS variables for ZZ
-if zz:
+if state_zz:
     from UWVV.Ntuplizer.templates.vbsBranches import vbsBranches
     extraInitialStateBranches.append(vbsBranches)
     if options.isMC:
@@ -351,7 +352,7 @@ else:
 
 
 # Gen ntuples if desired
-if zz and options.isMC and options.genInfo:
+if state_zz and options.isMC and options.genInfo:
     process.genTreeSequence = cms.Sequence()
 
     from UWVV.AnalysisTools.templates.GenZZBase import GenZZBase
@@ -424,7 +425,7 @@ flowOpts = {
     }
 
 # include gen initial states' input tags if needed
-if zz and options.isMC and options.genInfo:
+if state_zz and options.isMC and options.genInfo:
     for chan in channels:
         flowOpts[chan+'Gen'] = genFlow.finalObjTagString(chan)
     from UWVV.Ntuplizer.templates.eventBranches import genInitialStateBranches
