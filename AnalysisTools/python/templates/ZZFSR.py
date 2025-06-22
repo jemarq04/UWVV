@@ -59,9 +59,9 @@ class ZZFSR(AnalysisFlowBase):
                 
                 step.addModule("patJetGenJetMatch2",patJetGenJetMatch2) #store RECO/gen jet association in the event
 
-            if self.isMC: #apply PU id here after calculating PU id SF multiplication factor
-                selectionString2 = ('pt > 30. && abs(eta) < 4.7 && '
-                               'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
+            #if self.isMC: #apply PU id here after calculating PU id SF multiplication factor
+                #selectionString2 = ('pt > 30. && abs(eta) < 4.7 && '
+                #               'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
                 #step.addBasicSelector('j', selectionString2)
             
             if self.isMC:
