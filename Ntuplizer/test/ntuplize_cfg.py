@@ -217,11 +217,11 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 # Retrieve list of channels from intermediate steps
 channels = parseChannels(",".join(options.channels))
-zz = any(len(c) == 4 for c in channels)
-zl = any(len(c) == 3 for c in channels)
-z  = any(len(c) == 2 for c in channels)
-l  = any(len(c) == 1 for c in channels)
-wz = "wz" in options.channels
+state_zz = any(len(c) == 4 for c in channels)
+state_zl = any(len(c) == 3 for c in channels)
+state_z  = any(len(c) == 2 for c in channels)
+state_l  = any(len(c) == 1 for c in channels)
+state_wz = "wz" in options.channels
 
 # Determine global tag
 # 2022: https://docs.google.com/presentation/d/1F4ndU7DBcyvrEEyLfYqb29NGkBPs20EAnBxe_l7AEII/edit?usp=sharing
@@ -304,7 +304,7 @@ extraFinalObjectBranches = {
 FlowSteps = []
 
 # Vertex cleaning
-if not wz:
+if not state_wz:
     from UWVV.AnalysisTools.templates.VertexCleaning import VertexCleaning
     FlowSteps.append(VertexCleaning)
 
@@ -353,14 +353,14 @@ if options.isMC:
     extraFinalObjectBranches["m"].append(matchedGenLeptonBranches)
 
 # Basic ZZ workflow
-if not wz:
+if not state_wz:
     from UWVV.AnalysisTools.templates.ZZFlow import ZZFlow
     FlowSteps.append(ZZFlow)
 
 # Create final states
-if zz or l:
+if state_zz or state_l:
     # Add ZZ information (including jets + jetPUSF)
-    if zz:
+    if state_zz:
         from UWVV.AnalysisTools.templates.ZZInitialStateBaseFlow import ZZInitialStateBaseFlow
         FlowSteps.append(ZZInitialStateBaseFlow)
 
@@ -369,11 +369,11 @@ if zz or l:
 
     from UWVV.AnalysisTools.templates.ZZSkim import ZZSkim
     FlowSteps.append(ZZSkim)
-elif zl or z or wz:
+elif state_zl or state_z or state_wz:
     from UWVV.AnalysisTools.templates.ZPlusXBaseFlow import ZPlusXBaseFlow
     FlowSteps.append(ZPlusXBaseFlow)
 
-    if wz or zl:
+    if state_wz or state_zl:
         from UWVV.AnalysisTools.templates.ZPlusXInitialStateBaseFlow import ZPlusXInitialStateBaseFlow
         FlowSteps.append(ZPlusXInitialStateBaseFlow) # also embeds jets (channel zl)
 
@@ -386,7 +386,7 @@ elif zl or z or wz:
         from UWVV.AnalysisTools.templates.ZInitialStateBaseFlow import ZInitialStateBaseFlow
         FlowSteps.append(ZInitialStateBaseFlow) # also embeds jets (channel z)
 
-if (zz or zl or z) and not wz:
+if (state_zz or state_zl or state_z) and not state_wz:
     for step in FlowSteps:
         if step.__name__ in ["ZZFSR", "ZZFlow"]:
             from UWVV.Ntuplizer.templates.fsrBranches import compositeObjectFSRBranches, leptonFSRBranches
@@ -404,16 +404,16 @@ if (zz or zl or z) and not wz:
             break
 
 # VBS variables for ZZ/WZ
-if zz or wz:
+if state_zz or state_wz:
     from UWVV.Ntuplizer.templates.vbsBranches import vbsPrimitiveBranches
     extraInitialStateBranches.append(vbsPrimitiveBranches)
-    if zz:
+    if state_zz:
         from UWVV.Ntuplizer.templates.vbsBranches import vbsDerivedBranches
         extraInitialStateBranches.append(vbsDerivedBranches)
     if options.isMC:
         from UWVV.Ntuplizer.templates.vbsBranches import vbsPrimitiveSystematicBranches
         extraInitialStateBranches.append(vbsPrimitiveSystematicBranches)
-        if zz:
+        if state_zz:
             from UWVV.Ntuplizer.templates.vbsBranches import vbsDerivedSystematicBranches
             extraInitialStateBranches.append(vbsDerivedSystematicBranches)
 
@@ -447,7 +447,7 @@ process.metaTreePath = cms.Path(process.metaInfo)
 process.schedule.append(process.metaTreePath)
 
 # Get trigger branches
-if not wz:
+if not state_wz:
     if options.year in ["2022", "2023", "2024"]:
         from UWVV.Ntuplizer.templates.triggerBranches import triggerBranches_2022
         trgBranches = triggerBranches_2022
@@ -482,7 +482,7 @@ for chan in channels:
     process.treeSequence += module
 
 # Gen tree information (only ZZ)
-if zz and options.isMC and options.genInfo:
+if state_zz and options.isMC and options.genInfo:
     process.genTreeSequence = cms.Sequence()
 
     from UWVV.AnalysisTools.templates.GenZZBase import GenZZBase
