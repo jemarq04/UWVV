@@ -138,7 +138,7 @@ you need to specify if you want either of these options yourself. You can uncomm
 
 This repository has some configuration set up for minor linting/formatting checks. Note that this is not required, but it can keep the code nicely
 formatted. To do this, you need to install `pre-commit` either through `pip` or using a virtual environment (such as through `uv`). For a user
-installation through `pip`, simply run `pip install --user pre-commit`. Virtual environments can be helpful if you only need certain packages 
+installation through `pip`, simply run `pip install --user pre-commit`. Virtual environments can be helpful if you only need certain packages
 while in certain environments, but will need some initial setup. A new tool for this is `uv`, and it works well. If you want to use `uv`, you can run
 the following code.
 
@@ -156,4 +156,4 @@ environment into scope and allow you to run `pre-commit`. To deactivate this vir
 
 To run the command, simply run `pre-commit run -a`. It will go through a series of checks/formats over all of the files. The configuration for
 this command can be found in [`.pre-commit-config.yaml`](.pre-commit-config.yaml). Other linting/formatting checks are done through `ruff` and are
-configured in [`.ruff.toml`](.ruff.toml). 
+configured in [`.ruff.toml`](.ruff.toml).

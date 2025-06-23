@@ -59,5 +59,3 @@ class JetQuarkGluonTagging(AnalysisFlowBase):
 
     def qgLikelihoodLabel(self):
         return "qgLikelihood"
-
-
