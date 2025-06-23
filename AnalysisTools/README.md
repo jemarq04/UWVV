@@ -276,4 +276,3 @@ If you need the full EDM reference
 ```c++
 edm::Ptr<pat::Electron> ePtr = cand->daughter(0)->masterClone().castTo<edm::Ptr<pat::Electron> >();
 ```
-

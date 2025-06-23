@@ -16,4 +16,3 @@ objectBranches = cms.PSet(
         PdgId = cms.string('pdgId'),
         ),
     )
-

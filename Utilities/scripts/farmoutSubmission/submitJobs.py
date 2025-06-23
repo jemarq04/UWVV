@@ -252,4 +252,3 @@ if __name__ == '__main__':
                 dataEra=args.dataEra, filesPerJob=args.filesPerJob,
                 extraUsercodeFiles=args.extraUsercodeFiles,
                 cmsRunArgs=args.cmsRunArgs)
-

@@ -132,4 +132,3 @@ empty lines or lines beginning with `#` are ignored.
 
 **NOTE**: The `postEE` and `postBPix` options are derived from the dataset conditions (the second string in the /-separated list), so for these custom submissions
 you need to specify if you want either of these options yourself. You can uncomment the relevant line in the code snippet above.
-

@@ -19,4 +19,3 @@ class VertexCleaning(AnalysisFlowBase):
             step.addModule("vertexCleaning", vtxCleaner, 'v')
 
         return step
-

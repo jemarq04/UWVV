@@ -46,4 +46,3 @@ zzCountBranches = cms.PSet(
                                    'userInt("nZZTightIsoMuons") : 999'),
         ),
     )
-

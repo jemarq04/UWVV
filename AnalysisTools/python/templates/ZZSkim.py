@@ -27,5 +27,3 @@ class ZZSkim(AnalysisFlowBase):
                 step.addBasicSelector('mmmm', 'daughter(0).mass > 40. || daughter(1).mass > 40.')
 
         return step
-
-

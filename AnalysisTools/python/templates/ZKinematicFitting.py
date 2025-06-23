@@ -41,4 +41,3 @@ class ZKinematicFitting(AnalysisFlowBase):
             step.addModule('kinFit4m', kinFit4m, 'mmmm')
 
         return step
-

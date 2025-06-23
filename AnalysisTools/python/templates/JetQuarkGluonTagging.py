@@ -61,8 +61,3 @@ class JetQuarkGluonTagging(AnalysisFlowBase):
         return "qgLikelihood"
 
         
-
-
-
-
-

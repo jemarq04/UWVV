@@ -55,4 +55,3 @@ def get_das_info(query):
             'dasgoclient crashed with error:\n%s' % \
                 err+out ) #sometimes das sends the crash message to stdout
     return [i.strip() for i in out.split('\n') if i.strip()]
-

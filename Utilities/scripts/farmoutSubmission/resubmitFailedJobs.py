@@ -166,5 +166,3 @@ if __name__ == "__main__":
         _log.info("Still working -- try again later.")
     if failed + inProgress == 0:
         _log.info("Done!")
-
-

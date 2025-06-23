@@ -39,4 +39,3 @@ class GGHZZKFactors(AnalysisFlowBase):
             step.addModule('ggKEmbedding4m', ggKEmbedding4m, 'mmmm')
 
         return step
-

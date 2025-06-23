@@ -334,4 +334,3 @@ double RoccoR::kScaleAndSmearMCerror(int Q, double pt, double eta, double phi, i
 }
 
 #endif
-

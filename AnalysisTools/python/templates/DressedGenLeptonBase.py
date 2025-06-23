@@ -47,4 +47,3 @@ class DressedGenLeptonBase(AnalysisFlowBase):
             step.addModule('dressedMuons', dressedGenMuMod, 'm')
 
         return step
-

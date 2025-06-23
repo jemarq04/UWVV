@@ -27,5 +27,3 @@ class GenLeptonBase(AnalysisFlowBase):
             step.addModule('genSelectionMu', genMuMod, 'm')
 
         return step
-
-

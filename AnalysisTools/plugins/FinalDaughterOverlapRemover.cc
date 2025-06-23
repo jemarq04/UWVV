@@ -122,4 +122,3 @@ typedef FinalDaughterOverlapRemover<4> FinalDaughterOverlapRemover4L;
 
 DEFINE_FWK_MODULE(FinalDaughterOverlapRemover3L);
 DEFINE_FWK_MODULE(FinalDaughterOverlapRemover4L);
-

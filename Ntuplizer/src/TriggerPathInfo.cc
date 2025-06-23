@@ -76,4 +76,3 @@ TriggerPathInfo::prescale(const pat::PackedTriggerPrescales& prescales) const
 
   return prescales.getPrescaleForIndex<double>(bit_);
 }
-

@@ -128,6 +128,3 @@ void MetaTreeGenerator::analyze(const edm::Event &event,
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(MetaTreeGenerator);
-
-
-

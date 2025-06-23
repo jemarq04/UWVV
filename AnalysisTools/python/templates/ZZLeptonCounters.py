@@ -49,4 +49,3 @@ class ZZLeptonCounters(AnalysisFlowBase):
                 step.addModule(chan+'ZZCountEmbedding', countEmbedding, chan)
 
         return step
-
