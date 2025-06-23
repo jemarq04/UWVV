@@ -87,8 +87,8 @@ PATElectronZZIDEmbedder::PATElectronZZIDEmbedder(const edm::ParameterSet& iConfi
   isoLabel_(iConfig.exists("isoLabel") ?
       iConfig.getParameter<std::string>("isoLabel") :
       std::string("HZZ4lIsoPass")),
-  vtxSrcToken_(consumes<reco::VertexCollection>(iConfig.exists("vtxSrc") ? 
-      iConfig.getParameter<edm::InputTag>("vtxSrc") : 
+  vtxSrcToken_(consumes<reco::VertexCollection>(iConfig.exists("vtxSrc") ?
+      iConfig.getParameter<edm::InputTag>("vtxSrc") :
       edm::InputTag("selectedPrimaryVertex"))),
   ptCut(iConfig.exists("ptCut") ? iConfig.getParameter<double>("ptCut") : 7.),
   etaCut(iConfig.exists("etaCut") ? iConfig.getParameter<double>("etaCut") : 2.5),

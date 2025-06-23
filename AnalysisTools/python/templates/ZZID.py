@@ -36,7 +36,7 @@ class ZZID(AnalysisFlowBase):
                     idCutHighPtMedEta = cms.double(0.0759172100),
                     idCutHighPtHighEta = cms.double(-0.5169136775),
                     missingHitsCut = cms.int32(999),
-                    ptCut = cms.double(7.), 
+                    ptCut = cms.double(7.),
                     etaCut = cms.double(2.5),
                 )
             step.addModule("eZZIDEmbedder", eIDEmbedder, 'e')

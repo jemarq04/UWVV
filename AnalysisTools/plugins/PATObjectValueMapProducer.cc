@@ -83,31 +83,31 @@ PATObjectValueMapProducer<T>::PATObjectValueMapProducer(const edm::ParameterSet&
     produces<edm::ValueMap<double>>(l);
   for (auto &l : floatLabels_)
     produces<edm::ValueMap<float>>(l);
-  
+
   if (intVals_.size() != intLabels_.size())
     throw cms::Exception("InvalidParams")
-      << "You must supply exactly one label for each int you want to embed" 
+      << "You must supply exactly one label for each int you want to embed"
       << "Given: intLabels_.size() == " << intLabels_.size()
       << "; intVals_.size() == " << intVals_.size()
       << std::endl;
 
   if (boolVals_.size() != boolLabels_.size())
     throw cms::Exception("InvalidParams")
-      << "You must supply exactly one label for each bool you want to embed" 
+      << "You must supply exactly one label for each bool you want to embed"
       << "Given: boolLabels_.size() == " << boolLabels_.size()
       << "; boolVals_.size() == " << boolVals_.size()
       << std::endl;
 
   if (doubleVals_.size() != doubleLabels_.size())
     throw cms::Exception("InvalidParams")
-      << "You must supply exactly one label for each double you want to embed" 
+      << "You must supply exactly one label for each double you want to embed"
       << "Given: doubleLabels_.size() == " << doubleLabels_.size()
       << "; doubleVals_.size() == " << doubleVals_.size()
       << std::endl;
 
   if (floatVals_.size() != floatLabels_.size())
     throw cms::Exception("InvalidParams")
-      << "You must supply exactly one label for each float you want to embed" 
+      << "You must supply exactly one label for each float you want to embed"
       << "Given: floatLabels_.size() == " << floatLabels_.size()
       << "; floatVals_.size() == " << floatVals_.size()
       << std::endl;
@@ -118,7 +118,7 @@ void PATObjectValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventS
 {
   edm::Handle<edm::View<T> > in;
   iEvent.getByToken(srcToken, in);
-  
+
   std::vector<size_t> lengths = {intLabels_.size(), boolLabels_.size(), doubleLabels_.size(), floatLabels_.size()};
   for (size_t i=0; i<(*std::max_element(lengths.begin(), lengths.end())); i++)
   {

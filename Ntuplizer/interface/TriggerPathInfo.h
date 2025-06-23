@@ -33,7 +33,7 @@ namespace uwvv
     void explode() const
     {
       throw cms::Exception("UninitializedTriggerInfo")
-        << "ERROR: attempt to use trigger info before it's set up." 
+        << "ERROR: attempt to use trigger info before it's set up."
         << std::endl;
     }
 

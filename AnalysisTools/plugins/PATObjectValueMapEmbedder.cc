@@ -61,44 +61,44 @@ PATObjectValueMapEmbedder<T>::PATObjectValueMapEmbedder(const edm::ParameterSet&
   doubleLabels_(iConfig.getUntrackedParameter<std::vector<std::string>>("doubleLabels", std::vector<std::string>())),
   floatLabels_(iConfig.getUntrackedParameter<std::vector<std::string>>("floatLabels", std::vector<std::string>())),
   intTokens_(edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >(
-    "intVals", std::vector<edm::InputTag>()), 
+    "intVals", std::vector<edm::InputTag>()),
       [this](edm::InputTag const& tag){return consumes<edm::ValueMap<int> >(tag);})),
   boolTokens_(edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >(
-    "boolVals", std::vector<edm::InputTag>()), 
+    "boolVals", std::vector<edm::InputTag>()),
       [this](edm::InputTag const& tag){return consumes<edm::ValueMap<bool> >(tag);})),
   doubleTokens_(edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >(
-    "doubleVals", std::vector<edm::InputTag>()), 
+    "doubleVals", std::vector<edm::InputTag>()),
       [this](edm::InputTag const& tag){return consumes<edm::ValueMap<double> >(tag);})),
   floatTokens_(edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >(
-    "floatVals", std::vector<edm::InputTag>()), 
+    "floatVals", std::vector<edm::InputTag>()),
       [this](edm::InputTag const& tag){return consumes<edm::ValueMap<float> >(tag);}))
 {
   produces<std::vector<T> >();
 
   if (intTokens_.size() != intLabels_.size())
     throw cms::Exception("InvalidParams")
-      << "You must supply exactly one label for each int you want to embed" 
+      << "You must supply exactly one label for each int you want to embed"
       << "Given: intLabels_.size() == " << intLabels_.size()
       << "; intTokens_.size() == " << intTokens_.size()
       << std::endl;
 
   if (boolTokens_.size() != boolLabels_.size())
     throw cms::Exception("InvalidParams")
-      << "You must supply exactly one label for each bool you want to embed" 
+      << "You must supply exactly one label for each bool you want to embed"
       << "Given: boolLabels_.size() == " << boolLabels_.size()
       << "; boolTokens_.size() == " << boolTokens_.size()
       << std::endl;
 
   if (doubleTokens_.size() != doubleLabels_.size())
     throw cms::Exception("InvalidParams")
-      << "You must supply exactly one label for each double you want to embed" 
+      << "You must supply exactly one label for each double you want to embed"
       << "Given: doubleLabels_.size() == " << doubleLabels_.size()
       << "; doubleTokens_.size() == " << doubleTokens_.size()
       << std::endl;
 
   if (floatTokens_.size() != floatLabels_.size())
     throw cms::Exception("InvalidParams")
-      << "You must supply exactly one label for each float you want to embed" 
+      << "You must supply exactly one label for each float you want to embed"
       << "Given: floatLabels_.size() == " << floatLabels_.size()
       << "; floatTokens_.size() == " << floatTokens_.size()
       << std::endl;
@@ -113,7 +113,7 @@ void PATObjectValueMapEmbedder<T>::produce(edm::Event& iEvent,
   iEvent.getByToken(srcToken_, in);
 
   std::unique_ptr<std::vector<T> > out(new std::vector<T>);
-  for (size_t i = 0; i < in->size(); i++) 
+  for (size_t i = 0; i < in->size(); i++)
     out->push_back(in->at(i));
 
   std::vector<size_t> lengths = {doubleLabels_.size(), floatLabels_.size(), boolLabels_.size(), intLabels_.size()};

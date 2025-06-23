@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 class WZID(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
         super(WZID, self).__init__(*args, **kwargs)
-    
+
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(WZID, self).makeAnalysisStep(stepName, **inputs)
         if stepName == 'embedding':

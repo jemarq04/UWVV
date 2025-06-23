@@ -17,14 +17,14 @@ class DressedGenLeptonBase(AnalysisFlowBase):
                 cut = cms.string("pdgId = 22 && statusFlags().isPrompt() && status() == 1")
             )
             step.addModule('promptPhotonsMod', promptPhotonsMod, 'a')
-            
+
             genEMod = cms.EDFilter(
                 "GenParticleSelector",
                 src = step.getObjTag('e'),
                 cut = cms.string("abs(pdgId) == 11 && {}".format(self.flag)),
                 )
             step.addModule('genSelectionE', genEMod, 'e')
-            
+
             dressedGenEMod = cms.EDProducer("DressedGenParticlesProducer",
                 baseCollection = step.getObjTag('e'),
                 associates = step.getObjTag('a'),
@@ -38,7 +38,7 @@ class DressedGenLeptonBase(AnalysisFlowBase):
                 cut = cms.string("abs(pdgId) == 13 && {}".format(self.flag)),
                 )
             step.addModule('genSelectionMu', genMuMod, 'm')
-            
+
             dressedGenMuMod = cms.EDProducer("DressedGenParticlesProducer",
                 baseCollection = step.getObjTag('m'),
                 associates = step.getObjTag('a'),

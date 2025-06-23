@@ -7,7 +7,7 @@ from UWVV.AnalysisTools.templates.ZZInitialStateBaseFlow import ZZInitialStateBa
 from UWVV.Ntuplizer.makeBranchSet import makeBranchSet
 from UWVV.Ntuplizer.eventParams import makeEventParams
 from UWVV.Ntuplizer.templates.triggerBranches import triggerBranches
-    
+
 
 process = cms.Process("TestNtuple")
 

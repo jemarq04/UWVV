@@ -24,13 +24,13 @@ class CandidatePrinter : public edm::one::EDAnalyzer<>
 {
 
   typedef pat::CompositeCandidate CCand;
-  
+
 public:
   explicit CandidatePrinter(const edm::ParameterSet& config);
   ~CandidatePrinter() {;}
 
 private:
-  virtual void analyze(edm::Event const& evt, 
+  virtual void analyze(edm::Event const& evt,
                        edm::EventSetup const& setup);
 
   void printCandInfo(const reco::Candidate* cand,
@@ -56,7 +56,7 @@ void CandidatePrinter::analyze(edm::Event const& event, edm::EventSetup const& s
 
   if(candsIn->size())
     std::cout << event.id().run() << ":" << event.id().luminosityBlock() <<":"
-              << event.id().event() << ":" 
+              << event.id().event() << ":"
               << "(" << candsIn->size() << " candidates)" << std::endl;
 
   for(size_t i = 0; i < candsIn->size(); ++i)
@@ -69,7 +69,7 @@ void CandidatePrinter::analyze(edm::Event const& event, edm::EventSetup const& s
 }
 
 
-void CandidatePrinter::printCandInfo(const reco::Candidate* cand, 
+void CandidatePrinter::printCandInfo(const reco::Candidate* cand,
                                      size_t level) const
 {
   if(!cand)
@@ -81,9 +81,9 @@ void CandidatePrinter::printCandInfo(const reco::Candidate* cand,
   for(size_t nPads = 0; nPads < level; ++nPads)
     std::cout << "    ";
 
-  std::cout << "id: " << cand->pdgId() << "m: " << cand->mass() 
-            << " pt: " << cand->pt() 
-            << " eta: " << cand->eta() << " phi: " << cand->phi() 
+  std::cout << "id: " << cand->pdgId() << "m: " << cand->mass()
+            << " pt: " << cand->pt()
+            << " eta: " << cand->eta() << " phi: " << cand->phi()
             << " ((" << cand->numberOfDaughters() << "))" << std::endl;
 
   if(cand->numberOfDaughters())

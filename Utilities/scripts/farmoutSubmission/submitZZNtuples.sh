@@ -119,7 +119,7 @@ then
             if [ "$NO_SUB" == '' ]
             then
                 echo Submitting ZZ Data Ntuples as UWVVZZ_DATA_2017"$era"_"$JOBID"
-                bash /data/uhussain/uwvvZZ_data_2017"$era"_"$JOBID".sh 
+                bash /data/uhussain/uwvvZZ_data_2017"$era"_"$JOBID".sh
             fi
         fi
 
@@ -218,7 +218,7 @@ then
         # background with 2017v1 samples (no gen info)
         python Utilities/scripts/submitJobs.py --campaign 'RunIIFall17MiniAOD-94X_mc2017_realistic_*v2' --samples 'WZTo3LNu_TuneCP5_13TeV-*' 'DYJetsToLL_M-10to50_TuneCP5_13TeV*' 'TTTo2L2Nu_TuneCP5_*' 'VBF_HToZZTo4L_M125_13TeV_powheg2*' 'ZZTo4L_13TeV*pythia8' 'GluGluToContinToZZTo2e2tau*' 'GluGluToContinToZZTo2e2mu*' 'GluGluToContinToZZTo2mu2tau*' --filesPerJob 2 -o /data/uhussain/uwvvZZ_mcV2NoGen_"$JOBID".sh UWVVZZ_MC_"$JOBID" Ntuplizer/test/ntuplize_cfg.py channels='zz' isMC=1 eCalib=1 muCalib=1 genInfo=0 globalTag="$GT_MC" genLeptonType=dressedHPFS
 
-        
+
         if [ "$NO_SUB" == '' ]
         then
             nohup bash /data/uhussain/uwvvZZ_mcV2NoGen_"$JOBID".sh &

@@ -33,7 +33,7 @@ triggerBranches_2022 = cms.PSet(
     HLT_Ele30_WPTight_GsfPaths = cms.vstring('HLT_Ele30_WPTight_Gsf_v[0-9]+'),#2022SingleEle
     HLT_Ele32_WPTight_GsfPaths = cms.vstring('HLT_Ele32_WPTight_Gsf_v[0-9]+'),#2018SingleEle
     HLT_IsoMu24Paths = cms.vstring('HLT_IsoMu24_v[0-9]+'),#2018SingleMu
-    
+
     trigResultsSrc = cms.InputTag("TriggerResults", "", "HLT"),
     trigPrescaleSrc = cms.InputTag("patTrigger"),
 

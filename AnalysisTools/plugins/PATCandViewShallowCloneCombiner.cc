@@ -15,7 +15,7 @@
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
 
-namespace reco 
+namespace reco
 {
   namespace modules
   {
@@ -26,7 +26,7 @@ namespace reco
       combiner::helpers::ShallowClone,
       pat::CompositeCandidateCollection
       > PATCandViewShallowCloneCombiner;
-  
+
   DEFINE_FWK_MODULE( PATCandViewShallowCloneCombiner );
 
   }

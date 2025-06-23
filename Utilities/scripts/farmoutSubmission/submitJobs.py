@@ -61,7 +61,7 @@ def writeFarmoutCommand(cfg, jobid, dataset, fullDataset,
     dasFilesCmd = 'file dataset={}'.format(fullDataset)
 
     #print("submitDir:",submitDir)
-    
+
     #print("dagDir:",dagDir)
     # das throws a lot of exceptions, but they're usually transient, so try a
     # few times if needed
@@ -159,7 +159,7 @@ def buildScript(cfg, jobid, scriptFile='',
 
     # das throws a lot of exceptions, but they're usually transient, so try a
     # few times if needed
-    
+
     dasDatasetCmd = 'dataset='+datasetStr
     #print(dasDatasetCmd)
     for _ in range(5):

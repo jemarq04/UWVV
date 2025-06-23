@@ -16,7 +16,7 @@ class GGHZZKFactors(AnalysisFlowBase):
         if stepName == 'initialStateEmbedding':
             sfFile = path.join(UWVV_BASE_PATH, 'data', 'kFactors',
                                'Kfactor_Collected_ggHZZ_2l2l_NNLO_NNPDF_NarrowWidth_13TeV.root')
-            
+
             ggKEmbedding4e = cms.EDProducer(
                 "GGHZZKFactorEmbedderEEEE",
                 src = step.getObjTag('eeee'),

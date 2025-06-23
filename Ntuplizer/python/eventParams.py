@@ -68,7 +68,7 @@ def makeEventParams(flowOutputs,channel='', **newParams):
 
     params.update(extraCollections)
     params.update(newParams)
-    
+
     #l1ECALPrefiring Params
     params.update(_l1ECALPrefiringParams)
 

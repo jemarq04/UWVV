@@ -13,9 +13,9 @@ namespace {
         edm::OwnVector<DressedGenParticle,
             edm::ClonePolicy<DressedGenParticle> > dummyOV1;
         edm::OwnVector<DressedGenParticle,
-            edm::ClonePolicy<DressedGenParticle> >::const_iterator dummyit; 
+            edm::ClonePolicy<DressedGenParticle> >::const_iterator dummyit;
 
         edm::PtrVector<pat::Jet> dummyPtrVectorPatJet;
-        pat::UserHolder<edm::PtrVector<pat::Jet>> dummyPtrUserHolderPtrVectorPatJet; 
+        pat::UserHolder<edm::PtrVector<pat::Jet>> dummyPtrUserHolderPtrVectorPatJet;
     };
 }

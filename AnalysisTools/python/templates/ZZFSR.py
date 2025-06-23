@@ -52,14 +52,14 @@ class ZZFSR(AnalysisFlowBase):
                     resolveAmbiguities    = cms.bool(True),          # Forbid two RECO objects to match to the same GEN object
                     resolveByMatchQuality = cms.bool(False),         # False = just match input in order; True = pick lowest deltaR pair first
                 )
-                
+
                 step.addModule("patJetGenJetMatch2",patJetGenJetMatch2) #store RECO/gen jet association in the event
 
             #if self.isMC: #apply PU id here after calculating PU id SF multiplication factor
                 #selectionString2 = ('pt > 30. && abs(eta) < 4.7 && '
                 #               'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
                 #step.addBasicSelector('j', selectionString2)
-            
+
             if self.isMC:
                 jetFSRCleaner_jesUp = jetFSRCleaner.clone(src = step.getObjTag('j_jesUp'))
                 step.addModule('jetFSRCleanerJESUp', jetFSRCleaner_jesUp, 'j_jesUp')

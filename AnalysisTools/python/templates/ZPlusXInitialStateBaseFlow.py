@@ -24,7 +24,7 @@ class ZPlusXInitialStateBaseFlow(ZPlusXBaseFlow):
                     checkCharge = cms.bool(False),
                     setPdgId = cms.int32(25),
                     )
-                
+
                 step.addModule(chan+'Producer', mod, chan)
 
         if stepName == 'initialStateEmbedding':

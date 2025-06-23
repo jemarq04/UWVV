@@ -8,16 +8,16 @@ class BadMuonFilters(AnalysisFlowBase):
 
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(BadMuonFilters, self).makeAnalysisStep(stepName, **inputs)
-        
+
         if stepName == 'initialStateEmbedding': #For UL, access filters directly from miniAOD, and embed the bools like before
-            
-            #from RecoMET.METFilters.BadPFMuonFilter_cfi import BadPFMuonFilter 
-            #BadPFMuonFilter.muons = step.getObjTag('m') 
+
+            #from RecoMET.METFilters.BadPFMuonFilter_cfi import BadPFMuonFilter
+            #BadPFMuonFilter.muons = step.getObjTag('m')
             #BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
             #step.addModule("BadPFMuonFilter", BadPFMuonFilter)
-            
+
             #from RecoMET.METFilters.BadChargedCandidateFilter_cfi import BadChargedCandidateFilter
-            #BadChargedCandidateFilter.muons = step.getObjTag('m') 
+            #BadChargedCandidateFilter.muons = step.getObjTag('m')
             #BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
             #step.addModule("BadChargedCandidateFilter", BadChargedCandidateFilter)
 

@@ -9,13 +9,13 @@ Usage:
 Move all project folders into one folder, copy this script into the folder, initialize proxy and run it.
 It will run "crab status -d" for all the project folders, put printouts in "output_crab_status_data" folder, and parse the printouts to write a summary file
 If "--report" is enabled, it will also run "crab report -d" on all folders and put printouts in "output_crab_status_data" folder
-Currently it only checks if results/notFinishedLumis.json exists in the project folders, and gives a warning if it does. But this may not guarantee 
+Currently it only checks if results/notFinishedLumis.json exists in the project folders, and gives a warning if it does. But this may not guarantee
 all lumis are processed, since different Data.splitting mode seems to generate the reports differently...
 suggest to look at the reports by something like "cat *.log"
 Then if some jobs fail in some datasets, it will create a resubmission script for all such datasets.
-After Checking from the status summary file that no job is in transition or still running (and other aspects), the script can be run.   
+After Checking from the status summary file that no job is in transition or still running (and other aspects), the script can be run.
 
-The new out folder and file/script will be named with 0,1,2 each time this python script is run      
+The new out folder and file/script will be named with 0,1,2 each time this python script is run
 '''
 #=======================================
 parser = argparse.ArgumentParser(description=DESC, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -45,7 +45,7 @@ if os.path.isdir(args.outdir):
         status_idx += 1
     args.outdir = "%s%i" % (args.outdir, status_idx)
     args.outname = "%s%i.txt" % (".".join(args.outname.split(".")[:-1]), status_idx)
-print("Creating new directory %s" % args.outdir) 
+print("Creating new directory %s" % args.outdir)
 os.mkdir(args.outdir)
 
 if not args.noprocessing:
@@ -62,7 +62,7 @@ if not args.noprocessing:
             print("Processed %s folders" % count)
         else:
             print("Error in %s" % folder)
-        
+
         if os.path.exists(os.path.join(folder,"results","notFinishedLumis.json")):
             print("==========WARNING: %s has not-yet-processed lumi=========="%folder)
 

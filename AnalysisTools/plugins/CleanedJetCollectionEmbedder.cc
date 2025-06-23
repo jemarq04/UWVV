@@ -145,7 +145,7 @@ void CleanedJetCollectionEmbedder::produce(edm::Event &iEvent, const edm::EventS
       out->back().addUserFloat("jetPUSFmulfac", weight);
     }
     else{
-      VJetPtr cleanedJets = getCleanedJetCollection(iEvent, jetSrcToken, *cand); 
+      VJetPtr cleanedJets = getCleanedJetCollection(iEvent, jetSrcToken, *cand);
       out->back().addUserData<VJetPtr>(collectionName, cleanedJets);
     }
 

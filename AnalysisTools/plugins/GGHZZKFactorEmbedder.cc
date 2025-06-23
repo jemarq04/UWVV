@@ -51,7 +51,7 @@ class GGHZZKFactorEmbedder : public edm::stream::EDProducer<>
   const edm::EDGetTokenT<edm::View<CCand> > srcToken;
 
   const std::unique_ptr<TFile> file;
-  
+
   const std::map<std::string, TSpline3*> splines;
 
   std::map<std::string, TSpline3*> getSplines() const;
@@ -66,7 +66,7 @@ GGHZZKFactorEmbedder<T12,T34>::GGHZZKFactorEmbedder(const edm::ParameterSet& iCo
   splines(getSplines())
 {
   if(file->IsZombie())
-    throw cms::Exception("InvalidFile") 
+    throw cms::Exception("InvalidFile")
       << "Scale factor file "<< iConfig.getParameter<std::string>("fileName")
       << " does not exist!" << std::endl;
 
@@ -138,8 +138,8 @@ float GGHZZKFactorEmbedder<T12,T34>::getGenMass(const CCand& cand) const
   math::XYZTLorentzVector genP4(0.,0.,0.,0.);
   for(size_t iZ = 0; iZ < cand.numberOfDaughters(); ++iZ)
     {
-      for(size_t iLep = 0; 
-          iLep < cand.daughter(iZ)->numberOfDaughters(); 
+      for(size_t iLep = 0;
+          iLep < cand.daughter(iZ)->numberOfDaughters();
           ++iLep)
         {
           reco::GenParticleRef gen;

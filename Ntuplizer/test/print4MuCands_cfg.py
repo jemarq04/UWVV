@@ -39,7 +39,7 @@ process.makeCands = cms.Sequence(
     * process.zMuMu
     * process.zz4Mu
     )
-    
+
 process.printCands = cms.EDAnalyzer(
     'CandidatePrinter',
     src = cms.InputTag('zz4Mu'),

@@ -23,7 +23,7 @@ class JetBaseFlow(AnalysisFlowBase):
 
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(JetBaseFlow, self).makeAnalysisStep(stepName, **inputs)
-        
+
         if stepName == 'preliminary':
             # Pileup ID
             # This puts the IDs in the event stream, not an updated jet collection
@@ -65,7 +65,7 @@ class JetBaseFlow(AnalysisFlowBase):
                         vertexes = step.getObjTag('v'),
                     )
             step.addModule("pileupJetIdUpdated", self.process.pileupJetIdUpdated, "puID", puID="fullId")
-            
+
             jetPUIDEmbedder = cms.EDProducer(
                 "PATJetValueMapEmbedder",
                 src = step.getObjTag('j'),
@@ -73,7 +73,7 @@ class JetBaseFlow(AnalysisFlowBase):
                 intVals = cms.untracked.VInputTag("pileupJetIdUpdated:fullId"),
             )
             step.addModule("jetPUIDEmbedder", jetPUIDEmbedder, 'j')
-            
+
             # Setup/configuration
             yearstring = jesConfig = jerConfig = ""
             if self.year == "2022":
@@ -85,7 +85,7 @@ class JetBaseFlow(AnalysisFlowBase):
                 yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
                 jesConfig = "Summer22%s_22Sep2023%s_V2" % (
                     "" if self.calibEra22 == "preEE" else "EE",
-                    "" if self.isMC else dataPeriod 
+                    "" if self.isMC else dataPeriod
                 )
                 jerConfig = "Summer22%s_22Sep2023_JRV1" % ("" if self.calibEra22 == "preEE" else "EE")
             elif self.year == "2023":
@@ -179,7 +179,7 @@ class JetBaseFlow(AnalysisFlowBase):
                     resolveAmbiguities    = cms.bool(True),          # Forbid two RECO objects to match to the same GEN object
                     resolveByMatchQuality = cms.bool(False),         # False = just match input in order; True = pick lowest deltaR pair first
                 )
-                
+
                 step.addModule("patJetGenJetMatch",patJetGenJetMatch) #store RECO/gen jet association in the event
 
                 #Print jet information
@@ -236,7 +236,7 @@ class JetBaseFlow(AnalysisFlowBase):
                     systematics = cms.bool(False),
                 )
                 step.addModule("jetSmearingJESUp", jetSmearing_jesUp, "j_jesUp")
-                
+
                 jetSmearing_jesDown = jetSmearing.clone(
                     src = step.getObjTag("j_jesDown"),
                     systematics = cms.bool(False),
@@ -285,7 +285,7 @@ class JetBaseFlow(AnalysisFlowBase):
             # ntuples later
             selectionString = ('pt > 20. && abs(eta) < 4.7 && '
                                'userFloat("idTight") > 0.5 && (userInt("{}") >= 0||pt>50.)').format(step.getObjTagString('puID'))
-            
+
             selectionString2 = ('pt > 20. && abs(eta) < 4.7 && '
                                'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
 

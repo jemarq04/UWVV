@@ -33,7 +33,7 @@ class RochesterPATMuonCorrector : public edm::stream::EDProducer<> {
  public:
   /// Constructor
   explicit RochesterPATMuonCorrector(const edm::ParameterSet& params);
-	
+
   /// Destructor
   ~RochesterPATMuonCorrector(){
     delete calibrator;
@@ -69,10 +69,10 @@ RochesterPATMuonCorrector::RochesterPATMuonCorrector(const edm::ParameterSet& pa
   ss << "UWVV/data/RochesterCorrections/" << identifier << ".txt";
   string path_string = ss.str();
   edm::FileInPath corrPath("UWVV/data/RochesterCorrections/"+identifier+".txt");
-	
+
   calibrator = new RoccoR(corrPath.fullPath());
   rgen_ = new TRandom3(0);
-	
+
   produces<pat::MuonCollection>();
 }
 
@@ -86,7 +86,7 @@ RochesterPATMuonCorrector::produce(edm::Event& event, const edm::EventSetup& set
 
   // Output collection
   std::unique_ptr<std::vector<pat::Muon> > out(new std::vector<pat::Muon>);
-  	
+
   for (unsigned i=0; i<in->size(); ++i) {
 
     edm::Ptr<pat::Muon> muIn = in->ptrAt(i);
@@ -94,7 +94,7 @@ RochesterPATMuonCorrector::produce(edm::Event& event, const edm::EventSetup& set
     double pt = muIn->pt();
 
     out->push_back(*muIn);
-	 
+
     int nl;
     auto gen_particle = muIn->genParticle();
     double scale_factor=1.0;
@@ -102,10 +102,10 @@ RochesterPATMuonCorrector::produce(edm::Event& event, const edm::EventSetup& set
     double smear_error = 0.;
     double u = rgen_->Rndm();
     //double u2 = rgen_->Rndm();
-	
+
 	 if(isSync) {u = 0.5;}
-	 
-	  
+
+
 
     if (calibrator != 0  && muIn->track().isNonnull())
     {
@@ -113,30 +113,30 @@ RochesterPATMuonCorrector::produce(edm::Event& event, const edm::EventSetup& set
     double phi = muIn->phi();
     double ptErr = muIn->bestTrack()->ptError();
 		nl = muIn->track()->hitPattern().trackerLayersWithMeasurement();
-		
+
       if(isMC && nl > 5)//Protection against muons with low number of layers, they are not used in the analysis anyway as we apply thight muon ID
       {
-			
+
 			/// ====== ON MC (correction plus smearing) =====
 			if ( gen_particle != 0)
 			{
 				scale_factor = calibrator->kSpreadMC(muIn->charge(), pt, muIn->eta(), muIn->phi(), gen_particle->pt());
 				smear_error = calibrator->kSpreadMCerror(muIn->charge(), pt, muIn->eta(), muIn->phi(), gen_particle->pt());
-				
+
 			}
 			else
 			{
 				scale_factor = calibrator->kSmearMC(muIn->charge(), pt, muIn->eta(), muIn->phi(), nl, u);
 				smear_error = calibrator->kSmearMCerror(muIn->charge(), pt, muIn->eta(), muIn->phi(), nl, u);
-				
+
 			}
-			
+
 			scale_error = calibrator->kScaleDTerror(muIn->charge(), pt, muIn->eta(), muIn->phi());
-			
+
 			pt = pt*scale_factor;
 			ptErr = ptErr*scale_factor;
       }
-		 
+
       else if(!isMC && nl > 5)
       {
 			/// ====== ON DATA (correction only) =====
@@ -153,10 +153,10 @@ RochesterPATMuonCorrector::produce(edm::Event& event, const edm::EventSetup& set
 			  scale_error = 0.;
 			  smear_error = 0.;
 			}
-			
+
 			pt = pt*scale_factor;
 			ptErr = ptErr*scale_factor;
-      } 
+      }
       //std::vector::back returns a direct reference to the last element in the vector
       out->back().setP4(reco::Particle::PolarLorentzVector(pt, eta, phi, muIn->mass()));
       out->back().addUserFloat("correctedPtError", ptErr);

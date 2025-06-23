@@ -32,7 +32,7 @@ namespace uwvv
   class TriggerBranch
   {
   public:
-    TriggerBranch(const std::string& name, 
+    TriggerBranch(const std::string& name,
                   const std::vector<std::string>& pathExps,
                   TTree* const tree,
                   bool checkPrescale,
@@ -60,14 +60,14 @@ namespace uwvv
   class TriggerBranches
   {
    public:
-    TriggerBranches(edm::ConsumesCollector cc, 
+    TriggerBranches(edm::ConsumesCollector cc,
                     const edm::ParameterSet& config,
                     TTree* const tree);
     ~TriggerBranches() {;}
 
     void setEvent(const edm::Event& event);
 
-    void fill();    
+    void fill();
 
    private:
     const edm::EDGetTokenT<edm::TriggerResults> resultsToken;

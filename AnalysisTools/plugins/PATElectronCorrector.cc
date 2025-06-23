@@ -99,7 +99,7 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
   {
     out->push_back(*ei); // copy electron to save correctly in event
     Electron& ele = out->back();
-    
+
     float rho = 0, err_rho = 0;
     float scale = 1, err_scale = 0;
     float smear = 1, smear_up = 1, smear_dn = 1;
@@ -116,7 +116,7 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }
     else
       scale = scaleFile_->at(scaleConfig_)->evaluate({"total_correction", ele.userInt("seedGain"), (double)iEvent.run(), ele.eta(), ele.r9(), ele.pt()});
-    
+
     float uncorrected_pt = ele.pt();
     float corrected_pt = uncorrected_pt * (isMC_? smear : scale);
 

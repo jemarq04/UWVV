@@ -48,7 +48,7 @@ class AnalysisFlowBase(object):
         There are some defaults, which maybe be overridden by keyword arguments.
         '''
         self.inheritGuard('getInitialInputs')
-        
+
         out = {
             'e' : 'slimmedElectrons',
             'm' : 'slimmedMuons',
@@ -61,7 +61,7 @@ class AnalysisFlowBase(object):
         out.update(tags)
 
         return out
-    
+
 
     def listSteps(self):
         '''
@@ -73,7 +73,7 @@ class AnalysisFlowBase(object):
         return ['preliminary', 'preselection', 'embedding', 'selection',
                 'intermediateStateCreation', 'intermediateStateEmbedding',
                 'intermediateStateSelection',
-                'initialStateCreation', 'initialStateEmbedding', 
+                'initialStateCreation', 'initialStateEmbedding',
                 'initialStateSelection']
 
 
@@ -85,7 +85,7 @@ class AnalysisFlowBase(object):
 
         return AnalysisStep(self.name + step, self.suffix, **inputs)
 
-    
+
     def setupPath(self):
         '''
         Set up a cms.Path with all analysis steps, add it to the Process, and
@@ -108,12 +108,12 @@ class AnalysisFlowBase(object):
 
     def getPath(self):
         return self.path
-    
+
 
     def inheritGuard(self, fName):
         '''
         Make sure our inheritance tree makes sense, i.e. that this base
-        class really is the base. Do that by making sure that 
+        class really is the base. Do that by making sure that
         super(AnalysisFlowBase, self).fName doesn't exist.
         '''
         assert not hasattr(super(AnalysisFlowBase, self), fName), \
@@ -125,6 +125,6 @@ class AnalysisFlowBase(object):
 
     def finalObjTagString(self, obj):
         return self.outputs[-1][obj]
-    
+
     def finalTags(self):
         return self.outputs[-1]

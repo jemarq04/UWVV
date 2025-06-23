@@ -58,10 +58,10 @@ namespace uwvv
     // applicable
     bool overlapWithAnyDaughter(const reco::Candidate& cand,
                                 const reco::Candidate& mother, float dR);
-    
-    // Return the jet collection cleaned from the initial state objects. 
+
+    // Return the jet collection cleaned from the initial state objects.
     // Collection should be embedded into the initial state as userData.
-    const edm::PtrVector<pat::Jet>* getCleanedJetCollection(const pat::CompositeCandidate& cand, 
+    const edm::PtrVector<pat::Jet>* getCleanedJetCollection(const pat::CompositeCandidate& cand,
         const std::string& variation, std::string collectionName="cleanedJets");
   } // namespace helpers
 

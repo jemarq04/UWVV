@@ -17,7 +17,7 @@ class ZZCrossCleaning(AnalysisFlowBase):
                 step.addBasicCounter('e', "preCrossCleaningCounting", nPreCrossCleanedElectrons="")
             # remove electrons near tight muons
             step.addCrossSelector(
-                'e', 
+                'e',
                 '', # no further basic selection here
                 m={
                     'deltaR' : 0.05,

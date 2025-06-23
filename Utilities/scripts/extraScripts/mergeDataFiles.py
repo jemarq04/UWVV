@@ -21,7 +21,7 @@ from UWVV.Utilities.helpers import parseChannels
 
 def mergeChannel(channel, fileList):
     '''
-    Merge one channel for all files, return merged tree. 
+    Merge one channel for all files, return merged tree.
     Should be run with a file open.
     '''
     if isinstance(fileList, str):
@@ -32,12 +32,12 @@ def mergeChannel(channel, fileList):
     out.set_buffer(chain._buffer, create_branches=True)
 
     found = set()
-    
+
     for ev in chain:
         evID = (ev.run, ev.lumi, ev.evt)
         if evID in found:
             continue
-        
+
         out.fill()
         found.add(evID)
 
@@ -74,11 +74,11 @@ if __name__ == "__main__":
             n = mergeChannel(c, infiles)
             n.write()
     # temp = TemporaryFile()
-    # 
+    #
     # trees = {}
     # for c in channels:
     #     trees[c] = mergeChannel(c, infiles)
-    #     
+    #
     # with root_open(args.output[0], "recreate") as f:
     #     treesOut = {}
     #     for c,t in trees.iteritems():

@@ -45,7 +45,7 @@ class PATElectronEAEmbedder : public edm::stream::EDProducer<>
 
 
 PATElectronEAEmbedder::PATElectronEAEmbedder(const edm::ParameterSet& iConfig) :
-  srcToken_(consumes<ElectronView>(iConfig.exists("src") ? 
+  srcToken_(consumes<ElectronView>(iConfig.exists("src") ?
       iConfig.getParameter<edm::InputTag>("src") :
       edm::InputTag("slimmedElectrons"))),
   label_(iConfig.exists("label") ?

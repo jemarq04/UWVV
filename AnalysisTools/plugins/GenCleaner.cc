@@ -1,13 +1,13 @@
 /////////////////////////////////////////////////////////////////////////////
-//    
+//
 //    GenCleaner
-//    
+//
 //    Reimplementation of PATCleaner that works with gen particle types.
 //    Only does delta-R cross cleaning; other functionality removed.
-//    
+//
 //    Nate Woods, U. Wisconsin
 //    Based on https://github.com/cms-sw/cmssw/blob/CMSSW_8_1_X/PhysicsTools/PatAlgos/plugins/PATCleaner.h
-//    
+//
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -32,7 +32,7 @@
 namespace uwvv {
 
   template<class ObjType>
-  class GenCleaner : public edm::stream::EDProducer<> 
+  class GenCleaner : public edm::stream::EDProducer<>
   {
    public:
     explicit GenCleaner(const edm::ParameterSet& iConfig);
@@ -69,7 +69,7 @@ uwvv::GenCleaner<ObjType>::GenCleaner(const edm::ParameterSet& iConfig) :
   for(auto& name : overlapNames)
     {
       edm::ParameterSet cfg = overlapPSet.getParameter<edm::ParameterSet>(name);
-      if (cfg.empty()) 
+      if (cfg.empty())
         continue;
 
       // We'll only actually use this for delta-R cross cleaning
@@ -77,7 +77,7 @@ uwvv::GenCleaner<ObjType>::GenCleaner(const edm::ParameterSet& iConfig) :
       cfg.addParameter("pairCut", std::string(""));
       cfg.addParameter("requireNoOverlaps", true);
 
-      overlapTests.emplace_back(new pat::helper::BasicOverlapTest(name, cfg, 
+      overlapTests.emplace_back(new pat::helper::BasicOverlapTest(name, cfg,
                                                                   consumesCollector()));
     }
 
@@ -87,7 +87,7 @@ uwvv::GenCleaner<ObjType>::GenCleaner(const edm::ParameterSet& iConfig) :
 
 template<class ObjType>
 void
-uwvv::GenCleaner<ObjType>::produce(edm::Event& iEvent, 
+uwvv::GenCleaner<ObjType>::produce(edm::Event& iEvent,
                                    const edm::EventSetup& iSetup)
 {
   edm::Handle<edm::View<ObjType> > in;

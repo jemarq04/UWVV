@@ -120,11 +120,11 @@ JetViewerMy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(srcToken_, jets);
     printf("====================InputTag(/Stage) %s=========================================\n",jetTag_.c_str());
     printf("evt#   pt     eta    phi    PUid0 PUidnew jet#\n");
-    jetcount=0;       
+    jetcount=0;
     for(JetView::const_iterator jet = jets->begin();
         jet != jets->end();
         ++jet) {
-      
+
       jetcount++;
       try{
       PUid=jet->userInt("pileupJetIdUpdated:fullId");

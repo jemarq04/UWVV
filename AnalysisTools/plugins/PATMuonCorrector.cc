@@ -88,13 +88,13 @@ void PATMuonCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   {
     out->push_back(*mi); // copy muon to save correctly in event
     Muon& mu = out->back();
-    
+
     double uncorr_pt = mu.pt();
     double corr_pt   = getCorrectedPt(mu);
 
     mu.addUserFloat("uncorrected_pt", uncorr_pt);
     mu.addUserFloat("ptScaleFactor", corr_pt/uncorr_pt);
-    /* TODO: Updated muon corrections removed 'syst' and 'stat' variations on k_data, which is 
+    /* TODO: Updated muon corrections removed 'syst' and 'stat' variations on k_data, which is
      *  necessary for calculating any of these variations for MC at the moment. Once this is fixed,
      *  these can be added back in.
     if (isMC_){
@@ -113,7 +113,7 @@ double PATMuonCorrector::getCorrectedPt(const Muon& muon, std::string var){
     return muon.pt();
 
   double corr_pt = corrector_->pt_scale(!isMC_, muon.pt(), muon.eta(), muon.phi(), muon.charge(), var);
-  if (isMC_) 
+  if (isMC_)
     corr_pt = corrector_->pt_resol(corr_pt, muon.eta(), muon.innerTrack().isNonnull()? muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() : 0, var);
 
   return corr_pt;

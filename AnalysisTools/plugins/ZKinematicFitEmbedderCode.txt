@@ -45,7 +45,7 @@ class ZKinematicFitEmbedder : public edm::stream::EDProducer<>
 
  private:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
-  
+
   edm::EDGetTokenT<edm::View<CCand> > srcToken;
 
   KinZfitter fitter;
@@ -72,7 +72,7 @@ ZKinematicFitEmbedder<T12,T34>::ZKinematicFitEmbedder(const edm::ParameterSet& p
 
 template<class T12, class T34>
 void
-ZKinematicFitEmbedder<T12,T34>::produce(edm::Event& iEvent, 
+ZKinematicFitEmbedder<T12,T34>::produce(edm::Event& iEvent,
                                         const edm::EventSetup& iSetup)
 {
   edm::Handle<edm::View<CCand> > in;

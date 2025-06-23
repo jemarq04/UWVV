@@ -8,16 +8,16 @@ class DressedGenParticle : public reco::GenParticle {
     public:
         DressedGenParticle() {}
         virtual ~DressedGenParticle();
-        DressedGenParticle(const LeafCandidate & c) : 
+        DressedGenParticle(const LeafCandidate & c) :
             reco::GenParticle(c) { }
-        DressedGenParticle(const reco::GenParticle & c) : 
+        DressedGenParticle(const reco::GenParticle & c) :
             reco::GenParticle(c) { }
-        DressedGenParticle(const reco::GenParticle & cand, 
+        DressedGenParticle(const reco::GenParticle & cand,
             //const reco::GenParticleRefVector associates, float dRmax);
             const reco::GenParticleCollection associates, float dRmax);
-        DressedGenParticle(Charge q, const LorentzVector & p4, const Point & vtx, 
+        DressedGenParticle(Charge q, const LorentzVector & p4, const Point & vtx,
             int pdgId, int status, bool integerCharge);
-        DressedGenParticle(Charge q, const PolarLorentzVector & p4, const Point & vtx, 
+        DressedGenParticle(Charge q, const PolarLorentzVector & p4, const Point & vtx,
             int pdgId, int status, bool integerCharge);
         DressedGenParticle* clone() const;
         const LorentzVector undressedP4() const;

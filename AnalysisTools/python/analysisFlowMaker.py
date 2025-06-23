@@ -11,7 +11,7 @@ def createFlow(*bases):
     '''
     if not bases:
         return AnalysisFlowBase
-    
+
     # fail with a verbose message if any argument isn't an AnalysisFlow
     # (or a not-so-verbose error message if one isn't even a class)
     try:

@@ -1,12 +1,12 @@
-/////////////////////////////////////////////////////////////////////////////    
-//                                                                         //    
-//    MetaTreeGenerator                                                    //    
-//                                                                         //    
+/////////////////////////////////////////////////////////////////////////////
+//                                                                         //
+//    MetaTreeGenerator                                                    //
+//                                                                         //
 //    A builder of meta-info ntuples                                       //
-//                                                                         //    
-//    Nate Woods, U. Wisconsin                                             //    
-//                                                                         //    
-/////////////////////////////////////////////////////////////////////////////    
+//                                                                         //
+//    Nate Woods, U. Wisconsin                                             //
+//                                                                         //
+/////////////////////////////////////////////////////////////////////////////
 
 
 //STL
@@ -34,7 +34,7 @@
 
 using namespace uwvv;
 
-class MetaTreeGenerator : public edm::one::EDAnalyzer<edm::one::SharedResources, 
+class MetaTreeGenerator : public edm::one::EDAnalyzer<edm::one::SharedResources,
                                                       edm::one::WatchLuminosityBlocks>
 {
  public:
@@ -42,7 +42,7 @@ class MetaTreeGenerator : public edm::one::EDAnalyzer<edm::one::SharedResources,
   virtual ~MetaTreeGenerator() {;}
 
  private:
-  virtual void analyze(const edm::Event& iEvent, 
+  virtual void analyze(const edm::Event& iEvent,
                        const edm::EventSetup& iConfig) override;
   virtual void beginLuminosityBlock(const edm::LuminosityBlock& iLumi,
                                     const edm::EventSetup& iSetup);
@@ -89,7 +89,7 @@ TTree* const MetaTreeGenerator::makeTree()
   t->Branch("lumi", &lumiBranch);
   t->Branch("nevents", &neventsBranch);
   t->Branch("summedWeights", &summedWeightsBranch);
-  
+
   return t;
 }
 
@@ -119,7 +119,7 @@ void MetaTreeGenerator::analyze(const edm::Event &event,
   evtInfo.setEvent(event);
 
   ++neventsBranch;
-  summedWeightsBranch += (evtInfo.genEventInfo().isValid() ? 
+  summedWeightsBranch += (evtInfo.genEventInfo().isValid() ?
                           evtInfo.genEventInfo()->weight() :
                           0.);
 }

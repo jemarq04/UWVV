@@ -98,7 +98,7 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(srcToken, in);
   edm::Handle<double> rho;
   iEvent.getByToken(rhoToken, rho);
-  
+
   edm::ESHandle<JetCorrectorParametersCollection> jecParams;
   jecParams = iSetup.get<JetCorrectionsRecord>().getHandle(jecToken);
   const JetCorrectorParameters & param = (*jecParams)["Uncertainty"];

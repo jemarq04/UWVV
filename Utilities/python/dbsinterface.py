@@ -34,13 +34,13 @@ def get_dbs_info(toFind, requirements):
 def get_das_info(query):
     '''Interface with das.py to get the query output.
     Could be done better, but this is time effective.
-    Unfortunately the QL is more complicated than the 
+    Unfortunately the QL is more complicated than the
     DBS one. '''
-    
+
     das_command = [
         'dasgoclient',
         '--query=%s' % query,
-        '-limit=0' 
+        '-limit=0'
         ]
     p = subprocess.Popen(
         das_command,
@@ -49,7 +49,7 @@ def get_das_info(query):
         )
     out, err = p.communicate()
     das_exitcode = p.wait()
-    
+
     if das_exitcode != 0:
         raise RuntimeError(
             'dasgoclient crashed with error:\n%s' % \

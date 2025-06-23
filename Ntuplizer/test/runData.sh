@@ -2,7 +2,7 @@
 
 if [[ $# -lt 2 ]]; then
   echo "usage: $0 FILE YEAR [EXTRA...]"
-  echo 
+  echo
   echo "FILE: input file listing input miniAOD ROOT files, 1 per line."
   echo "YEAR: any year in Run 3 for analysis"
   echo "EXTRA: optional argument(s) passed directly to cmsRun"

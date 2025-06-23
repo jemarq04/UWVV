@@ -12,13 +12,13 @@ class ZZLeptonCounters(AnalysisFlowBase):
 
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(ZZLeptonCounters, self).makeAnalysisStep(stepName, **inputs)
-        
+
         if stepName == 'initialStateEmbedding':
             counters = {
                 'Loose' : 'userFloat("{}") > 0.5'.format(self.getZZIDLabel()),
                 'Tight' : 'userFloat("{}") > 0.5'.format(self.getZZIDLabel()+'Tight'),
                 'TightIso' : ('userFloat("{}") > 0.5 && '
-                              'userFloat("{}") > 0.5').format(self.getZZIDLabel()+'Tight', 
+                              'userFloat("{}") > 0.5').format(self.getZZIDLabel()+'Tight',
                                                               self.getZZIsoLabel())
                 }
             countTags = []

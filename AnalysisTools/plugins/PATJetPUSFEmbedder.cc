@@ -171,7 +171,7 @@ void PATJetPUSFEmbedder::produce(edm::Event &iEvent,
   //iEvent.put(std::move(out));
   //}
 
-  std::unique_ptr<float> putweight(new float(weight)); 
+  std::unique_ptr<float> putweight(new float(weight));
   if (domatch_ && sfFileN_ != notSF){
     iEvent.put(std::move(putweight),"jetPUSFmulfac");
   }

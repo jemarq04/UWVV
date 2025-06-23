@@ -61,8 +61,8 @@ PATObjectCounter<T>::PATObjectCounter(const edm::ParameterSet& iConfig) :
   labels_(iConfig.exists("labels") ?
              iConfig.getParameter<std::vector<std::string> >("labels") :
              std::vector<std::string>()),
-  verbose_(iConfig.exists("verbose") ? 
-             iConfig.getParameter<bool>("verbose") : 
+  verbose_(iConfig.exists("verbose") ?
+             iConfig.getParameter<bool>("verbose") :
              false),
   doPrintInfo_(iConfig.exists("printInfo") ?
              iConfig.getParameter<bool>("printInfo") :
@@ -88,8 +88,8 @@ void PATObjectCounter<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 {
   edm::Handle<edm::View<T> > in;
   iEvent.getByToken(srcToken_, in);
-  
-  for (size_t i = 0; i < cut_strings_.size(); i++) 
+
+  for (size_t i = 0; i < cut_strings_.size(); i++)
   {
     std::unique_ptr<int> num(new int(0));
     if (cut_strings_[i] != "")

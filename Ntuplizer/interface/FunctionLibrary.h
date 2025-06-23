@@ -952,7 +952,7 @@ namespace
                                  const edm::PtrVector<pat::Jet>* cleanedJets = uwvv::helpers::getCleanedJetCollection(*obj, option);
                                  if(cleanedJets->size() < 2)
                                    return -999.;
-                                    
+
                                  return ((*cleanedJets)[0]->p4() + (*cleanedJets)[1]->p4()).mass();
                                });
         addTo["jetPUSFmulfac"] =
@@ -962,7 +962,7 @@ namespace
                                     throw cms::Exception("ProductNotFound")
                                     << "jet PUSF mulfac not found"
                                     << "for variation " << option;}
-                                    
+
                                  return (obj->userFloat("jetPUSFmulfac"));
                                });
         addTo["ptjj"] =
@@ -971,7 +971,7 @@ namespace
                                  const edm::PtrVector<pat::Jet>* cleanedJets = uwvv::helpers::getCleanedJetCollection(*obj, option);
                                  if(cleanedJets->size() < 2)
                                    return -999.;
-                                    
+
                                  return ((*cleanedJets)[0]->p4() + (*cleanedJets)[1]->p4()).pt();
                                });
 
@@ -981,7 +981,7 @@ namespace
                                  const edm::PtrVector<pat::Jet>* cleanedJets = uwvv::helpers::getCleanedJetCollection(*obj, option);
                                  if(cleanedJets->size() < 2)
                                    return -999.;
-                                    
+
                                  return ((*cleanedJets)[0]->p4() + (*cleanedJets)[1]->p4()).eta();
                                });
 
@@ -991,7 +991,7 @@ namespace
                                  const edm::PtrVector<pat::Jet>* cleanedJets = uwvv::helpers::getCleanedJetCollection(*obj, option);
                                  if(cleanedJets->size() < 2)
                                    return -999.;
-                                    
+
                                  return ((*cleanedJets)[0]->p4() + (*cleanedJets)[1]->p4()).phi();
                                });
 
@@ -1001,7 +1001,7 @@ namespace
                                  const edm::PtrVector<pat::Jet>* cleanedJets = uwvv::helpers::getCleanedJetCollection(*obj, option);
                                  if(cleanedJets->size() < 2)
                                    return -999.;
-                                    
+
                                  return std::abs((*cleanedJets)[0]->eta() - (*cleanedJets)[1]->eta());
                                });
 
@@ -1011,7 +1011,7 @@ namespace
                                  const edm::PtrVector<pat::Jet>* cleanedJets = uwvv::helpers::getCleanedJetCollection(*obj, option);
                                  if(cleanedJets->size() < 2)
                                    return -999.;
-                                    
+
                                  return std::abs(obj->rapidity() -
                                                            ((*cleanedJets)[0]->rapidity() +
                                                             (*cleanedJets)[1]->rapidity()) / 2.
@@ -1024,7 +1024,7 @@ namespace
                                  const edm::PtrVector<pat::Jet>* cleanedJets = uwvv::helpers::getCleanedJetCollection(*obj, option);
                                  if(cleanedJets->size() < 3)
                                    return -999.;
-                                    
+
                                  return std::abs((*cleanedJets)[2]->rapidity() -
                                                            ((*cleanedJets)[0]->rapidity() +
                                                             (*cleanedJets)[1]->rapidity()) / 2.
@@ -1037,7 +1037,7 @@ namespace
                                  const edm::PtrVector<pat::Jet>* cleanedJets = uwvv::helpers::getCleanedJetCollection(*obj, option);
                                  if(cleanedJets->size() < 2)
                                    return -999.;
-                                    
+
                                  float phiJJ = ((*cleanedJets)[0]->p4() + (*cleanedJets)[1]->p4()).phi();
                                  return std::abs(deltaPhi(obj->phi(), phiJJ));
                                });

@@ -10,10 +10,10 @@ class MuonBaseFlow(AnalysisFlowBase):
 
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(MuonBaseFlow, self).makeAnalysisStep(stepName, **inputs)
-        
+
         if stepName == 'preselection':
             if self.debug:
-                step.addBasicCounter('m', 
+                step.addBasicCounter('m',
                     nMuons="",
                     nPreselMuons="pt > 5 && (isGlobalMuon || isTrackerMuon)",
                 )

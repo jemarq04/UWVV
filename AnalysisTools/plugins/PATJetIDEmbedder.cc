@@ -75,7 +75,7 @@ PATJetIDEmbedder::PATJetIDEmbedder(const edm::ParameterSet& iConfig) :
     if (it == idFile_->end())
       throw cms::Exception("Invalid jet ID config") << "Config: " << idConfig_;
   }
-  
+
   produces<JetCollection>();
 }
 
@@ -96,7 +96,7 @@ void PATJetIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     out->push_back(in->at(i)); // copies, transfers ownership
 
     Jet& jet = out->back();
-  
+
     float eta    = jet.eta();
     float chHF   = jet.chargedHadronEnergyFraction();
     float neHF   = jet.neutralHadronEnergyFraction();
@@ -109,7 +109,7 @@ void PATJetIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
     float passTight = 0;
     if (useUL_){
-      float absEta = fabs(eta); 
+      float absEta = fabs(eta);
       passTight = float(
         (absEta <= 2.4 && neHF < 0.90 && neEmEF < 0.90 && mult > 1 && chHF > 0 && chMult > 0) ||
         (absEta > 2.4 && absEta <= 2.7 && neHF < 0.90 && neEmEF < 0.99 && chMult > 0) ||
@@ -117,7 +117,7 @@ void PATJetIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         (absEta > 3.0 && neHF > 0.2 && neEmEF < 0.9 && neMult > 10)
       );
     }
-    else 
+    else
       passTight = idFile_->at(idConfig_)->evaluate({eta, chHF, neHF, chEmEF, neEmEF, muEF, chMult, neMult, mult});
     jet.addUserFloat("idTight", float(passTight > 0.5));
 

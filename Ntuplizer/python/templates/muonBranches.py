@@ -13,13 +13,13 @@ muonBranches = cms.PSet(
                                 '+ pfIsolationR04().sumPhotonEt'
                                 '- 0.5*pfIsolationR04().sumPUPt))'
                                 '/pt()'
-        ),  
+        ),
         PFChargedIso = cms.string('pfIsolationR03.sumChargedParticlePt'),
         PFPhotonIso = cms.string('pfIsolationR03.sumPhotonEt'),
         PFNeutralIso = cms.string('pfIsolationR03.sumNeutralHadronEt'),
         PFPUIso = cms.string('pfIsolationR03.sumPUPt'),
-        TrackIso = cms.string('trackIso()'), 
-        
+        TrackIso = cms.string('trackIso()'),
+
         PtErr = cms.string('? hasUserFloat("correctedPtError") ? '
                            'userFloat("correctedPtError") : '
                            'bestTrack.ptError'),

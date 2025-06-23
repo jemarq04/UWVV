@@ -90,9 +90,9 @@ void PATMuonZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(vtxSrcToken_, vertices);
-  
+
   const reco::Vertex& pv = *vertices->begin();
-  
+
   for(MuonView::const_iterator mi = muonsIn->begin(); mi != muonsIn->end(); mi++) // loop over muons
   {
     out->push_back(*mi); // copy muon to save correctly in event
@@ -119,7 +119,7 @@ void PATMuonZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     mu.addUserFloat(idLabel_+"TightNoVtx", float(idResultNoVtx && (mi->isPFMuon() || trackerHighPtID)));//PAS2019 version of TightMuonID
 
     //Now both electrons and muons have BDT for ZZTightID and thats how its stored in "leptonBranches"
-    //Some cut-based IDs for validation with other frameworks if needed 
+    //Some cut-based IDs for validation with other frameworks if needed
     mu.addUserInt("isTightMuon",mi->isTightMuon(pv));
     mu.addUserInt("CutBasedIdLoose",mi->passed(reco::Muon::CutBasedIdLoose));
     mu.addUserInt("CutBasedIdMedium",mi->passed(reco::Muon::CutBasedIdMedium));

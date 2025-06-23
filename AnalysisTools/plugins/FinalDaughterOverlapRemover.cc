@@ -98,11 +98,11 @@ void FinalDaughterOverlapRemover<n>::produce(edm::Event& iEvent,
 
 
 template<size_t n>
-std::vector<CandRef> 
-FinalDaughterOverlapRemover<n>::getDaughterRefs(const CCand& cand) const 
+std::vector<CandRef>
+FinalDaughterOverlapRemover<n>::getDaughterRefs(const CCand& cand) const
 {
   std::vector<CandRef> out;
-  
+
   for(size_t iZ = 0; iZ < n / 2; ++iZ)
     {
       const CCand* z = static_cast<const CCand*>(cand.daughter(iZ)->masterClone().get());

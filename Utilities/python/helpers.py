@@ -8,7 +8,7 @@ from math import sqrt, pi
 
 def pset2Dict(ps):
     '''
-    Turns a PSet into a dict of (copies of) its elements. 
+    Turns a PSet into a dict of (copies of) its elements.
     Acts recursively, such that a PSet in a PSet becomes a dict in a dict.
     '''
     d = ps.parameters_()
@@ -140,20 +140,20 @@ def mapObjects(channel):
     except KeyError:
         nObjects = {}
         objects = []
-    
+
         for obj in channel:
             if obj not in nObjects:
                 nObjects[obj] = 1
             else:
                 nObjects[obj] += 1
-    
+
         for obj, num in nObjects.items():
             if num == 1:
                 objects.append(obj)
             else:
                 for i in range(num):
                     objects.append(obj+str(i+1))
-        
+
         objects.sort()
 
         _zzhelpers_object_maps_[channel] = objects

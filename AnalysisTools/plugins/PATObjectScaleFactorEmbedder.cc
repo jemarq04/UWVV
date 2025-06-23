@@ -65,7 +65,7 @@ template<typename T>
 PATObjectScaleFactorEmbedder<T>::PATObjectScaleFactorEmbedder(const edm::ParameterSet& iConfig) :
   srcToken(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
   label(iConfig.getParameter<std::string>("label")),
-  useError(iConfig.exists("useError") && 
+  useError(iConfig.exists("useError") &&
            iConfig.getParameter<bool>("useError")),
   xFunction(iConfig.exists("xValue") ?
             iConfig.getParameter<std::string>("xValue") :
@@ -83,11 +83,11 @@ PATObjectScaleFactorEmbedder<T>::PATObjectScaleFactorEmbedder(const edm::Paramet
   if (!checkfile.good())
     baseName = baseName.substr(baseName.find("UWVV/")+5);
   file = std::unique_ptr<TFile>(new TFile(baseName.c_str()));
-  h = std::unique_ptr<TH2F>((file->IsOpen() && !file->IsZombie()) ? 
+  h = std::unique_ptr<TH2F>((file->IsOpen() && !file->IsZombie()) ?
       (TH2F*)(file->Get(iConfig.getParameter<std::string>("histName").c_str())->Clone()) :
       new TH2F("h","h",1,0.,1.,1,0.,1.));
   if(file->IsZombie())
-    throw cms::Exception("InvalidFile") 
+    throw cms::Exception("InvalidFile")
       << "Scale factor file "<< iConfig.getParameter<std::string>("fileName")
       << " does not exist!" << std::endl;
 
@@ -121,7 +121,7 @@ void PATObjectScaleFactorEmbedder<T>::produce(edm::Event& iEvent,
             binx -= 1;
           if(biny > h->GetNbinsY())
             biny -= 1;
-          
+
           bin = h->GetBin(binx, biny, binz);
         }
       if(h->IsBinUnderflow(bin))
@@ -132,7 +132,7 @@ void PATObjectScaleFactorEmbedder<T>::produce(edm::Event& iEvent,
             binx += 1;
           if(!biny)
             biny += 1;
-          
+
           bin = h->GetBin(binx, biny, binz);
         }
 

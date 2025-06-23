@@ -49,7 +49,7 @@ namespace uwvv
       makeStringFunction(const std::string& fString)
     {
       StringObjectFunction<Obj, true> calculator(fString);
-      std::function<Return(const edm::Ptr<Obj>, OtherArgs...)> 
+      std::function<Return(const edm::Ptr<Obj>, OtherArgs...)>
         out([calculator](const edm::Ptr<Obj>& obj, OtherArgs... otherArgs)
             {return ::convertFromFloat<Return>(calculator(*obj));});
       return out;

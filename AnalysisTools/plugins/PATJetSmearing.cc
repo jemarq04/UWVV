@@ -107,7 +107,7 @@ PATJetSmearing::PATJetSmearing(const edm::ParameterSet& iConfig) :
     if (it->first == jersfName_) break;
   if (it == scaleFile_->end())
     throw cms::Exception("Invalid JERSF config") << "Config: " << jerName_;
-  
+
 
 
   produces<JetCollection>();

@@ -46,7 +46,7 @@ class PATElectronWZIDEmbedder : public edm::stream::EDProducer<>
 PATElectronWZIDEmbedder::PATElectronWZIDEmbedder(const edm::ParameterSet& iConfig):
   srcToken_(consumes<ElectronView>(iConfig.getParameter<edm::InputTag>("src"))),
   vertexToken_(consumes<VertexView>(iConfig.getParameter<edm::InputTag>("vertexSrc"))),
-  pogIDNames_(iConfig.getUntrackedParameter<std::vector<std::string>>("pogIDs", 
+  pogIDNames_(iConfig.getUntrackedParameter<std::vector<std::string>>("pogIDs",
         std::vector<std::string>({"IsCBVIDTight", "IsCBVIDMedium",
       "IsCBVIDLoose", "IsCBVIDVeto", "IsCBVIDHLTSafe"})))
 {
@@ -61,7 +61,7 @@ void PATElectronWZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken(vertexToken_, vertices);
 
   const Vertex& thePV = *vertices->begin();
-  
+
   std::unique_ptr<ElectronCollection> out(new ElectronCollection());
 
   for (size_t i = 0; i < in->size(); ++i)

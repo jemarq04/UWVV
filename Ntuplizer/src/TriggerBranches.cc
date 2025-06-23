@@ -6,7 +6,7 @@ using namespace uwvv;
 
 // Single branch implementation
 
-TriggerBranch::TriggerBranch(const std::string& name, 
+TriggerBranch::TriggerBranch(const std::string& name,
                              const std::vector<std::string>& pathExps,
                              TTree* const tree,
                              bool checkPrescale,
@@ -18,10 +18,10 @@ TriggerBranch::TriggerBranch(const std::string& name,
   if(!pathExps.size())
     throw cms::Exception("BadTriggerPath")
       << "Trigger branch must contain at least one path." << std::endl;
-  
+
   for(auto& expr : pathExps)
     paths.push_back(TriggerPathInfo(expr, ignoreMissing));
-  
+
   tree->Branch((name+"Pass").c_str(), &pass);
   if(checkPrescale)
     tree->Branch((name+"Prescale").c_str(), &prescale);
@@ -71,7 +71,7 @@ void TriggerBranch::fill(const edm::Handle<edm::TriggerResults>& results,
 
 // Branch collection implementation
 
-TriggerBranches::TriggerBranches(edm::ConsumesCollector cc, 
+TriggerBranches::TriggerBranches(edm::ConsumesCollector cc,
                                  const edm::ParameterSet& config,
                                  TTree* const tree) :
   resultsToken(cc.consumes<edm::TriggerResults>(config.getParameter<edm::InputTag>("trigResultsSrc"))),
@@ -83,15 +83,15 @@ TriggerBranches::TriggerBranches(edm::ConsumesCollector cc,
                 config.getParameter<bool>("checkPrescale") :
                 true)
 {
-  std::vector<std::string> names = 
+  std::vector<std::string> names =
     config.getParameter<std::vector<std::string> >("trigNames");
   bool ignoreMissing(config.getUntrackedParameter<bool>("ignoreMissing", false));
-  
+
   for(auto& name : names)
     {
-      std::vector<std::string> paths = 
+      std::vector<std::string> paths =
         config.getParameter<std::vector<std::string> >(name + "Paths");
-      
+
       branches[name] = std::unique_ptr<TriggerBranch>(new TriggerBranch(name, paths, tree, checkPrescale, ignoreMissing));
     }
 }

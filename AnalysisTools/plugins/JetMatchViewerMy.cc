@@ -66,7 +66,7 @@ private:
    typedef pat::Jet Jet;
    typedef edm::View<Jet> JetView;
    typedef edm::Association<reco::GenJetCollection> MatchMap;
-   
+
 
    // ----------member data ---------------------------
    edm::EDGetTokenT<JetView> srcToken_; // used to select what jet to read from configuration file
@@ -117,7 +117,7 @@ void JetMatchViewerMy::analyze(const edm::Event &iEvent, const edm::EventSetup &
    iEvent.getByToken(srcToken_, jets);
    Handle<MatchMap> match;
    iEvent.getByToken(matchToken_, match);
-   
+
    printf("====================RECO vs Gen jet Information=========================================\n");
    printf("evt#   pt     eta    phi    pt     eta    phi    PUid0 PUidnew jet#\n");
    jetcount = 0;
@@ -135,12 +135,12 @@ void JetMatchViewerMy::analyze(const edm::Event &iEvent, const edm::EventSetup &
          const auto genMatched = (*match)[jetRef];
          PUid = jetRef->userInt("pileupJetIdUpdated:fullId");
          if (genMatched.isNonnull()){
-         printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n", 
+         printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n",
          evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), genMatched->pt(), genMatched->eta(), genMatched->phi(),jetRef->userInt("pileupJetId:fullId"), PUid, jetcount);
          }
          else{
-           printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n", 
-         evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), -1.,-1.,-1.,jetRef->userInt("pileupJetId:fullId"), PUid, jetcount); 
+           printf("%3d %7.2f %6.2f %6.2f %7.2f %6.2f %6.2f %5d %5d %7d\n",
+         evtcount, jetRef->pt(), jetRef->eta(), jetRef->phi(), -1.,-1.,-1.,jetRef->userInt("pileupJetId:fullId"), PUid, jetcount);
          }
       }
       catch (...)

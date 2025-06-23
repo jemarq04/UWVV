@@ -116,7 +116,7 @@ if (isMC):
         globalTag=(localSettings["mcGlobalTag"])
 elif (isPrompt):
     globalTag=(localSettings["PromptdataGlobalTag"])
-else: 
+else:
     globalTag=(localSettings["dataGlobalTag"])
 print("globalTag:",globalTag)
 print("primaryDS:",primaryDS)
@@ -184,16 +184,16 @@ else:
         exit()
     config.Data.lumiMask = "%s/src/UWVV/Utilities/scripts/JSON/%s" % (os.environ["CMSSW_BASE"], jsonFileName)
     print("Golden JSON: %s" % jsonFileName)
-    # Comment out in the (hopefully very rare) case where resubmit needs to 
+    # Comment out in the (hopefully very rare) case where resubmit needs to
     # be done manually
     #config.General.requestName = '_'.join([campaign_name, primaryDS, conditions, "resubmit"])
-    #config.Data.lumiMask ='crab_%s/results/notFinishedLumis.json' % config.General.requestName 
-    
+    #config.Data.lumiMask ='crab_%s/results/notFinishedLumis.json' % config.General.requestName
+
     #config.Data.splitting = 'LumiBased'
     #config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
-    
+
 config.Data.totalUnits = -1
 
 # Max requestName is 100 characters
@@ -215,7 +215,7 @@ config.General.transferLogs = True
 #config.General.instance = 'preprod'
 
 config.JobType.pluginName = 'ANALYSIS'
-config.JobType.allowUndistributedCMSSW = True 
+config.JobType.allowUndistributedCMSSW = True
 config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg.py' % os.environ["CMSSW_BASE"]
 config.JobType.numCores = 1
 config.JobType.inputFiles = ["%s/src/UWVV/data" % os.environ["CMSSW_BASE"]]

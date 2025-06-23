@@ -88,7 +88,7 @@ AnalysisTools/plugins/ZKinematicFitEmbedder.cc
 # But don't ignore the .txt files they're now stored in
 !AnalysisTools/plugins/*Code.txt
 
-# Crab submit directories 
+# Crab submit directories
 crab_*/
 
 # Local ntuplizer submission inputs

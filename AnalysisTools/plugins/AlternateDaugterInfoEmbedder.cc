@@ -44,7 +44,7 @@ public:
 private:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  const std::vector<std::string> 
+  const std::vector<std::string>
   makePairNames(const std::vector<std::string>& names) const;
 
   const edm::EDGetTokenT<CCandView> srcToken;
@@ -52,7 +52,7 @@ private:
   const std::vector<std::string> names;
   const std::vector<std::string> pairNames;
   const size_t nDaughters;
-  
+
   const std::string fsrLabel;
 
   // have to do some stupid crap to cast to the right pat object type to get
@@ -71,7 +71,7 @@ AlternateDaughterInfoEmbedder::AlternateDaughterInfoEmbedder(const edm::Paramete
   names(iConfig.getParameter<std::vector<std::string> >("names")),
   pairNames(makePairNames(names)),
   nDaughters(names.size()),
-  fsrLabel(iConfig.exists("fsrLabel") ? 
+  fsrLabel(iConfig.exists("fsrLabel") ?
       iConfig.getParameter<std::string>("fsrLabel") :
       "")
 {
@@ -181,7 +181,7 @@ void AlternateDaughterInfoEmbedder::produce(edm::Event& iEvent, const edm::Event
 }
 
 
-const std::vector<std::string> 
+const std::vector<std::string>
 AlternateDaughterInfoEmbedder::makePairNames(const std::vector<std::string>& daughterNames) const
 {
   if(daughterNames.size() < 2)

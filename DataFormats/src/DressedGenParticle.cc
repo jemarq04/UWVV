@@ -10,18 +10,18 @@ void DressedGenParticle::dressParticle() {
 }
 DressedGenParticle::~DressedGenParticle() { }
 
-DressedGenParticle::DressedGenParticle( Charge q, const LorentzVector & p4, 
-              const Point & vtx, int pdgId, int status, bool integerCharge ) : 
+DressedGenParticle::DressedGenParticle( Charge q, const LorentzVector & p4,
+              const Point & vtx, int pdgId, int status, bool integerCharge ) :
     reco::GenParticle( q, p4, vtx, pdgId, status, integerCharge ),
     p4_undressed(p4) {
 }
-DressedGenParticle::DressedGenParticle( Charge q, const PolarLorentzVector & p4, 
-              const Point & vtx, int pdgId, int status, bool integerCharge ) : 
-    reco::GenParticle( q, p4, vtx, pdgId, status, integerCharge ), 
+DressedGenParticle::DressedGenParticle( Charge q, const PolarLorentzVector & p4,
+              const Point & vtx, int pdgId, int status, bool integerCharge ) :
+    reco::GenParticle( q, p4, vtx, pdgId, status, integerCharge ),
     p4_undressed(p4) {
 }
-DressedGenParticle::DressedGenParticle(const reco::GenParticle& cand, 
-    const reco::GenParticleCollection assocCollection, 
+DressedGenParticle::DressedGenParticle(const reco::GenParticle& cand,
+    const reco::GenParticleCollection assocCollection,
     const float dRmax) :
         reco::GenParticle(cand), p4_undressed(cand.p4()) {
     for (const auto& associated : assocCollection) {
@@ -57,7 +57,7 @@ bool DressedGenParticle::dissociate(const reco::GenParticle& associated) {
         return false;
     }
     return true;
-//    associates.erase(std::remove(associates.begin(), 
+//    associates.erase(std::remove(associates.begin(),
 //        associates.end(), associated), associates.end());
 //    this->setP4(this->p4() - associated.p4());
 //    return true;
@@ -66,7 +66,7 @@ bool DressedGenParticle::isAssociated(const reco::GenParticle& associated) const
     //std::vector<reco::GenParticle>::const_iterator begin = associates.begin();
     std::vector<reco::GenParticle>::const_iterator end = associates.end();
     std::vector<reco::GenParticle>::const_iterator entry = std::find_if(
-        associates.begin(), associates.end(), 
+        associates.begin(), associates.end(),
         [&associated](const reco::GenParticle& part) {return part.pt() == associated.pt();});
     return (entry != end);
 }
