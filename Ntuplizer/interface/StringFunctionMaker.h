@@ -35,6 +35,10 @@ namespace
     {
       return lrint(fabs(x));
     }
+  template<> std::string convertFromFloat(float x)
+    {
+      return std::to_string(x);
+    }
 }
 
 

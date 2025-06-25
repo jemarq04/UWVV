@@ -39,7 +39,7 @@ eventBranches = cms.PSet(
         ),
     )
 L1ECALPrefiringBranches = cms.PSet(
-        floats = cms.PSet(
+    floats = cms.PSet(
         L1prefiringWeight = cms.string('L1prefiringWeight'),
         L1prefiringWeightUp = cms.string('L1prefiringWeightUp'),
         L1prefiringWeightDn = cms.string('L1prefiringWeightDn'),
@@ -48,6 +48,8 @@ L1ECALPrefiringBranches = cms.PSet(
 lheScaleWeightBranches = cms.PSet(
     vFloats = cms.PSet(
         scaleWeights = cms.vstring('lheWeights::0,9'),
+        ),
+    vStrs = cms.PSet(
         scaleWeightIDs = cms.vstring('lheWeightIDs::0,9'),
         ),
     floats = cms.PSet(

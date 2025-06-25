@@ -67,6 +67,7 @@ namespace uwvv
     std::vector<std::unique_ptr<BranchHolder<std::vector<float>, T> > >     vFloatBranches;
     std::vector<std::unique_ptr<BranchHolder<std::vector<int>, T> > >       vIntBranches;
     std::vector<std::unique_ptr<BranchHolder<std::vector<unsigned>, T> > >  vUIntBranches;
+    std::vector<std::unique_ptr<BranchHolder<std::vector<std::string>, T> > > vStrBranches;
   };
 
 
@@ -143,6 +144,10 @@ namespace uwvv
       addVectorBranchesFromPSet(vUIntBranches,
                                 config.getParameter<edm::ParameterSet>("vUInts"),
                                 tree);
+    if(config.exists("vStrs"))
+      addVectorBranchesFromPSet(vStrBranches,
+                                config.getParameter<edm::ParameterSet>("vStrs"),
+                                tree);
   }
 
 
@@ -211,6 +216,9 @@ namespace uwvv
       b->fill(obj, evt);
 
     for(auto&& b : vUIntBranches)
+      b->fill(obj, evt);
+
+    for(auto&& b : vStrBranches)
       b->fill(obj, evt);
   }
 

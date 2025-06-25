@@ -34,6 +34,69 @@ namespace
     };
 
   template<>
+    struct GeneralFunctionList<std::vector<std::string> >
+    {
+      template<class T> static void
+      addFunctions(std::unordered_map<std::string, std::function<std::vector<std::string>(const edm::Ptr<T>&, uwvv::EventInfo&, const std::string&)> >& addTo)
+      {
+        typedef std::vector<std::string> (FType) (const edm::Ptr<T>&, uwvv::EventInfo&, const std::string&);
+        addTo["lheWeightIDs"] =
+          std::function<FType>([](const edm::Ptr<T>& obj, uwvv::EventInfo& evt, const std::string& option)
+                               {
+                                  std::vector<std::string> out;
+
+                                  if (!evt.lheEventInfo().isValid())
+                                    throw cms::Exception("ProductNotFound")
+                                        << "Unable to open LHE event information";
+
+                                  unsigned long first_weight = 0;
+                                  // Arbitrary choice, but 1000 weights would be pretty excessive
+                                  unsigned long last_weight = 1000;
+                                  if (option != "")
+                                    {
+                                      size_t pos = option.find(",");
+                                      // If only 1 weight is specified, take it as the last weight (start at 0)
+                                      if (pos == std::string::npos)
+                                        try
+                                          {
+                                            last_weight = std::stoul(option);
+                                          }
+                                        catch (const std::exception& e)
+                                          {
+                                            std::string message = "Unable to parse option " + option +
+                                                " for LHE weights. Error from ";
+                                            throw std::runtime_error(message + e.what());
+                                          }
+                                      else
+                                        {
+                                          std::string begin = option.substr(0, pos);
+                                          std::string end = option.substr(pos+1);
+                                          try
+                                            {
+                                              first_weight = std::stoul(begin);
+                                              last_weight = std::stoul(end);
+                                            }
+                                          catch (const std::exception& e)
+                                            {
+                                              std::string message = "Unable to parse option " + option +
+                                                  " for LHE weights. Error from ";
+                                              throw std::runtime_error(message + e.what());
+                                            }
+                                        }
+                                    }
+                                  auto weights = evt.lheEventInfo()->weights();
+                                  for (unsigned long i = first_weight; i <  weights.size(); i++)
+                                    {
+                                      if (i == last_weight)
+                                        break;
+                                      out.push_back(weights[i].id);
+                                    }
+                                  return out;
+                                });
+      }
+    };
+
+  template<>
     struct GeneralFunctionList<std::vector<float> >
     {
       template<class T> static void
@@ -147,66 +210,6 @@ namespace
                                       if (i == last_weight)
                                         break;
                                       out.push_back(weights[i].wgt);
-                                    }
-                                  return out;
-                                });
-        addTo["lheWeightIDs"] =
-          std::function<FType>([](const edm::Ptr<T>& obj, uwvv::EventInfo& evt, const std::string& option)
-                               {
-                                  std::vector<float> out;
-
-                                  if (!evt.lheEventInfo().isValid())
-                                    throw cms::Exception("ProductNotFound")
-                                        << "Unable to open LHE event information";
-
-                                  unsigned long first_weight = 0;
-                                  // Arbitrary choice, but 1000 weights would be pretty excessive
-                                  unsigned long last_weight = 1000;
-                                  if (option != "")
-                                    {
-                                      size_t pos = option.find(",");
-                                      // If only 1 weight is specified, take it as the last weight (start at 0)
-                                      if (pos == std::string::npos)
-                                        try
-                                          {
-                                            last_weight = std::stoul(option);
-                                          }
-                                        catch (const std::exception& e)
-                                          {
-                                            std::string message = "Unable to parse option " + option +
-                                                " for LHE weights. Error from ";
-                                            throw std::runtime_error(message + e.what());
-                                          }
-                                      else
-                                        {
-                                          std::string begin = option.substr(0, pos);
-                                          std::string end = option.substr(pos+1);
-                                          try
-                                            {
-                                              first_weight = std::stoul(begin);
-                                              last_weight = std::stoul(end);
-                                            }
-                                          catch (const std::exception& e)
-                                            {
-                                              std::string message = "Unable to parse option " + option +
-                                                  " for LHE weights. Error from ";
-                                              throw std::runtime_error(message + e.what());
-                                            }
-                                        }
-                                    }
-                                  auto weights = evt.lheEventInfo()->weights();
-                                  for (unsigned long i = first_weight; i <  weights.size(); i++)
-                                    {
-                                      if (i == last_weight)
-                                        break;
-																			float addval;
-																			try{
-																			addval = std::atof(weights[i].id.c_str());
-																			}
-																			catch (const std::exception& e){
-																				addval = -999.99;
-																			}
-                                      out.push_back(addval);
                                     }
                                   return out;
                                 });
