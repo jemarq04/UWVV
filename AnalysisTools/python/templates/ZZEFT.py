@@ -1,4 +1,5 @@
 from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
+from UWVV.Utilities.helpers import parseChannels
 
 import FWCore.ParameterSet.Config as cms
 

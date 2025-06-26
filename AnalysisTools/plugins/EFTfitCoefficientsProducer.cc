@@ -33,7 +33,7 @@ class EFTfitCoefficientsEmbedder : public edm::stream::EDProducer<>
 
   private:
     virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup);
-    
+
     typedef std::pair<std::string, float> WC;
     typedef std::vector<WC> WCVec;
 
@@ -116,9 +116,9 @@ void EFTfitCoefficientsEmbedder::produce(edm::Event &iEvent, const edm::EventSet
   {
     for (size_t col=0; col<numTerms; col++)
     {
-      x1 = indexPairs_[col].first > 0 ? 
+      x1 = indexPairs_[col].first > 0 ?
         reweightInfo[row].first[indexPairs_[col].first].second : 1.0;
-      x2 = indexPairs_[col].second > 0 ? 
+      x2 = indexPairs_[col].second > 0 ?
         reweightInfo[row].first[indexPairs_[col].second].second : 1.0;
       A(row,col) = x1 * x2;
     }
