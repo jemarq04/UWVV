@@ -18,9 +18,13 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/View.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+
+// ROOT includes
+#include "TMatrixD.h"
+#include "TVectorD.h"
+#include "TDecompSVD.h"
 
 // TODO: didn't end up using names... remove them here? store them as well?
 //  -> need to store it *somewhere*
@@ -60,7 +64,7 @@ void EFTfitCoefficientsEmbedder::produce(edm::Event &iEvent, const edm::EventSet
 
   // Determine reweights
   size_t numReweights = 0;
-  size_t numTerms = -1;
+  size_t numTerms = 0;
   std::vector<std::pair<WCVec, float> > reweightInfo;
   for (size_t i=0; i<lheInfo->weights().size(); i++)
   {
@@ -75,7 +79,7 @@ void EFTfitCoefficientsEmbedder::produce(edm::Event &iEvent, const edm::EventSet
 
     // Tokenize reweight ID
     std::vector<std::string> words;
-    stringstream ss_name(weight.id);
+    std::stringstream ss_name(weight.id);
     for (std::string word; std::getline(ss_name, word, '_');)
       words.push_back(word);
 
@@ -85,7 +89,7 @@ void EFTfitCoefficientsEmbedder::produce(edm::Event &iEvent, const edm::EventSet
 
     // Store number of WC*WC terms
     //  ((N+1)^2 - (N+1))/2 + N+1
-    if (numTerms == -1)
+    if (numTerms == 0)
     {
       int N = coeffs.size();
       numTerms = ((N+1)*(N+1) - (N+1))/2 + N+1;
@@ -157,4 +161,5 @@ void EFTfitCoefficientsEmbedder::makeIndexPairs(size_t N){
       indexPairs_.push_back(std::make_pair(i, j));
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(EFTfitCoefficientsEmbedder);
