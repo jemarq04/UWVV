@@ -138,7 +138,6 @@ void EFTfitCoefficientsEmbedder::produce(edm::Event &iEvent, const edm::EventSet
       << "Unable to generate valid fit for given inputs";
 
   // Store fits in plain vector
-  std::vector<float> EFTfit;
   for (size_t i=0; i<numTerms; i++)
     EFTfitCoefficients->push_back(s(i));
 
