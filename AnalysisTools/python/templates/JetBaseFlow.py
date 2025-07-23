@@ -3,7 +3,7 @@ from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-from os import path
+from os import path, environ
 
 class JetBaseFlow(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
@@ -108,17 +108,24 @@ class JetBaseFlow(AnalysisFlowBase):
                 jesConfig = "Winter24Prompt24_V3"
                 jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
 
+            """
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
                                     yearstring, "jet_jerc.json.gz")
             vetoFileP  = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
                                     yearstring, "jetvetomaps.json.gz")
             idFileP    = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
                                     yearstring, "jetid.json.gz")
+            """
+
+            scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jet_jerc.json.gz")
+            vetoFileP  = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jetvetomaps.json.gz")
+            idFileP    = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jetid_V1.json.gz") #TODO: update when correctionlib failure resolves
 
             if self.jetsUL:
                 jerConfig = "Summer19UL18_JRV2"
-                scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
-                                        "2018_UL", "jet_jerc.json.gz")
+                scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME/2018_UL", "jet_jerc.json.gz")
+                #scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
+                #                        "2018_UL", "jet_jerc.json.gz")
 
             # Jet energy corrections + uncertainties (JES)
             if self.jetsUL:
