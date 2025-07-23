@@ -91,20 +91,17 @@ class JetBaseFlow(AnalysisFlowBase):
             elif self.year == "2023":
                 dataPeriod = "_Run"
                 if self.dataPeriod.split("v")[0] == "C":
-                    if self.dataPeriod.split("v")[1] in "123":
-                        dataPeriod += "Cv123"
-                    else:
-                        dataPeriod += "Cv4"
+                    dataPeriod += "Cv1234"
                 elif self.dataPeriod.split("v")[0] == "D":
                     dataPeriod += "D"
                 yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
-                jesConfig = "Summer23%sPrompt23%s_V1" % (
+                jesConfig = "Summer23%sPrompt23%s_V2" % (
                     "" if self.calibEra23 == "preBPix" else "BPix",
                     "" if self.isMC else dataPeriod
                 )
                 jerConfig = "Summer23%sPrompt23_%s_JRV1" % (
                     "" if self.calibEra23 == "preBPix" else "BPix",
-                    "RunCv4" if self.calibEra23 == "preBPix" else "RunD" # TODO: how to decide from Cv123 or Cv4?
+                    "RunCv1234" if self.calibEra23 == "preBPix" else "RunD"
                 )
             elif self.year == "2024":
                 yearstring = "2024_Winter24"
