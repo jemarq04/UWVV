@@ -89,15 +89,10 @@ class JetBaseFlow(AnalysisFlowBase):
                 )
                 jerConfig = "Summer22%s_22Sep2023_JRV1" % ("" if self.calibEra22 == "preEE" else "EE")
             elif self.year == "2023":
-                dataPeriod = "_Run"
-                if self.dataPeriod.split("v")[0] == "C":
-                    dataPeriod += "Cv1234"
-                elif self.dataPeriod.split("v")[0] == "D":
-                    dataPeriod += "D"
                 yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
-                jesConfig = "Summer23%sPrompt23%s_V2" % (
+                jesConfig = "Summer23%sPrompt23_V%s" % (
                     "" if self.calibEra23 == "preBPix" else "BPix",
-                    "" if self.isMC else dataPeriod
+                    "2" if self.calibEra23 == "preBPix" else "3",
                 )
                 jerConfig = "Summer23%sPrompt23_%s_JRV1" % (
                     "" if self.calibEra23 == "preBPix" else "BPix",
