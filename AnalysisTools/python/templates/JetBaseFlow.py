@@ -114,7 +114,7 @@ class JetBaseFlow(AnalysisFlowBase):
 
             scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jet_jerc.json.gz")
             vetoFileP  = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jetvetomaps.json.gz")
-            idFileP    = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jetid_V1.json.gz") #TODO: update when correctionlib failure resolves
+            idFileP    = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jetid.json.gz")
 
             if self.jetsUL:
                 jerConfig = "Summer19UL18_JRV2"
