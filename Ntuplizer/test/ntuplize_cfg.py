@@ -87,7 +87,7 @@ options.register("electronsUL", 1,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
         "use 2018UL MVA for electron ID 0: off, 1: on")
-options.register("jetsUL", 1,
+options.register("jetsUL", 0,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
         "use AK4CHS jets and 2018UL corrections 0: off, 1: on")
