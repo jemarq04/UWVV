@@ -282,10 +282,10 @@ class JetBaseFlow(AnalysisFlowBase):
         elif stepName == 'preselection':
             # For now, we're not using the PU ID, but we'll store it in the
             # ntuples later
-            selectionString = ('pt > 20. && abs(eta) < 4.7 && '
+            selectionString = ('pt > 50. && abs(eta) < 4.7 && '
                                'userFloat("idTight") > 0.5 && (userInt("{}") >= 0||pt>50.)').format(step.getObjTagString('puID'))
 
-            selectionString2 = ('pt > 20. && abs(eta) < 4.7 && '
+            selectionString2 = ('pt > 50. && abs(eta) < 4.7 && '
                                'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
 
             if self.isMC:
