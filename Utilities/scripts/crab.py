@@ -144,8 +144,9 @@ configParams = [
     "postEE=%i" % postEE,
     "postBPix=%i" % postBPix,
 ]
-if "jetsUL" in localSettings:
-    configParams.append('jetsUL=%s' % localSettings["jetsUL"])
+for optvar in ["jetsUL", "electronsUL"]:
+    if optvar in localSettings:
+        configParams.append(f"{optvar}={localSettings[optvar]}")
 
 today = (datetime.date.today()).strftime("%d%b%Y")
 campaign_name = localSettings["campaign"].replace("$DATE", today)
