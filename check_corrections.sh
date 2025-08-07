@@ -1,3 +1,5 @@
+#!/bin/bash
+
 for pog in data/XPOG/*/; do
   for era in ${pog}*/; do
     for f in ${era}*; do
