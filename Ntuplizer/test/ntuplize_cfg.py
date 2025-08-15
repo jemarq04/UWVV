@@ -377,11 +377,12 @@ elif state_zl or state_z or state_wz:
         from UWVV.AnalysisTools.templates.ZPlusXInitialStateBaseFlow import ZPlusXInitialStateBaseFlow
         FlowSteps.append(ZPlusXInitialStateBaseFlow) # also embeds jets (channel zl)
 
-        from UWVV.AnalysisTools.templates.WZFlow import WZFlow
-        FlowSteps.append(WZFlow)
+        if state_wz:
+            from UWVV.AnalysisTools.templates.WZFlow import WZFlow
+            FlowSteps.append(WZFlow)
 
-        from UWVV.Ntuplizer.templates.countBranches import wzCountBranches
-        extraInitialStateBranches.append(wzCountBranches)
+            from UWVV.Ntuplizer.templates.countBranches import wzCountBranches
+            extraInitialStateBranches.append(wzCountBranches)
     else:
         from UWVV.AnalysisTools.templates.ZInitialStateBaseFlow import ZInitialStateBaseFlow
         FlowSteps.append(ZInitialStateBaseFlow) # also embeds jets (channel z)
