@@ -118,10 +118,14 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       jes = jesName_.find("BPix") == std::string::npos ?
         scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho}) :
         scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho, jet.phi()});
-    else
-      jes = jesName_.find("BPix") == std::string::npos ?
-        scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho, (double)iEvent.run()}) :
-        scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho, jet.phi(), (double)iEvent.run()});
+    else{
+      if (config_.find("Summer23") == 0)
+        jes = jesName_.find("BPix") == std::string::npos ?
+          scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho, (double)iEvent.run()}) :
+          scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho, jet.phi(), (double)iEvent.run()});
+      else
+        jes = scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho});
+    }
     out->push_back(jet);
     out->back().setP4(math::XYZTLorentzVector(jes * jet.p4()));
 
