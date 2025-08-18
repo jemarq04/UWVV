@@ -13,6 +13,7 @@ anything other than ZZ.
 - [Running local jobs](#running-local-jobs)
 - [Submitting CRAB jobs](#submitting-crab-jobs)
    * [Submitting CRAB jobs for custom MC](#submitting-crab-jobs-for-custom-mc)
+- [Fake rates](#fake-rates)
 - [Running `pre-commit`](#running-pre-commit)
 
 ## Setup
@@ -133,6 +134,11 @@ empty lines or lines beginning with `#` are ignored.
 
 **NOTE**: The `postEE` and `postBPix` options are derived from the dataset conditions (the second string in the /-separated list), so for these custom submissions
 you need to specify if you want either of these options yourself. You can uncomment the relevant line in the code snippet above.
+
+## Fake rates
+
+To estimate the fake rate for ZZ analysis, we need to process Z+L samples for all the same datasets. To do this, simply submit jobs with the
+`channels: zl` option (or locally with `channels=zl`).
 
 ## Running `pre-commit`
 
