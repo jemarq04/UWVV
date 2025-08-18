@@ -80,8 +80,6 @@ elif year == "2023":
 dataPeriod = ""
 if not isMC:
     dataPeriod = conditions.split("Run%s" % year)[1][0]
-    if year == "2023":
-        dataPeriod += "v" + conditions.split("_v")[1][0]
     print("isPrompt: %s" % isPrompt)
     print("dataPeriod:", dataPeriod)
 
@@ -144,8 +142,9 @@ configParams = [
     "postEE=%i" % postEE,
     "postBPix=%i" % postBPix,
 ]
-if "jetsUL" in localSettings:
-    configParams.append('jetsUL=%s' % localSettings["jetsUL"])
+for optvar in ["jetsUL", "electronsUL"]:
+    if optvar in localSettings:
+        configParams.append(f"{optvar}={localSettings[optvar]}")
 
 today = (datetime.date.today()).strftime("%d%b%Y")
 campaign_name = localSettings["campaign"].replace("$DATE", today)

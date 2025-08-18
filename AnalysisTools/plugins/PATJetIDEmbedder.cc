@@ -117,8 +117,11 @@ void PATJetIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         (absEta > 3.0 && neHF > 0.2 && neEmEF < 0.9 && neMult > 10)
       );
     }
-    else
-      passTight = idFile_->at(idConfig_)->evaluate({eta, chHF, neHF, chEmEF, neEmEF, muEF, chMult, neMult, mult});
+    else{
+      // Required for V2, but there is a correctionlib failure. Comment out and use V1 corrections for now
+      //passTight = idFile_->at(idConfig_)->evaluate({eta, chHF, neHF, chEmEF, neEmEF, muEF, chMult, neMult, mult});
+      passTight = idFile_->at(idConfig_)->evaluate({eta, chHF, neHF, neEmEF, (float)chMult, (float)neMult, (float)mult});
+    }
     jet.addUserFloat("idTight", float(passTight > 0.5));
 
     if (domatch_){

@@ -87,7 +87,7 @@ options.register("electronsUL", 1,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
         "use 2018UL MVA for electron ID 0: off, 1: on")
-options.register("jetsUL", 1,
+options.register("jetsUL", 0,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
         "use AK4CHS jets and 2018UL corrections 0: off, 1: on")
@@ -154,18 +154,14 @@ if options.isMC:
     if options.isPrompt:
         print("ERROR: option mismatch. isPrompt is for data.")
         exit(1)
-else:
+elif options.year == "2022": #data period only needed for 2022 jet corrections
     if not options.dataPeriod:
-        print("ERROR: for jet corrections, the data period must be provided (e.g. A, B, C, ...)")
+        print("ERROR: for 2022 jet corrections, the data period must be provided (e.g. A, B, C, ...)")
         exit(1)
     vals = options.dataPeriod.split("v")
     if not vals[0].isalpha() or (len(vals) == 2 and not vals[1].isdigit()):
         print("ERROR: Invalid data period '%s'" % options.dataPeriod)
         print("Must be a single character with optional version (e.g. A, Cv3, ...)")
-        exit(1)
-    elif options.year == "2023" and len(vals) != 2:
-        print("ERROR: Invalid data period '%s'" % options.dataPeriod)
-        print("2023 data periods MUST contain a version (e.g. Cv1)")
         exit(1)
     options.dataPeriod = options.dataPeriod.title()
 
@@ -377,11 +373,12 @@ elif state_zl or state_z or state_wz:
         from UWVV.AnalysisTools.templates.ZPlusXInitialStateBaseFlow import ZPlusXInitialStateBaseFlow
         FlowSteps.append(ZPlusXInitialStateBaseFlow) # also embeds jets (channel zl)
 
-        from UWVV.AnalysisTools.templates.WZFlow import WZFlow
-        FlowSteps.append(WZFlow)
+        if state_wz:
+            from UWVV.AnalysisTools.templates.WZFlow import WZFlow
+            FlowSteps.append(WZFlow)
 
-        from UWVV.Ntuplizer.templates.countBranches import wzCountBranches
-        extraInitialStateBranches.append(wzCountBranches)
+            from UWVV.Ntuplizer.templates.countBranches import wzCountBranches
+            extraInitialStateBranches.append(wzCountBranches)
     else:
         from UWVV.AnalysisTools.templates.ZInitialStateBaseFlow import ZInitialStateBaseFlow
         FlowSteps.append(ZInitialStateBaseFlow) # also embeds jets (channel z)

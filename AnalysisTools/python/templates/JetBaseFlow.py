@@ -3,7 +3,7 @@ from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-from os import path
+from os import path, environ
 
 class JetBaseFlow(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
@@ -78,10 +78,10 @@ class JetBaseFlow(AnalysisFlowBase):
             yearstring = jesConfig = jerConfig = ""
             if self.year == "2022":
                 dataPeriod = "_Run"
-                if self.dataPeriod in ["C", "D"]:
+                if self.dataPeriod.split("v")[0] in ["C", "D"]:
                     dataPeriod += "CD"
                 else:
-                    dataPeriod += self.dataPeriod
+                    dataPeriod += self.dataPeriod.split("v")[0]
                 yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
                 jesConfig = "Summer22%s_22Sep2023%s_V2" % (
                     "" if self.calibEra22 == "preEE" else "EE",
@@ -89,39 +89,38 @@ class JetBaseFlow(AnalysisFlowBase):
                 )
                 jerConfig = "Summer22%s_22Sep2023_JRV1" % ("" if self.calibEra22 == "preEE" else "EE")
             elif self.year == "2023":
-                dataPeriod = "_Run"
-                if self.dataPeriod.split("v")[0] == "C":
-                    if self.dataPeriod.split("v")[1] in "123":
-                        dataPeriod += "Cv123"
-                    else:
-                        dataPeriod += "Cv4"
-                elif self.dataPeriod.split("v")[0] == "D":
-                    dataPeriod += "D"
                 yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
-                jesConfig = "Summer23%sPrompt23%s_V1" % (
+                jesConfig = "Summer23%sPrompt23_V%s" % (
                     "" if self.calibEra23 == "preBPix" else "BPix",
-                    "" if self.isMC else dataPeriod
+                    "2" if self.calibEra23 == "preBPix" else "3",
                 )
                 jerConfig = "Summer23%sPrompt23_%s_JRV1" % (
                     "" if self.calibEra23 == "preBPix" else "BPix",
-                    "RunCv4" if self.calibEra23 == "preBPix" else "RunD" # TODO: how to decide from Cv123 or Cv4?
+                    "RunCv1234" if self.calibEra23 == "preBPix" else "RunD"
                 )
             elif self.year == "2024":
                 yearstring = "2024_Winter24"
                 jesConfig = "Winter24Prompt24_V3"
                 jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
 
+            """
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
                                     yearstring, "jet_jerc.json.gz")
             vetoFileP  = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
                                     yearstring, "jetvetomaps.json.gz")
             idFileP    = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
                                     yearstring, "jetid.json.gz")
+            """
+
+            scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jet_jerc.json.gz")
+            vetoFileP  = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jetvetomaps.json.gz")
+            idFileP    = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jetid.json.gz")
 
             if self.jetsUL:
                 jerConfig = "Summer19UL18_JRV2"
-                scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
-                                        "2018_UL", "jet_jerc.json.gz")
+                scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME/2018_UL", "jet_jerc.json.gz")
+                #scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
+                #                        "2018_UL", "jet_jerc.json.gz")
 
             # Jet energy corrections + uncertainties (JES)
             if self.jetsUL:
@@ -283,10 +282,10 @@ class JetBaseFlow(AnalysisFlowBase):
         elif stepName == 'preselection':
             # For now, we're not using the PU ID, but we'll store it in the
             # ntuples later
-            selectionString = ('pt > 20. && abs(eta) < 4.7 && '
+            selectionString = ('pt > 50. && abs(eta) < 4.7 && '
                                'userFloat("idTight") > 0.5 && (userInt("{}") >= 0||pt>50.)').format(step.getObjTagString('puID'))
 
-            selectionString2 = ('pt > 20. && abs(eta) < 4.7 && '
+            selectionString2 = ('pt > 50. && abs(eta) < 4.7 && '
                                'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
 
             if self.isMC:

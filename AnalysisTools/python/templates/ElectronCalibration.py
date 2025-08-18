@@ -78,8 +78,11 @@ class ElectronCalibration(AnalysisFlowBase):
                 yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
                 scaleConfig = "2023Prompt%s_ScaleJSON" % ("C" if self.calibEra23 == "preBPix" else "D")
                 smearConfig = "2023Prompt%s_SmearingJSON" % ("C" if self.calibEra23 == "preBPix" else "D")
+            """
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/EGM",
                                     yearstring, "electronSS.json.gz")
+            """
+            scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/EGM", yearstring, "electronSS.json.gz")
 
             if self.year != "2024":
                 # TODO: add 2024 electron calibrations when available
