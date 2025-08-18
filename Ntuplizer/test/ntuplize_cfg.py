@@ -154,18 +154,14 @@ if options.isMC:
     if options.isPrompt:
         print("ERROR: option mismatch. isPrompt is for data.")
         exit(1)
-else:
+elif options.year == "2022": #data period only needed for 2022 jet corrections
     if not options.dataPeriod:
-        print("ERROR: for jet corrections, the data period must be provided (e.g. A, B, C, ...)")
+        print("ERROR: for 2022 jet corrections, the data period must be provided (e.g. A, B, C, ...)")
         exit(1)
     vals = options.dataPeriod.split("v")
     if not vals[0].isalpha() or (len(vals) == 2 and not vals[1].isdigit()):
         print("ERROR: Invalid data period '%s'" % options.dataPeriod)
         print("Must be a single character with optional version (e.g. A, Cv3, ...)")
-        exit(1)
-    elif options.year == "2023" and len(vals) != 2:
-        print("ERROR: Invalid data period '%s'" % options.dataPeriod)
-        print("2023 data periods MUST contain a version (e.g. Cv1)")
         exit(1)
     options.dataPeriod = options.dataPeriod.title()
 

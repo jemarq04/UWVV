@@ -80,8 +80,6 @@ elif year == "2023":
 dataPeriod = ""
 if not isMC:
     dataPeriod = conditions.split("Run%s" % year)[1][0]
-    if year == "2023":
-        dataPeriod += "v" + conditions.split("_v")[1][0]
     print("isPrompt: %s" % isPrompt)
     print("dataPeriod:", dataPeriod)
 
