@@ -21,3 +21,4 @@ repos:
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes"]
+exclude: data/.*
