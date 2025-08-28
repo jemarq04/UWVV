@@ -27,6 +27,8 @@ class JetBaseFlow(AnalysisFlowBase):
         if stepName == 'preliminary':
             # Pileup ID
             # This puts the IDs in the event stream, not an updated jet collection
+            # Note that due to recommendations to keep min jet pt at 50 GeV,
+            # PUID is essentially ignored. For now, the code remains.
             if self.jetsUL:
                 step.outputs['j'] = "slimmedJets"
                 from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_106X_UL18
