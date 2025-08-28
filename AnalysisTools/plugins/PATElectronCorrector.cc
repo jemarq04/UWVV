@@ -43,6 +43,7 @@ private:
   const bool isMC_;
   std::string scaleFileName_, scaleConfig_, smearConfig_;
   std::unique_ptr<correction::CorrectionSet> scaleFile_;
+  double minPt_;
   const bool hasSeed_;
   const ULong64_t seed_;
 };
@@ -59,6 +60,9 @@ PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig) :
   smearConfig_(iConfig.exists("smearConfig") ?
       iConfig.getParameter<std::string>("smearConfig") :
       "Smearing"),
+  minPt_(iConfig.exists("minPt") ?
+      iConfig.getParameter<double>("minPt") :
+      15.0),
   hasSeed_(iConfig.exists("seed")),
   seed_(hasSeed_? iConfig.getParameter<ULong64_t>("seed") : 0)
 {
@@ -103,19 +107,22 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
     float rho = 0, err_rho = 0;
     float scale = 1, err_scale = 0;
     float smear = 1, smear_up = 1, smear_dn = 1;
-    if (isMC_){
-      rho       = scaleFile_->at(smearConfig_)->evaluate({"rho", ele.eta(), ele.r9()});
-      err_rho   = scaleFile_->at(smearConfig_)->evaluate({"err_rho", ele.eta(), ele.r9()});
-      err_scale = scaleFile_->at(scaleConfig_)->evaluate({"total_uncertainty", ele.userInt("seedGain"), (double)iEvent.run(), ele.eta(), ele.r9(), ele.pt()});
 
-      TRandom3 rand;
-      rand.SetSeed(hasSeed_? seed_ : std::abs(static_cast<int>(std::sin(ele.phi())*100000)));
-      smear = rand.Gaus(1., rho);
-      smear_up = rand.Gaus(1., rho+err_rho);
-      smear_dn = rand.Gaus(1., rho-err_rho);
+    if (ele.pt() > minPt_){
+      if (isMC_){
+        rho       = scaleFile_->at(smearConfig_)->evaluate({"rho", ele.eta(), ele.r9()});
+        err_rho   = scaleFile_->at(smearConfig_)->evaluate({"err_rho", ele.eta(), ele.r9()});
+        err_scale = scaleFile_->at(scaleConfig_)->evaluate({"total_uncertainty", ele.userInt("seedGain"), (double)iEvent.run(), ele.eta(), ele.r9(), ele.pt()});
+
+        TRandom3 rand;
+        rand.SetSeed(hasSeed_? seed_ : std::abs(static_cast<int>(std::sin(ele.phi())*100000)));
+        smear = rand.Gaus(1., rho);
+        smear_up = rand.Gaus(1., rho+err_rho);
+        smear_dn = rand.Gaus(1., rho-err_rho);
+      }
+      else
+        scale = scaleFile_->at(scaleConfig_)->evaluate({"total_correction", ele.userInt("seedGain"), (double)iEvent.run(), ele.eta(), ele.r9(), ele.pt()});
     }
-    else
-      scale = scaleFile_->at(scaleConfig_)->evaluate({"total_correction", ele.userInt("seedGain"), (double)iEvent.run(), ele.eta(), ele.r9(), ele.pt()});
 
     float uncorrected_pt = ele.pt();
     float corrected_pt = uncorrected_pt * (isMC_? smear : scale);
