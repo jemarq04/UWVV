@@ -2,7 +2,7 @@ from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection, setupPuppiForPackedPF
 from os import path, environ
 
 class JetBaseFlow(AnalysisFlowBase):
@@ -48,22 +48,22 @@ class JetBaseFlow(AnalysisFlowBase):
                         intVals = cms.vint32(7),
                         intLabels = cms.vstring("fullId"),
                     )
-                    '''
-                    self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
-                    self.process.pileupJetIdUpdated = self.process.pileupJetId.clone(
-                        jets = step.getObjTag('j'),
-                        applyJec = False,
-                        vertexes = step.getObjTag('v'),
-                    )
-                    '''
                 elif self.year == "2024":
+                    puppiLabel, _ = setupPuppiForPackedPF(self.process)
                     self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
                     self.process.pileupJetIdUpdated = self.process.pileupJetIdPuppi.clone(
                         jets = step.getObjTag('j'),
+                        srcConstituentWeights = puppiLabel,
                         inputIsCorrected = True,
                         applyJec = True,
                         vertexes = step.getObjTag('v'),
                     )
+
+                    self.process.jetPUIDSequence = cms.Sequence(
+                        getattr(self.process, puppiLabel) *
+                        self.process.pileupJetIdUpdated
+                    )
+                    step.addModule(puppiLabel, getattr(self.process, puppiLabel))
             step.addModule("pileupJetIdUpdated", self.process.pileupJetIdUpdated, "puID", puID="fullId")
 
             jetPUIDEmbedder = cms.EDProducer(
@@ -99,8 +99,8 @@ class JetBaseFlow(AnalysisFlowBase):
                     "RunCv1234" if self.calibEra23 == "preBPix" else "RunD"
                 )
             elif self.year == "2024":
-                yearstring = "2024_Winter24"
-                jesConfig = "Winter24Prompt24_V3"
+                yearstring = "2024_Summer24"
+                jesConfig = "Summer24Prompt24_V1"
                 jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
 
             """

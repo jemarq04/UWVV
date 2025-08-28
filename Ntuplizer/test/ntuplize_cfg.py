@@ -34,7 +34,7 @@ genLepChoices = {
     "dressedPromptFS": "isPromptFinalState()"
 }
 yearDefault = "2022"
-yearChoices = ["2022", "2023"]#, "2024"]
+yearChoices = ["2022", "2023", "2024"]
 outputFileDefault = "ntuple.root"
 
 # Parsing command-line arguments
