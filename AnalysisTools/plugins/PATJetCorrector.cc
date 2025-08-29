@@ -108,6 +108,12 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::unique_ptr<JetCollection> out_jesUp(new JetCollection());
   std::unique_ptr<JetCollection> out_jesDn(new JetCollection());
 
+  bool includePhi = !(
+    config_.find("Summer22") != std::string::npos || 
+    (config_.find("Summer23") != std::string::npos && jesName_.find("BPix") == std::string::npos)
+  );
+  bool includeRun = !(config_.find("Summer22") != std::string::npos);
+
   for (size_t i = 0; i<in->size(); ++i)
   {
     const Jet& jet = in->at(i);
@@ -115,16 +121,16 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // JES
     double jes;
     if (isMC_)
-      jes = (jesName_.find("BPix") == std::string::npos && config_.find("Summer24") == std::string::npos) ?
-        scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho}) :
-        scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho, jet.phi()});
+      jes = includePhi ?
+        scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho, jet.phi()}) :
+        scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho});
     else{
-      if (config_.find("Summer22") != std::string::npos)
-        jes = scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho});
+      if (includeRun)
+        jes = includePhi ?
+          scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho, jet.phi(), (double)iEvent.run()}) :
+          scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho, (double)iEvent.run()});
       else
-        jes = (jesName_.find("BPix") == std::string::npos && config_.find("Summer24") == std::string::npos) ?
-          scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho, (double)iEvent.run()}) :
-          scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho, jet.phi(), (double)iEvent.run()});
+        jes = scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho});
     }
     out->push_back(jet);
     out->back().setP4(math::XYZTLorentzVector(jes * jet.p4()));
