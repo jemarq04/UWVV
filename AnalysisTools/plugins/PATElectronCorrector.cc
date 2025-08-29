@@ -135,12 +135,12 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
         if (scaleConfig_.find("2022") != std::string::npos || scaleConfig_.find("2023") != std::string::npos)
           scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
               "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
-              std::fabs(ele.eta()), ele.pt(), ele.userInt("seedGain")
+              std::fabs(ele.eta()), ele.pt(), (double)ele.userInt("seedGain")
           });
         else
           scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
               "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
-              ele.pt(), ele.userInt("seedGain")
+              ele.pt(), (double)ele.userInt("seedGain")
           });
       }
     }
