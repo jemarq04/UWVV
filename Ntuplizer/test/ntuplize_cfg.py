@@ -228,25 +228,25 @@ if options.globalTag:
 elif options.isMC:
     if options.year == "2022":
         if not options.postEE:
-            gt = "130X_mcRun3_2022_realistic_v5"
+            gt = "140X_mcRun3_2022_realistic_v12"
         else:
-            gt = "130X_mcRun3_2022_realistic_postEE_v6"
+            gt = "140X_mcRun3_2022_realistic_postEE_v3i"
     elif options.year == "2023":
         if not options.postBPix:
-            gt = "130X_mcRun3_2023_realistic_v14"
+            gt = "140X_mcRun3_2023_realistic_v9"
         else:
-            gt = "130X_mcRun3_2023_realistic_postBPix_v2"
+            gt = "140X_mcRun3_2023_realistic_postBPix_v3"
     elif options.year == "2024":
         gt = "140X_mcRun3_2024_realistic_v26"
 else:
     if options.year == "2022":
         if not options.isPrompt:
-            gt = "130X_dataRun3_v2"
+            gt = "140X_dataRun3_v17"
         else:
             gt = "130X_dataRun3_PromptAnalysis_v1"
     elif options.year == "2023":
         if not options.isPrompt:
-            gt = "auto:run3_data" # TODO: replace when available
+            gt = "140X_dataRun3_v17"
         else:
             gt = "130X_dataRun3_PromptAnalysis_v1"
     elif options.year == "2024":
