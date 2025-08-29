@@ -72,30 +72,35 @@ class ElectronCalibration(AnalysisFlowBase):
             yearstring = scaleConfig = smearConfig = ""
             if self.year == "2022":
                 yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
-                scaleConfig = "Scale"
-                smearConfig = "Smearing"
+                scaleConfig = "EGMScale_Compound_Ele_2022%s" % self.calibEra22
+                smearConfig = "EGMSmearAndSyst_ElePT_2022"
             elif self.year == "2023":
                 yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
-                scaleConfig = "2023Prompt%s_ScaleJSON" % ("C" if self.calibEra23 == "preBPix" else "D")
-                smearConfig = "2023Prompt%s_SmearingJSON" % ("C" if self.calibEra23 == "preBPix" else "D")
+                scaleConfig = "EGMScale_Compound_Ele_2023%s" % ("preBPIX" if self.calibEra23 == "preBPix" else "postBPIX")
+                smearConfig = "EGMSmearAndSyst_ElePT_2023"
+            elif self.year == "2024":
+                yearstring = "2024_Summer24"
+                scaleConfig = "EGMScale_Compound_Ele_2024"
+                smearConfig = "EGMSmearAndSyst_ElePT_2024"
+
             """
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/EGM",
                                     yearstring, "electronSS.json.gz")
             """
-            scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/EGM", yearstring, "electronSS.json.gz")
+            scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/EGM", yearstring, "electronSS_EtDependent.json.gz")
+            if self.year == "2024":
+                scaleFileP.replace(".json","_v1.json")
 
-            if self.year != "2024":
-                # TODO: add 2024 electron calibrations when available
-                # Electron corrections
-                eCorr = cms.EDProducer(
-                    "PATElectronCorrector",
-                    src = step.getObjTag('e'),
-                    scaleFile = cms.string(scaleFileP),
-                    isMC = cms.bool(self.isMC),
-                    scaleConfig = cms.string(scaleConfig),
-                    smearConfig = cms.string(smearConfig),
-                )
-                step.addModule("calibratedPatElectrons", eCorr, 'e')
+            # Electron corrections
+            eCorr = cms.EDProducer(
+                "PATElectronCorrector",
+                src = step.getObjTag('e'),
+                scaleFile = cms.string(scaleFileP),
+                isMC = cms.bool(self.isMC),
+                scaleConfig = cms.string(scaleConfig),
+                smearConfig = cms.string(smearConfig),
+            )
+            step.addModule("calibratedPatElectrons", eCorr, 'e')
 
             # need to re-sort now that we're calibrated
             eSort = cms.EDProducer(

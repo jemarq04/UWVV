@@ -54,12 +54,8 @@ PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig) :
       edm::InputTag("slimmedElectrons"))),
   isMC_(iConfig.getParameter<bool>("isMC")),
   scaleFileName_(iConfig.getParameter<std::string>("scaleFile")),
-  scaleConfig_(iConfig.exists("scaleConfig") ?
-      iConfig.getParameter<std::string>("scaleConfig") :
-      "Scale"),
-  smearConfig_(iConfig.exists("smearConfig") ?
-      iConfig.getParameter<std::string>("smearConfig") :
-      "Smearing"),
+  scaleConfig_(iConfig.getParameter<std::string>("scaleConfig")),
+  smearConfig_(iConfig.getParameter<std::string>("smearConfig")),
   minPt_(iConfig.exists("minPt") ?
       iConfig.getParameter<double>("minPt") :
       15.0),
@@ -78,14 +74,16 @@ PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig) :
     throw cms::Exception("Invalid JSON file") << "Filepath: " << scaleFileName_;
   }
 
-  auto it = scaleFile_->begin();
-  for (;it != scaleFile_->end(); it++)
-    if (it->first == scaleConfig_) break;
-  if (it == scaleFile_->end())
+  auto scale_it = scaleFile_->compound().begin();
+  for (;scale_it != scaleFile_->compound().end(); scale_it++)
+    if (scale_it->first == scaleConfig_) break;
+  if (scale_it == scaleFile_->compound().end())
     throw cms::Exception("Invalid scale config") << "Config: " << scaleConfig_;
-  for (it = scaleFile_->begin(); it != scaleFile_->end(); it++)
-    if (it->first == smearConfig_) break;
-  if (it == scaleFile_->end())
+
+  auto smear_it = scaleFile_->begin();
+  for (; smear_it != scaleFile_->end(); smear_it++)
+    if (smear_it->first == smearConfig_) break;
+  if (smear_it == scaleFile_->end())
     throw cms::Exception("Invalid smear config") << "Config: " << smearConfig_;
 
   produces<ElectronCollection>();
@@ -110,9 +108,22 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
     if (ele.pt() > minPt_){
       if (isMC_){
-        rho       = scaleFile_->at(smearConfig_)->evaluate({"rho", ele.eta(), ele.r9()});
-        err_rho   = scaleFile_->at(smearConfig_)->evaluate({"err_rho", ele.eta(), ele.r9()});
-        err_scale = scaleFile_->at(scaleConfig_)->evaluate({"total_uncertainty", ele.userInt("seedGain"), (double)iEvent.run(), ele.eta(), ele.r9(), ele.pt()});
+        if (smearConfig_.find("2022") != std::string::npos || smearConfig_.find("2023") != std::string::npos){
+          rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), std::fabs(ele.eta())});
+          err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), std::fabs(ele.eta())});
+          err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+              "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
+              std::fabs(ele.eta()), ele.pt(), (double)ele.userInt("seedGain")
+          });
+        }
+        else{
+          rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), ele.eta()});
+          err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), ele.eta()});
+          err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+              "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
+              ele.pt(), (double)ele.userInt("seedGain")
+          });
+        }
 
         TRandom3 rand;
         rand.SetSeed(hasSeed_? seed_ : std::abs(static_cast<int>(std::sin(ele.phi())*100000)));
@@ -120,8 +131,18 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
         smear_up = rand.Gaus(1., rho+err_rho);
         smear_dn = rand.Gaus(1., rho-err_rho);
       }
-      else
-        scale = scaleFile_->at(scaleConfig_)->evaluate({"total_correction", ele.userInt("seedGain"), (double)iEvent.run(), ele.eta(), ele.r9(), ele.pt()});
+      else{
+        if (scaleConfig_.find("2022") != std::string::npos || scaleConfig_.find("2023") != std::string::npos)
+          scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+              "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
+              std::fabs(ele.eta()), ele.pt(), ele.userInt("seedGain")
+          });
+        else
+          scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+              "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
+              ele.pt(), ele.userInt("seedGain")
+          });
+      }
     }
 
     float uncorrected_pt = ele.pt();
