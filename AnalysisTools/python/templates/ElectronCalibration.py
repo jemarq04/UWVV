@@ -89,7 +89,7 @@ class ElectronCalibration(AnalysisFlowBase):
             """
             scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/EGM", yearstring, "electronSS_EtDependent.json.gz")
             if self.year == "2024":
-                scaleFileP.replace(".json","_v1.json")
+                scaleFileP = scaleFileP.replace(".json","_v1.json")
 
             # Electron corrections
             eCorr = cms.EDProducer(
