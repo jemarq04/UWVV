@@ -109,7 +109,7 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::unique_ptr<JetCollection> out_jesDn(new JetCollection());
 
   bool includePhi = !(
-    config_.find("Summer22") != std::string::npos || 
+    config_.find("Summer22") != std::string::npos ||
     (config_.find("Summer23") != std::string::npos && jesName_.find("BPix") == std::string::npos)
   );
   bool includeRun = !(config_.find("Summer22") != std::string::npos);
