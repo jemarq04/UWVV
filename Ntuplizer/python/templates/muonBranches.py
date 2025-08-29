@@ -23,7 +23,7 @@ muonBranches = cms.PSet(
         PtErr = cms.string('? hasUserFloat("correctedPtError") ? '
                            'userFloat("correctedPtError") : '
                            'bestTrack.ptError'),
-        #RochesterPATMuonCorrector.cc
+        #Muon corrections
         UnCorrPt = cms.string('? hasUserFloat("uncorrected_pt") ? '
                            'userFloat("uncorrected_pt") : '
                            '1.'),
