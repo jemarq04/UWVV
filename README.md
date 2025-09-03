@@ -13,6 +13,10 @@ anything other than ZZ.
 - [Running local jobs](#running-local-jobs)
 - [Submitting CRAB jobs](#submitting-crab-jobs)
    * [Submitting CRAB jobs for custom MC](#submitting-crab-jobs-for-custom-mc)
+- [Maintaining the framework](#maintaining-the-framework)
+   * [Workflow](#workflow)
+   * [Input samples](#input-samples)
+   * [Testing](#testing)
 - [Fake rates](#fake-rates)
 - [Running `pre-commit`](#running-pre-commit)
 
@@ -22,8 +26,8 @@ To use this framework, you must be in a fresh CMSSW environment. Instructions ar
 
 ```bash
 #Create your CMSSW environment
-cmsrel CMSSW_14_0_9
-cd CMSSW_14_0_9/src
+cmsrel CMSSW_14_2_0
+cd CMSSW_14_2_0/src
 
 #Initialize
 cmsenv
@@ -135,10 +139,56 @@ empty lines or lines beginning with `#` are ignored.
 **NOTE**: The `postEE` and `postBPix` options are derived from the dataset conditions (the second string in the /-separated list), so for these custom submissions
 you need to specify if you want either of these options yourself. You can uncomment the relevant line in the code snippet above.
 
+## Maintaining the framework
+
+### Workflow
+
+As new suggestions and instructions are provided by the various POGs in CMS, these scripts may need to be updated. It is good to be familiar with the
+different step files and the purposes they serve for the full analysis workflow. When steps are brought into the workflow in the
+[main script](Ntuplizer/test/ntuplize_cfg.py), there are comments that clearly indicate what stage of the analysis it helps. But for a quick guide,
+check below.
+
+- [Vertex selection](AnalysisTools/python/templates/VertexCleaning.py)
+- [FSR photons](AnalysisTools/python/template/ZZFSR.py)
+- [Lepton identification](AnalysisTools/python/templates/ZZID.py)
+- [Electron pre-selection](AnalysisTools/python/templates/ElectronBaseFlow.py)
+- [Electron calibrations](AnalysisTools/python/templates/ElectronCalibration.py)
+- [Muon pre-selection](AnalysisTools/python/templates/MuonBaseFlow.py)
+- [Muon calibrations](AnalysisTools/python/templates/MuonCalibration.py)
+- [Jets](AnalysisTools/python/templates/JetBaseFlow.py)
+- [Z candidates](AnalysisTools/python/templates/ZZPlusXBaseFlow.py)
+- [ZZ candidates](AnalysisTools/python/templates/ZZInitialStateBaseFlow.py)
+
+Within each of these steps are modules that are added to the workflow from various standard and [custom plugins](AnalysisTools/plugins). The plugins
+hold most of the important information, and parameters used are almost always available as user inputs in the python scripts for easier access.
+Sometimes backwards-incompatible changes are made to corrections, so that would require direct modification of the plugin in C++.
+
+### Input samples
+
+The Run 3 data/MC samples should be up-to-date within the appropriate [files](Utilities/test/datasets), but if additions/changes need to be made over
+time it is helpful to know where to look. [This site](https://cms-pdmv.gitbook.io/project/mccontact/rules-for-run3-dataset-names) has the general
+naming conventions for MC samples, but know that it is not always perfect. With this naming convention, [DAS](https://cmsweb.cern.ch/das/) can help
+you search for desired samples. For example, if we wanted to look for ggZZ samples in 2022 campaigns we might query something like
+`dataset=/GluGlu*2Z*2E2Mu*/*2022*/MINIAODSIM`. Note that I was as generous as possible with the glob operator, as something as simple as the word "to"
+may be capitalized or not depending on whoever submitted this for central production. 
+
+For data, [PdmV](https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVRun3Analysis) is once again a very useful resource for information on data-taking.
+Note that sometimes things may not be perfectly up-to-date, so be sure to follow links to other pages and such to double-check the information
+provided. Over time I'm sure it will be as informative as for Run2UL in the past.
+
+### Testing
+
+As you make changes, it will be helpful to do exhaustive tests to make sure that updates to the workflow has not broken anything. For this, make use
+of the [`runTest.sh`](Ntuplizer/test/runTest.sh) script. This will iterate over some input files and do a 100-event test run of the ntuplizer to
+make sure that no errors arise. The input files are found in `Ntuplizer/test/inputs/testing`, so you will need to create this yourself and populate it
+with input files similar to the [template](Ntuplizer/test/inputs/template.dat). The naming convention for these testing files is 
+`<YEAR><DATA or MC>.dat`. Note that for 2022 and 2023, there is also an expected suffix for postEE and postBPix samples (e.g. `2022MC_postEE.dat`).
+
 ## Fake rates
 
 To estimate the fake rate for ZZ analysis, we need to process Z+L samples for all the same datasets. To do this, simply submit jobs with the
-`channels: zl` option (or locally with `channels=zl`).
+`channels: zl` option (or locally with `channels=zl`). The nonprompt background produced from the fake rates will be very negligible, so creating the
+Z+L samples is not usually needed.
 
 ## Running `pre-commit`
 
