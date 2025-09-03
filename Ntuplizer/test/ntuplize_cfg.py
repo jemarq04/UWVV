@@ -230,7 +230,7 @@ elif options.isMC:
         if not options.postEE:
             gt = "140X_mcRun3_2022_realistic_v12"
         else:
-            gt = "140X_mcRun3_2022_realistic_postEE_v3i"
+            gt = "140X_mcRun3_2022_realistic_postEE_v3"
     elif options.year == "2023":
         if not options.postBPix:
             gt = "140X_mcRun3_2023_realistic_v9"
