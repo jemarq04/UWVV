@@ -41,11 +41,14 @@ class PATMuonCorrector : public edm::stream::EDProducer<>
   private:
     virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-    double getCorrectedPt(const Muon& muon, std::string var="nom");
+    double getPtScale(const Muon& muon);
+    double getPtSmear(const Muon& muon, double pt_scale, int event, int lumi);
+    double getPtScaleVar(const Muon& muon, double corr_pt, std::string var);
+    double getPtSmearVar(const Muon& muon, double pt_scale, double corr_pt, std::string var);
 
     edm::EDGetTokenT<MuonView> srcToken_;
     const bool isMC_;
-    const double maxPt_;
+    const double minPt_;
     std::string scaleFileName_;
     const bool hasSeed_;
     const ULong64_t seed_;
@@ -57,7 +60,7 @@ PATMuonCorrector::PATMuonCorrector(const edm::ParameterSet& iConfig):
       iConfig.getParameter<edm::InputTag>("src") :
       edm::InputTag("slimmedMuons"))),
   isMC_(iConfig.getParameter<bool>("isMC")),
-  maxPt_(iConfig.exists("maxPt") ? iConfig.getParameter<double>("maxPt") : 200.0),
+  minPt_(iConfig.exists("minPt") ? iConfig.getParameter<double>("minPt") : 26.0),
   scaleFileName_(iConfig.getParameter<std::string>("scaleFile")),
   hasSeed_(iConfig.exists("seed")),
   seed_(hasSeed_? iConfig.getParameter<ULong64_t>("seed") : 0)
@@ -66,8 +69,8 @@ PATMuonCorrector::PATMuonCorrector(const edm::ParameterSet& iConfig):
   if (!checkfile.good()) scaleFileName_ = scaleFileName_.substr(scaleFileName_.find("/UWVV/") + 6);
   else checkfile.close();
   try{
-    corrector_ = new MuonScaRe(scaleFileName_);
-    if (hasSeed_) corrector_->setSeed(seed_);
+    corrector_ = new MuonScaRe(scaleFileName_, minPt_);
+    //if (hasSeed_) corrector_->setSeed(seed_); //removed from NATModules, commented out for now
   }
   catch(...){
     throw cms::Exception("InvalidFile") << "Cannot find muon correction file: "
@@ -90,33 +93,41 @@ void PATMuonCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     Muon& mu = out->back();
 
     double uncorr_pt = mu.pt();
-    double corr_pt   = getCorrectedPt(mu);
+    double pt_scale  = getPtScale(mu);
+    double corr_pt   = isMC_? getPtSmear(mu, pt_scale, (int)iEvent.id().event(), (int)iEvent.id().luminosityBlock()) : pt_scale;
 
     mu.addUserFloat("uncorrected_pt", uncorr_pt);
     mu.addUserFloat("ptScaleFactor", corr_pt/uncorr_pt);
-    /* TODO: Updated muon corrections removed 'syst' and 'stat' variations on k_data, which is
-     *  necessary for calculating any of these variations for MC at the moment. Once this is fixed,
-     *  these can be added back in.
     if (isMC_){
-      mu.addUserFloat("syst_pt", getCorrectedPt(mu, "syst"));
-      mu.addUserFloat("stat_pt", getCorrectedPt(mu, "stat"));
+      mu.addUserFloat("scaleUp_pt", getPtScaleVar(mu, corr_pt, "up"));
+      mu.addUserFloat("scaleDn_pt", getPtScaleVar(mu, corr_pt, "dn"));
+      mu.addUserFloat("smearUp_pt", getPtSmearVar(mu, pt_scale, corr_pt, "up"));
+      mu.addUserFloat("smearDn_pt", getPtSmearVar(mu, pt_scale, corr_pt, "dn"));
     }
-     */
     mu.setP4(reco::Particle::PolarLorentzVector(corr_pt, mu.eta(), mu.phi(), mu.mass()));
   }
 
   iEvent.put(std::move(out));
 }
 
-double PATMuonCorrector::getCorrectedPt(const Muon& muon, std::string var){
-  if (muon.pt() > maxPt_)
-    return muon.pt();
+double PATMuonCorrector::getPtScale(const Muon& muon){
+  return corrector_->pt_scale(!isMC_, muon.pt(), muon.eta(), muon.phi(), muon.charge());
+}
 
-  double corr_pt = corrector_->pt_scale(!isMC_, muon.pt(), muon.eta(), muon.phi(), muon.charge(), var);
-  if (isMC_)
-    corr_pt = corrector_->pt_resol(corr_pt, muon.eta(), muon.innerTrack().isNonnull()? muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() : 0, var);
+double PATMuonCorrector::getPtSmear(const Muon& muon, double corr_pt, int event, int lumi){
+  return corrector_->pt_resol(
+      corr_pt, muon.eta(), muon.phi(),
+      muon.innerTrack().isNonnull()? muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() : 0,
+      event, lumi
+    );
+}
 
-  return corr_pt;
+double PATMuonCorrector::getPtScaleVar(const Muon& muon, double corr_pt, std::string var){
+  return corrector_->pt_scale_var(corr_pt, muon.eta(), muon.phi(), muon.charge(), var);
+}
+
+double PATMuonCorrector::getPtSmearVar(const Muon& muon, double pt_scale, double corr_pt, std::string var){
+  return corrector_->pt_resol_var(pt_scale, corr_pt, muon.eta(), var);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

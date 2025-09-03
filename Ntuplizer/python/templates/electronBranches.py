@@ -26,55 +26,16 @@ electronBranches = cms.PSet(
         UnCorrPt = cms.string('? hasUserFloat("uncorrected_pt") ? '
                            'userFloat("uncorrected_pt") : '
                            '1.'),
-
-        ScaleValue = cms.string('? hasUserFloat("energyScaleValue") ? '
-                            'userFloat("energyScaleValue") : '
-                            '1.'),
-        ScaleUp = cms.string('? hasUserFloat("energyScaleUp") ? '
-                            'userFloat("energyScaleUp") : '
-                            '1.'),
-        ScaleDn = cms.string('? hasUserFloat("energyScaleDn") ? '
-                            'userFloat("energyScaleDn") : '
-                            '1.'),
-        SmearValue = cms.string('? hasUserFloat("energySmearValue") ? '
-                            'userFloat("energySmearValue") : '
-                            '0.'),
-        SmearUp = cms.string('? hasUserFloat("energySmearUp") ? '
-                            'userFloat("energySmearUp") : '
-                            '0.'),
-        SmearDn = cms.string('? hasUserFloat("energySmearDn") ? '
-                            'userFloat("energySmearDn") : '
-                            '0.'),
-
-        ScaleTotUp = cms.string('? hasUserFloat("scale_total_up") ? '
-                                    'userFloat("scale_total_up") : 0.'),
-        ScaleSystUp = cms.string('? hasUserFloat("scale_syst_up") ? '
-                                    'userFloat("scale_syst_up") : 0.'),
-        ScaleStatUp = cms.string('? hasUserFloat("scale_stat_up") ? '
-                                    'userFloat("scale_stat_up") : 0.'),
-        ScaleGainUp = cms.string('? hasUserFloat("scale_gain_up") ? '
-                                    'userFloat("scale_gain_up") : 0.'),
-        ScaleTotDn = cms.string('? hasUserFloat("scale_total_dn") ? '
-                                    'userFloat("scale_total_dn") : 0.'),
-        ScaleSystDn = cms.string('? hasUserFloat("scale_syst_dn") ? '
-                                    'userFloat("scale_syst_dn") : 0.'),
-        ScaleStatDn = cms.string('? hasUserFloat("scale_stat_dn") ? '
-                                    'userFloat("scale_stat_dn") : 0.'),
-        ScaleGainDn = cms.string('? hasUserFloat("scale_gain_dn") ? '
-                                    'userFloat("scale_gain_dn") : 0.'),
-
-        SigmaTotUp = cms.string('? hasUserFloat("sigma_total_up") ? '
-                                    'userFloat("sigma_total_up") : 0.'),
-        SigmaRhoUp = cms.string('? hasUserFloat("sigma_rho_up") ? '
-                                    'userFloat("sigma_rho_up") : 0.'),
-        SigmaPhiUp = cms.string('? hasUserFloat("sigma_phi_up") ? '
-                                    'userFloat("sigma_phi_up") : 0.'),
-        SigmaTotDn = cms.string('? hasUserFloat("sigma_total_dn") ? '
-                                    'userFloat("sigma_total_dn") : 0.'),
-        SigmaRhoDn = cms.string('? hasUserFloat("sigma_rho_dn") ? '
-                                    'userFloat("sigma_rho_dn") : 0.'),
-        SigmaPhiDn = cms.string('? hasUserFloat("sigma_phi_dn") ? '
-                                    'userFloat("sigma_phi_dn") : 0.'),
+        EffScaleFactor = cms.string('? hasUserFloat("ptScaleFactor") ? '
+                                    'userFloat("ptScaleFactor") : 1.'),
+        ScaleUpPt = cms.string('? hasUserFloat("scaleUp_pt") ? '
+                               'userFloat("scaleUp_pt") : pt'),
+        ScaleDnPt = cms.string('? hasUserFloat("scaleDn_pt") ? '
+                               'userFloat("scaleDn_pt") : pt'),
+        SmearUpPt = cms.string('? hasUserFloat("smearUp_pt") ? '
+                               'userFloat("smearUp_pt") : pt'),
+        SmearDnPt = cms.string('? hasUserFloat("smearDn_pt") ? '
+                               'userFloat("smearDn_pt") : pt'),
         ),
 
     uints = cms.PSet(

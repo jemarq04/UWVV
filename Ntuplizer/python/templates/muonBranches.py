@@ -29,10 +29,14 @@ muonBranches = cms.PSet(
                            '1.'),
         EffScaleFactor = cms.string('? hasUserFloat("ptScaleFactor") ? '
                                     'userFloat("ptScaleFactor") : 1.'),
-        PtSyst = cms.string('? hasUserFloat("syst_pt") ? '
-                            'userFloat("syst_pt") : 0.'),
-        PtStat = cms.string('? hasUserFloat("stat_pt") ? '
-                            'userFloat("stat_pt") : 0.'),
+        ScaleUpPt = cms.string('? hasUserFloat("scaleUp_pt") ? '
+                               'userFloat("scaleUp_pt") : pt'),
+        ScaleDnPt = cms.string('? hasUserFloat("scaleDn_pt") ? '
+                               'userFloat("scaleDn_pt") : pt'),
+        SmearUpPt = cms.string('? hasUserFloat("smearUp_pt") ? '
+                               'userFloat("smearUp_pt") : pt'),
+        SmearDnPt = cms.string('? hasUserFloat("smearDn_pt") ? '
+                               'userFloat("smearDn_pt") : pt'),
         # TrkRecoEffScaleFactor = cms.string('? hasUserFloat("trkRecoEffScaleFactor") ? '
         #                                    'userFloat("trkRecoEffScaleFactor") : 1.'),
         MtToMET = cms.string('mtToMET'),

@@ -43,7 +43,6 @@ private:
   const bool isMC_;
   std::string scaleFileName_, scaleConfig_, smearConfig_;
   std::unique_ptr<correction::CorrectionSet> scaleFile_;
-  double minPt_;
   const bool hasSeed_;
   const ULong64_t seed_;
 };
@@ -56,9 +55,6 @@ PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig) :
   scaleFileName_(iConfig.getParameter<std::string>("scaleFile")),
   scaleConfig_(iConfig.getParameter<std::string>("scaleConfig")),
   smearConfig_(iConfig.getParameter<std::string>("smearConfig")),
-  minPt_(iConfig.exists("minPt") ?
-      iConfig.getParameter<double>("minPt") :
-      15.0),
   hasSeed_(iConfig.exists("seed")),
   seed_(hasSeed_? iConfig.getParameter<ULong64_t>("seed") : 0)
 {
@@ -97,6 +93,11 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   std::unique_ptr<ElectronCollection> out(new ElectronCollection());
 
+  bool includeAbsEta = (
+      smearConfig_.find("2022") != std::string::npos ||
+      smearConfig_.find("2023") != std::string::npos
+  );
+
   for(ElectronView::const_iterator ei = electronsIn->begin(); ei != electronsIn->end(); ei++)
   {
     out->push_back(*ei); // copy electron to save correctly in event
@@ -106,80 +107,55 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
     float scale = 1, err_scale = 0;
     float smear = 1, smear_up = 1, smear_dn = 1;
 
-    if (ele.pt() > minPt_){
-      if (isMC_){
-        if (smearConfig_.find("2022") != std::string::npos || smearConfig_.find("2023") != std::string::npos){
-          rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), std::fabs(ele.eta())});
-          err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), std::fabs(ele.eta())});
-          err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-              "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
-              std::fabs(ele.eta()), ele.pt(), (double)ele.userInt("seedGain")
-          });
-        }
-        else{
-          rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), ele.eta()});
-          err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), ele.eta()});
-          err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-              "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
-              ele.pt(), (double)ele.userInt("seedGain")
-          });
-        }
-
-        TRandom3 rand;
-        rand.SetSeed(hasSeed_? seed_ : std::abs(static_cast<int>(std::sin(ele.phi())*100000)));
-        smear = rand.Gaus(1., rho);
-        smear_up = rand.Gaus(1., rho+err_rho);
-        smear_dn = rand.Gaus(1., rho-err_rho);
+    if (isMC_){
+      if (includeAbsEta){
+        rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), std::fabs(ele.eta())});
+        err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), std::fabs(ele.eta())});
+        err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+            "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
+            std::fabs(ele.eta()), ele.pt(), (double)ele.userInt("seedGain")
+        });
       }
       else{
-        if (scaleConfig_.find("2022") != std::string::npos || scaleConfig_.find("2023") != std::string::npos)
-          scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-              "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
-              std::fabs(ele.eta()), ele.pt(), (double)ele.userInt("seedGain")
-          });
-        else
-          scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-              "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
-              ele.pt(), (double)ele.userInt("seedGain")
-          });
+        rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), ele.eta()});
+        err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), ele.eta()});
+        err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+            "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
+            ele.pt(), (double)ele.userInt("seedGain")
+        });
       }
+
+      TRandom3 rand;
+      rand.SetSeed(hasSeed_? seed_ : std::abs(static_cast<int>(std::sin(ele.phi())*100000)));
+      smear = rand.Gaus(1., rho);
+      smear_up = rand.Gaus(1., rho+err_rho);
+      smear_dn = rand.Gaus(1., rho-err_rho);
+    }
+    else{
+      if (includeAbsEta)
+        scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+            "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
+            std::fabs(ele.eta()), ele.pt(), (double)ele.userInt("seedGain")
+        });
+      else
+        scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+            "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
+            ele.pt(), (double)ele.userInt("seedGain")
+        });
     }
 
-    float uncorrected_pt = ele.pt();
-    float corrected_pt = uncorrected_pt * (isMC_? smear : scale);
+    float uncorr_pt = ele.pt();
+    float corr_pt = uncorr_pt * (isMC_? smear : scale);
 
-    ele.addUserFloat("uncorrected_pt", uncorrected_pt);
-    ele.setP4(reco::Particle::PolarLorentzVector(corrected_pt, ele.eta(), ele.phi(), ele.mass()));
-
-    // Custom user floats to save scale and smearing
-    ele.addUserFloat("energyScaleValue", scale);
-    ele.addUserFloat("energyScaleUp", 1+err_scale);
-    ele.addUserFloat("energyScaleDn", 1-err_scale);
-    ele.addUserFloat("energySmearValue", smear);
-    ele.addUserFloat("energySmearUp", smear_up);
-    ele.addUserFloat("energySmearDn", smear_dn);
-
-    //TODO: Determine if the following are necessary (written to ntuple but never accessed in VVAnalysis - not sure how to re-create the values
-    //manually)
-    //  referenced from electron ZZ ID embedder
-    /*
-    //get all scale uncertainties and their breakdown
-    float scale_total_up = ele.userFloat("energyScaleUp") / ele.energy();
-    float scale_stat_up = ele.userFloat("energyScaleStatUp") / ele.energy();
-    float scale_syst_up = ele.userFloat("energyScaleSystUp") / ele.energy();
-    float scale_gain_up = ele.userFloat("energyScaleGainUp") / ele.energy();
-    float scale_total_dn = ele.userFloat("energyScaleDown") / ele.energy();
-    float scale_stat_dn = ele.userFloat("energyScaleStatDown") / ele.energy();
-    float scale_syst_dn = ele.userFloat("energyScaleSystDown") / ele.energy();
-    float scale_gain_dn = ele.userFloat("energyScaleGainDown") / ele.energy();
-    //get all smearing uncertainties and their breakdown
-    float sigma_total_up = ele.userFloat("energySigmaUp") / ele.energy();
-    float sigma_rho_up = ele.userFloat("energySigmaRhoUp") / ele.energy();
-    float sigma_phi_up = ele.userFloat("energySigmaPhiUp") / ele.energy();
-    float sigma_total_dn = ele.userFloat("energySigmaDown") / ele.energy();
-    float sigma_rho_dn = ele.userFloat("energySigmaRhoDown") / ele.energy();
-    float sigma_phi_dn = ele.userFloat("energySigmaPhiDown") / ele.energy();
-    */
+    ele.addUserFloat("uncorrected_pt", uncorr_pt);
+    ele.addUserFloat("ptScaleFactor",  corr_pt/uncorr_pt);
+    if (isMC_){
+      ele.addUserFloat("scaleUp_pt", uncorr_pt*(1+err_scale));
+      ele.addUserFloat("scaleDn_pt", uncorr_pt*(1-err_scale));
+      ele.addUserFloat("smearUp_pt", uncorr_pt*smear_up);
+      ele.addUserFloat("smearDn_pt", uncorr_pt*smear_dn);
+    }
+    ele.setP4(reco::Particle::PolarLorentzVector(corr_pt, ele.eta(), ele.phi(), ele.mass()));
   }
 
   iEvent.put(std::move(out));
