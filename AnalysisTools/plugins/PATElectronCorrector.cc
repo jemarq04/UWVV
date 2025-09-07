@@ -41,6 +41,7 @@ private:
 
   edm::EDGetTokenT<ElectronView> srcToken_;
   const bool isMC_;
+  const double minPt_;
   std::string scaleFileName_, scaleConfig_, smearConfig_;
   std::unique_ptr<correction::CorrectionSet> scaleFile_;
   const bool hasSeed_;
@@ -52,6 +53,9 @@ PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig) :
       iConfig.getParameter<edm::InputTag>("src") :
       edm::InputTag("slimmedElectrons"))),
   isMC_(iConfig.getParameter<bool>("isMC")),
+  minPt_(iConfig.exists("minPt") ?
+      iConfig.getParameter<double>("minPt") :
+      20),
   scaleFileName_(iConfig.getParameter<std::string>("scaleFile")),
   scaleConfig_(iConfig.getParameter<std::string>("scaleConfig")),
   smearConfig_(iConfig.getParameter<std::string>("smearConfig")),
@@ -107,41 +111,43 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
     float scale = 1, err_scale = 0;
     float smear = 1, smear_up = 1, smear_dn = 1;
 
-    if (isMC_){
-      if (includeAbsEta){
-        rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), std::fabs(ele.eta())});
-        err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), std::fabs(ele.eta())});
-        err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-            "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
-            std::fabs(ele.eta()), ele.pt(), (double)ele.userInt("seedGain")
-        });
+    if (ele.pt() > minPt_){
+      if (isMC_){
+        if (includeAbsEta){
+          rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), std::fabs(ele.eta())});
+          err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), std::fabs(ele.eta())});
+          err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+              "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
+              std::fabs(ele.eta()), ele.pt(), (double)ele.userInt("seedGain")
+          });
+        }
+        else{
+          rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), ele.eta()});
+          err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), ele.eta()});
+          err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+              "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
+              ele.pt(), (double)ele.userInt("seedGain")
+          });
+        }
+
+        TRandom3 rand;
+        rand.SetSeed(hasSeed_? seed_ : std::abs(static_cast<int>(std::sin(ele.phi())*100000)));
+        smear = rand.Gaus(1., rho);
+        smear_up = rand.Gaus(1., rho+err_rho);
+        smear_dn = rand.Gaus(1., rho-err_rho);
       }
       else{
-        rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), ele.eta()});
-        err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), ele.eta()});
-        err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-            "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
-            ele.pt(), (double)ele.userInt("seedGain")
-        });
+        if (includeAbsEta)
+          scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+              "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
+              std::fabs(ele.eta()), ele.pt(), (double)ele.userInt("seedGain")
+          });
+        else
+          scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+              "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
+              ele.pt(), (double)ele.userInt("seedGain")
+          });
       }
-
-      TRandom3 rand;
-      rand.SetSeed(hasSeed_? seed_ : std::abs(static_cast<int>(std::sin(ele.phi())*100000)));
-      smear = rand.Gaus(1., rho);
-      smear_up = rand.Gaus(1., rho+err_rho);
-      smear_dn = rand.Gaus(1., rho-err_rho);
-    }
-    else{
-      if (includeAbsEta)
-        scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-            "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
-            std::fabs(ele.eta()), ele.pt(), (double)ele.userInt("seedGain")
-        });
-      else
-        scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-            "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
-            ele.pt(), (double)ele.userInt("seedGain")
-        });
     }
 
     float uncorr_pt = ele.pt();

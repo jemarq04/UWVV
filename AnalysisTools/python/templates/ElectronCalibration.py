@@ -99,6 +99,7 @@ class ElectronCalibration(AnalysisFlowBase):
                 isMC = cms.bool(self.isMC),
                 scaleConfig = cms.string(scaleConfig),
                 smearConfig = cms.string(smearConfig),
+                #minPt = cms.double(3.), # essentially disabling minimum pt threshold
             )
             step.addModule("calibratedPatElectrons", eCorr, 'e')
 

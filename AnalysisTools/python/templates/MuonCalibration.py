@@ -38,6 +38,7 @@ class MuonCalibration(AnalysisFlowBase):
                     src = step.getObjTag('m'),
                     isMC = cms.bool(self.isMC),
                     scaleFile = cms.string(scaleFile),
+                    #minPt = cms.double(3.), # essentially disabling minimum pt threshold
                 )
                 step.addModule('calibratedPatMuons', muCalibrator, 'm')
 
