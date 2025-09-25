@@ -22,7 +22,7 @@ for pog in data/XPOG/*/; do
         centralfile="/cvmfs/cms-griddata.cern.ch/cat/metadata/$(basename $pog)/${eradir}/latest/$(basename $f)"
         f=${f/\/\//\/}; centralfile=${centralfile/\/\//\/}
         if [[ ! -f $centralfile ]]; then
-          echo "centrail file not found: $centralfile"
+          echo "central file not found: $centralfile"
           continue
         fi
         if ! diff $f $centralfile >& /dev/null; then
