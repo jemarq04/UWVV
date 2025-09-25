@@ -85,7 +85,7 @@ class JetBaseFlow(AnalysisFlowBase):
                 else:
                     dataPeriod += self.dataPeriod.split("v")[0]
                 yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
-                jesConfig = "Summer22%s_22Sep2023%s_V2" % (
+                jesConfig = "Summer22%s_22Sep2023%s_V3" % (
                     "" if self.calibEra22 == "preEE" else "EE",
                     "" if self.isMC else dataPeriod
                 )
