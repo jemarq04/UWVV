@@ -170,7 +170,7 @@ time it is helpful to know where to look. [This site](https://cms-pdmv.gitbook.i
 naming conventions for MC samples, but know that it is not always perfect. With this naming convention, [DAS](https://cmsweb.cern.ch/das/) can help
 you search for desired samples. For example, if we wanted to look for ggZZ samples in 2022 campaigns we might query something like
 `dataset=/GluGlu*2Z*2E2Mu*/*2022*/MINIAODSIM`. Note that I was as generous as possible with the glob operator, as something as simple as the word "to"
-may be capitalized or not depending on whoever submitted this for central production. 
+may be capitalized or not depending on whoever submitted this for central production.
 
 For data, [PdmV](https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVRun3Analysis) is once again a very useful resource for information on data-taking.
 Note that sometimes things may not be perfectly up-to-date, so be sure to follow links to other pages and such to double-check the information
@@ -181,7 +181,7 @@ provided. Over time I'm sure it will be as informative as for Run2UL in the past
 As you make changes, it will be helpful to do exhaustive tests to make sure that updates to the workflow has not broken anything. For this, make use
 of the [`runTest.sh`](Ntuplizer/test/runTest.sh) script. This will iterate over some input files and do a 100-event test run of the ntuplizer to
 make sure that no errors arise. The input files are found in `Ntuplizer/test/inputs/testing`, so you will need to create this yourself and populate it
-with input files similar to the [template](Ntuplizer/test/inputs/template.dat). The naming convention for these testing files is 
+with input files similar to the [template](Ntuplizer/test/inputs/template.dat). The naming convention for these testing files is
 `<YEAR><DATA or MC>.dat`. Note that for 2022 and 2023, there is also an expected suffix for postEE and postBPix samples (e.g. `2022MC_postEE.dat`).
 
 ## Fake rates
