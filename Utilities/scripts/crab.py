@@ -199,7 +199,7 @@ config.Data.totalUnits = -1
 if len(config.General.requestName) > 100:
     import hashlib
     bits = 5
-    h = hashlib.sha256(config.General.requestName).hexdigest()
+    h = hashlib.sha256(config.General.requestName.encode('utf-8')).hexdigest()
     # Replace last 5 characters with hash in case of duplicates after truncation
     config.General.requestName = config.General.requestName[:(100-bits)] + h[:bits]
 
