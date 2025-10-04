@@ -44,7 +44,7 @@ if dataTier == 'MINIAOD':
         isPrompt = 1
     else:
         isPrompt = 0
-elif dataTier == 'MINIAODSIM':
+elif dataTier in ['MINIAODSIM', 'USER']:
     isMC = 1
 else:
     raise Exception("Dataset malformed? Couldn't deduce isMC parameter")
