@@ -7,7 +7,6 @@
 /Muon0/Run2024H-PromptReco-v1/MINIAOD
 /Muon0/Run2024I-PromptReco-v1/MINIAOD
 /Muon0/Run2024I-PromptReco-v2/MINIAOD
-/Muon0/Run2024J-PromptReco-v1/MINIAOD
 # Muon1
 /Muon1/Run2024C-2024CDEReprocessing-v1/MINIAOD
 /Muon1/Run2024D-2024CDEReprocessing-v1/MINIAOD
@@ -17,7 +16,6 @@
 /Muon1/Run2024H-PromptReco-v1/MINIAOD
 /Muon1/Run2024I-PromptReco-v1/MINIAOD
 /Muon1/Run2024I-PromptReco-v2/MINIAOD
-/Muon1/Run2024J-PromptReco-v1/MINIAOD
 # MuonEG
 /MuonEG/Run2024C-2024CDEReprocessing-v1/MINIAOD
 /MuonEG/Run2024D-2024CDEReprocessing-v1/MINIAOD
@@ -27,7 +25,6 @@
 /MuonEG/Run2024H-PromptReco-v1/MINIAOD
 /MuonEG/Run2024I-PromptReco-v1/MINIAOD
 /MuonEG/Run2024I-PromptReco-v2/MINIAOD
-/MuonEG/Run2024J-PromptReco-v1/MINIAOD
 # EGamma0
 /EGamma0/Run2024C-2024CDEReprocessing-v1/MINIAOD
 /EGamma0/Run2024D-2024CDEReprocessing-v1/MINIAOD
@@ -37,7 +34,6 @@
 /EGamma0/Run2024H-PromptReco-v1/MINIAOD
 /EGamma0/Run2024I-PromptReco-v1/MINIAOD
 /EGamma0/Run2024I-PromptReco-v2/MINIAOD
-/EGamma0/Run2024J-PromptReco-v1/MINIAOD
 # EGamma1
 /EGamma1/Run2024C-2024CDEReprocessing-v1/MINIAOD
 /EGamma1/Run2024D-2024CDEReprocessing-v1/MINIAOD
@@ -47,4 +43,3 @@
 /EGamma1/Run2024H-PromptReco-v1/MINIAOD
 /EGamma1/Run2024I-PromptReco-v1/MINIAOD
 /EGamma1/Run2024I-PromptReco-v2/MINIAOD
-/EGamma1/Run2024J-PromptReco-v1/MINIAOD
