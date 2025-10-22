@@ -83,6 +83,9 @@ if not isMC:
     print("isPrompt: %s" % isPrompt)
     print("dataPeriod:", dataPeriod)
 
+if localSettings["unitsPerJob"] != "1":
+    print("unitsPerJob:", localSettings["unitsPerJob"])
+
 def getUnitsPerJob(ds):
     if isMC == 0:
         # Data is split by lumisection
@@ -191,7 +194,7 @@ else:
     #config.Data.splitting = 'LumiBased'
     #config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 1
+config.Data.unitsPerJob = int(localSettings["unitsPerJob"])
 
 config.Data.totalUnits = -1
 
