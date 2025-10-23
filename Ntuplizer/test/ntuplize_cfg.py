@@ -237,7 +237,7 @@ elif options.isMC:
         else:
             gt = "140X_mcRun3_2023_realistic_postBPix_v3"
     elif options.year == "2024":
-        gt = "140X_mcRun3_2024_realistic_v26"
+        gt = "150X_mcRun3_2024_realistic_v2"
 else:
     if options.year == "2022":
         if not options.isPrompt:
@@ -251,7 +251,7 @@ else:
             gt = "130X_dataRun3_PromptAnalysis_v1"
     elif options.year == "2024":
         if not options.isPrompt:
-            gt = "140X_dataRun3_v20"
+            gt = "150X_dataRun3_v2"
         else:
             gt = "140X_dataRun3_Prompt_v4"
 
