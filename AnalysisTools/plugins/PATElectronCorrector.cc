@@ -57,8 +57,12 @@ PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig) :
       iConfig.getParameter<double>("minPt") :
       20),
   scaleFileName_(iConfig.getParameter<std::string>("scaleFile")),
-  scaleConfig_(iConfig.getParameter<std::string>("scaleConfig")),
-  smearConfig_(iConfig.getParameter<std::string>("smearConfig")),
+  scaleConfig_(iConfig.exists("scaleConfig") ?
+      iConfig.getParameter<std::string>("scaleConfig") :
+      "Scale"),
+  smearConfig_(iConfig.exists("smearConfig") ?
+      iConfig.getParameter<std::string>("smearConfig") :
+      "SmearAndSyst"),
   hasSeed_(iConfig.exists("seed")),
   seed_(hasSeed_? iConfig.getParameter<ULong64_t>("seed") : 0)
 {
@@ -97,11 +101,6 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   std::unique_ptr<ElectronCollection> out(new ElectronCollection());
 
-  bool includeAbsEta = (
-      smearConfig_.find("2022") != std::string::npos ||
-      smearConfig_.find("2023") != std::string::npos
-  );
-
   for(ElectronView::const_iterator ei = electronsIn->begin(); ei != electronsIn->end(); ei++)
   {
     out->push_back(*ei); // copy electron to save correctly in event
@@ -113,22 +112,12 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
     if (ele.pt() > minPt_){
       if (isMC_){
-        if (includeAbsEta){
-          rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), std::fabs(ele.eta())});
-          err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), std::fabs(ele.eta())});
-          err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-              "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
-              std::fabs(ele.eta()), ele.pt(), (double)ele.userInt("seedGain")
-          });
-        }
-        else{
-          rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), ele.eta()});
-          err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), ele.eta()});
-          err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-              "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
-              ele.pt(), (double)ele.userInt("seedGain")
-          });
-        }
+        rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), ele.eta()});
+        err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), ele.eta()});
+        err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+            "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
+            ele.pt(), (double)ele.userInt("seedGain")
+        });
 
         TRandom3 rand;
         rand.SetSeed(hasSeed_? seed_ : std::abs(static_cast<int>(std::sin(ele.phi())*100000)));
@@ -137,16 +126,10 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
         smear_dn = rand.Gaus(1., rho-err_rho);
       }
       else{
-        if (includeAbsEta)
-          scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-              "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
-              std::fabs(ele.eta()), ele.pt(), (double)ele.userInt("seedGain")
-          });
-        else
-          scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-              "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
-              ele.pt(), (double)ele.userInt("seedGain")
-          });
+        scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
+            "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
+            ele.pt(), (double)ele.userInt("seedGain")
+        });
       }
     }
 

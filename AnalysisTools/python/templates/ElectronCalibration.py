@@ -69,27 +69,19 @@ class ElectronCalibration(AnalysisFlowBase):
             step.addModule("seedGainEmbedding", embedSeedGain, 'e')
 
             # Setup/configuration
-            yearstring = scaleConfig = smearConfig = ""
+            yearstring = ""
             if self.year == "2022":
                 yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
-                scaleConfig = "EGMScale_Compound_Ele_2022%s" % self.calibEra22
-                smearConfig = "EGMSmearAndSyst_ElePT_2022"
             elif self.year == "2023":
                 yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
-                scaleConfig = "EGMScale_Compound_Ele_2023%s" % ("preBPIX" if self.calibEra23 == "preBPix" else "postBPIX")
-                smearConfig = "EGMSmearAndSyst_ElePT_2023"
             elif self.year == "2024":
                 yearstring = "2024_Summer24"
-                scaleConfig = "EGMScale_Compound_Ele_2024"
-                smearConfig = "EGMSmearAndSyst_ElePT_2024"
 
             """
             scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/EGM",
                                     yearstring, "electronSS.json.gz")
             """
             scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/EGM", yearstring, "electronSS_EtDependent.json.gz")
-            if self.year == "2024":
-                scaleFileP = scaleFileP.replace(".json","_v1.json")
 
             # Electron corrections
             eCorr = cms.EDProducer(
@@ -97,8 +89,6 @@ class ElectronCalibration(AnalysisFlowBase):
                 src = step.getObjTag('e'),
                 scaleFile = cms.string(scaleFileP),
                 isMC = cms.bool(self.isMC),
-                scaleConfig = cms.string(scaleConfig),
-                smearConfig = cms.string(smearConfig),
                 minPt = cms.double(3.), # essentially disabling minimum pt threshold
             )
             step.addModule("calibratedPatElectrons", eCorr, 'e')
