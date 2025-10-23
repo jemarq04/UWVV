@@ -74,4 +74,10 @@
 #/ZZZ-5F_TuneCP5_13p6TeV_amcatnlo-pythia8/RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2/MINIAODSIM
 
 #ggZZ
-# none available? only GluGluH
+#only MiniAODv6 available
+#/GluGlu2Zto4E_TuneCP5_13p6TeV_mcfm-pythia8/RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2/MINIAODSIM
+#/GluGlu2Zto4Mu_TuneCP5_13p6TeV_mcfm-pythia8/RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2/MINIAODSIM
+#/GluGlu2Zto4Tau_TuneCP5_13p6TeV_mcfm-pythia8/RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2/MINIAODSIM
+#/GluGlu2Zto2E2Mu_TuneCP5_13p6TeV_mcfm-pythia8/RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2/MINIAODSIM
+#/GluGlu2Zto2E2Tau_TuneCP5_13p6TeV_mcfm-pythia8/RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2/MINIAODSIM
+#/GluGlu2Zto2Mu2Tau_TuneCP5_13p6TeV_mcfm-pythia8/RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2/MINIAODSIM
