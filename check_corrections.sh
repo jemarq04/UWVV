@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo "WARNING: jetid is known to be out-of-date. At present, newer corrections crash due to correctionlib."
-
 dirmap=(
   2018_UL,Run2-2018-UL-NanoAODv9
   2022_Summer22,Run3-22CDSep23-Summer22-NanoAODv12
