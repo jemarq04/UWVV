@@ -42,9 +42,8 @@ class PATJetIDEmbedder : public edm::stream::EDProducer<>
     edm::EDGetTokenT<JetView> srcToken;
     edm::EDGetTokenT<MatchMap> matchToken_;
     bool domatch_;
-    std::string idFileName_, idConfig_;
+    std::string idFileName_, idConfig_, lepvetoConfig_;
     std::unique_ptr<correction::CorrectionSet> idFile_;
-    const bool useUL_;
 };
 
 
@@ -54,27 +53,30 @@ PATJetIDEmbedder::PATJetIDEmbedder(const edm::ParameterSet& iConfig) :
   domatch_(iConfig.exists("domatch") ? iConfig.getParameter<bool>("domatch") : false),
   idFileName_(iConfig.getParameter<std::string>("idFile")),
   idConfig_(iConfig.getParameter<std::string>("config")),
-  useUL_(iConfig.exists("useUL") ? iConfig.getParameter<bool>("useUL") : false)
+  lepvetoConfig_(iConfig.getParameter<std::string>("lepveto"))
 {
-  if (!useUL_){
-    std::ifstream checkfile(idFileName_);
-    if (!checkfile.good()) idFileName_ = idFileName_.substr(idFileName_.find("/UWVV/") + 6);
-    else checkfile.close();
+  std::ifstream checkfile(idFileName_);
+  if (!checkfile.good()) idFileName_ = idFileName_.substr(idFileName_.find("/UWVV/") + 6);
+  else checkfile.close();
 
-    try{
-      idFile_ = correction::CorrectionSet::from_file(idFileName_);
-      if (idFile_ == nullptr) throw cms::Exception("Invalid JSON file");
-    }
-    catch (...){
-      throw cms::Exception("Invalid JSON file") << "Filename: " << idFileName_;
-    }
-
-    auto it = idFile_->begin();
-    for (;it != idFile_->end(); it++)
-      if (it->first == idConfig_) break;
-    if (it == idFile_->end())
-      throw cms::Exception("Invalid jet ID config") << "Config: " << idConfig_;
+  try{
+    idFile_ = correction::CorrectionSet::from_file(idFileName_);
+    if (idFile_ == nullptr) throw cms::Exception("Invalid JSON file");
   }
+  catch (...){
+    throw cms::Exception("Invalid JSON file") << "Filename: " << idFileName_;
+  }
+
+  auto it = idFile_->begin();
+  for (;it != idFile_->end(); it++)
+    if (it->first == idConfig_) break;
+  if (it == idFile_->end())
+    throw cms::Exception("Invalid jet ID config") << "Config: " << idConfig_;
+  it = idFile_->begin();
+  for (;it != idFile_->end(); it++)
+    if (it->first == lepvetoConfig_) break;
+  if (it == idFile_->end())
+    throw cms::Exception("Invalid jet ID config") << "Config: " << lepvetoConfig_;
 
   produces<JetCollection>();
 }
@@ -107,19 +109,11 @@ void PATJetIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     int neMult   = jet.neutralMultiplicity();
     int mult     = chMult + neMult;
 
-    float passTight = 0;
-    if (useUL_){
-      float absEta = fabs(eta);
-      passTight = float(
-        (absEta <= 2.4 && neHF < 0.90 && neEmEF < 0.90 && mult > 1 && chHF > 0 && chMult > 0) ||
-        (absEta > 2.4 && absEta <= 2.7 && neHF < 0.90 && neEmEF < 0.99 && chMult > 0) ||
-        (absEta > 2.7 && absEta <= 3.0 && neEmEF > 0.01 && neEmEF < 0.99 && neMult > 1) ||
-        (absEta > 3.0 && neHF > 0.2 && neEmEF < 0.9 && neMult > 10)
-      );
-    }
-    else
-      passTight = idFile_->at(idConfig_)->evaluate({eta, chHF, neHF, chEmEF, neEmEF, muEF, chMult, neMult, mult});
+    float passTight = idFile_->at(idConfig_)->evaluate({eta, chHF, neHF, chEmEF, neEmEF, muEF, chMult, neMult, mult});
     jet.addUserFloat("idTight", float(passTight > 0.5));
+
+    float passTightLepVeto = idFile_->at(lepvetoConfig_)->evaluate({eta, chHF, neHF, chEmEF, neEmEF, muEF, chMult, neMult, mult});
+    jet.addUserFloat("idTightLepVeto", float(passTightLepVeto > 0.5));
 
     if (domatch_){
       edm::Ref<JetView> jetRef(in, i);

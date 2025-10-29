@@ -41,6 +41,9 @@ public:
 private:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
+  double getRawFactor(const Jet& jet);
+  void scaleJetP4(Jet& jet, double scale);
+
   edm::EDGetTokenT<JetView> srcToken;
   edm::EDGetTokenT<double> rhoToken;
   std::string scaleFileName_, config_, algo_;
@@ -49,7 +52,7 @@ private:
   edm::ConsumesCollector cc;
   edm::ESGetToken<JetCorrectorParametersCollection,JetCorrectionsRecord> jecToken;
 
-  std::string jesName_;
+  std::string jesName_, jesUncName_;
 };
 
 
@@ -83,6 +86,15 @@ PATJetCorrector::PATJetCorrector(const edm::ParameterSet& iConfig) :
   if (it == scaleFile_->compound().end())
     throw cms::Exception("Invalid JES config") << "Config: " << jesName_;
 
+  if (systematics_){
+    jesUncName_ = config_ + "_MC_AbsoluteStat_" + algo_;
+    auto unc_it = scaleFile_->begin();
+    for (; unc_it != scaleFile_->end(); unc_it++)
+      if (unc_it->first == jesUncName_) break;
+    if (unc_it == scaleFile_->end())
+      throw cms::Exception("Invalid JES uncertainty config") << "Config: " << jesUncName_;
+  }
+
 
   produces<JetCollection>();
   if (systematics_){
@@ -98,11 +110,6 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(srcToken, in);
   edm::Handle<double> rho;
   iEvent.getByToken(rhoToken, rho);
-
-  edm::ESHandle<JetCorrectorParametersCollection> jecParams;
-  jecParams = iSetup.get<JetCorrectionsRecord>().getHandle(jecToken);
-  const JetCorrectorParameters & param = (*jecParams)["Uncertainty"];
-  JetCorrectionUncertainty jecUnc(param);
 
   std::unique_ptr<JetCollection> out(new JetCollection());
   std::unique_ptr<JetCollection> out_jesUp(new JetCollection());
@@ -133,21 +140,19 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         jes = scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho});
     }
     out->push_back(jet);
-    out->back().setP4(math::XYZTLorentzVector(jes * jet.p4()));
+    scaleJetP4(out->back(), jes * getRawFactor(jet));
 
     if (systematics_){
       const Jet& jetCorr = out->back();
 
       // JES Uncertainty
-      jecUnc.setJetEta(jetCorr.eta());
-      jecUnc.setJetPt(jetCorr.pt());
-      float unc = jecUnc.getUncertainty(true);
+      double unc = scaleFile_->at(jesUncName_)->evaluate({jetCorr.eta(), jetCorr.pt()});
 
       out_jesUp->push_back(jetCorr);
-      out_jesUp->back().setP4(math::XYZTLorentzVector((1.+unc) * jetCorr.p4()));
+      scaleJetP4(out_jesUp->back(), 1.0 + unc);
 
       out_jesDn->push_back(jetCorr);
-      out_jesDn->back().setP4(math::XYZTLorentzVector((1.-unc) * jetCorr.p4()));
+      scaleJetP4(out_jesUp->back(), 1.0 - unc);
     }
   }
 
@@ -158,6 +163,22 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 }
 
+double PATJetCorrector::getRawFactor(const Jet& jet){
+  // Used to uncorrect the initial jet collection before re-correcting them
+
+  double ptCorr = jet.pt();
+  double ptRaw  = jet.correctedP4("Uncorrected").pt();
+
+  double rawFactor = (ptCorr > 0.0)? 1.0 - ptRaw/ptCorr : 0.0;
+  return 1.0 - std::min( std::max(rawFactor, 0.0), 1.0); // factor of [0,1], 1 being already raw
+}
+
+void PATJetCorrector::scaleJetP4(Jet& jet, double scale){
+  const auto p4 = jet.p4();
+  jet.setP4(reco::Particle::LorentzVector(
+        p4.px()*scale, p4.py()*scale, p4.pz()*scale, p4.energy()*scale
+  ));
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATJetCorrector);

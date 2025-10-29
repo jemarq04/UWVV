@@ -87,10 +87,6 @@ options.register("electronsUL", 1,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
         "use 2018UL MVA for electron ID 0: off, 1: on")
-options.register("jetsUL", 0,
-        VarParsing.VarParsing.multiplicity.singleton,
-        VarParsing.VarParsing.varType.bool,
-        "use AK4CHS jets and 2018UL corrections 0: off, 1: on")
 options.register("genInfo", 0,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
@@ -190,7 +186,7 @@ elif options.year == "2023":
 
 if not options.isMC:
     print("isPrompt: %i" % options.isPrompt)
-for var in ["jetsUL", "electronsUL", "debug"]:
+for var in ["electronsUL", "debug"]:
     if getattr(options, var):
         print("%s flag on" % var)
 
@@ -422,7 +418,6 @@ flowOpts = {
     "calibEra22": "%sEE" % ("post" if options.postEE else "pre"),
     "calibEra23": "%sBPix" % ("post" if options.postBPix else "pre"),
     "dataPeriod": options.dataPeriod,
-    "jetsUL": bool(options.jetsUL),
     "electronsUL": bool(options.electronsUL)
 }
 
