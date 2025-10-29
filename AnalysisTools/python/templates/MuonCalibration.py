@@ -10,8 +10,6 @@ class MuonCalibration(AnalysisFlowBase):
             self.isMC = kwargs.pop('isMC', True)
         if not hasattr(self, 'year'):
             self.year = kwargs.pop('year', '2022')
-        if not hasattr(self, 'muonClosureShift'):
-            self.muonClosureShift = kwargs.pop('muonClosureShift', 0) if self.isMC else 0
         if not hasattr(self, 'calibEra22'):
             self.calibEra22 = kwargs.pop('calibEra22', 'preEE')
         if not hasattr(self, 'calibEra23'):

@@ -14,17 +14,6 @@ class ElectronCalibration(AnalysisFlowBase):
             self.calibEra22 = kwargs.pop('calibEra22', 'preEE')
         if not hasattr(self, 'calibEra23'):
             self.calibEra23 = kwargs.pop('calibEra23', 'preBPix')
-
-        eesShift = kwargs.pop('electronScaleShift', 0) if self.isMC else 0
-        eerRhoShift = kwargs.pop('electronRhoResShift', 0) if self.isMC else 0
-        eerPhiShift = kwargs.pop('electronPhiResShift', 0) if self.isMC else 0
-        if not hasattr(self, 'electronScaleShift'):
-            self.electronScaleShift = eesShift
-        if not hasattr(self, 'electronRhoResShift'):
-            self.electronRhoResShift = eerRhoShift
-        if not hasattr(self, 'electronPhiResShift'):
-            self.electronPhiResShift = eerPhiShift
-
         super(ElectronCalibration, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
