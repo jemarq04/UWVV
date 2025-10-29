@@ -27,7 +27,7 @@ class ZZID(AnalysisFlowBase):
                     idLabel = cms.string(self.getZZIDLabel()),
                     vtxSrc = step.getObjTag('v'),
                     mvaLabel = cms.string("mvaEleID-Winter22-HZZ-V1"),
-                    useMVA = cms.bool(int(environ["CMSSW_VERSION"].split("_")[1]) >= 14 and not self.electronsUL),
+                    useMVA = cms.bool(not self.electronsUL),
                     bdtLabel = cms.string("ElectronMVAEstimatorRun2Summer18ULIdIsoValues"),
                     idCutLowPtLowEta = cms.double(0.9044286167),
                     idCutLowPtMedEta = cms.double(0.9094166886),
