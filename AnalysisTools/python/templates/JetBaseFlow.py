@@ -17,8 +17,6 @@ class JetBaseFlow(AnalysisFlowBase):
             self.calibEra23 = kwargs.pop('calibEra23', 'preBPix')
         if not hasattr(self, 'dataPeriod'):
             self.dataPeriod = kwargs.pop('dataPeriod', 'C')
-        if not hasattr(self, 'jetsUL'):
-            self.jetsUL = kwargs.pop('jetsUL', False)
         super(JetBaseFlow, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
@@ -29,44 +27,32 @@ class JetBaseFlow(AnalysisFlowBase):
             # This puts the IDs in the event stream, not an updated jet collection
             # Note that due to recommendations to keep min jet pt at 50 GeV,
             # PUID is essentially ignored. For now, the code remains.
-            if self.jetsUL:
-                step.outputs['j'] = "slimmedJets"
-                from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_106X_UL18
+            if self.year in ["2022", "2023"]:
+                # this producer will create a ValueMap<int> filled with the given value,
+                # so that all jets receive a 'passing' PUID for 2022-2023
+                # (eff. ignoring PUID for these years as recommended)
+                self.process.pileupJetIdUpdated = cms.EDProducer(
+                    "PATJetValueMapProducer",
+                    src = step.getObjTag('j'),
+                    intVals = cms.vint32(7),
+                    intLabels = cms.vstring("fullId"),
+                )
+            elif self.year == "2024":
+                puppiLabel, _ = setupPuppiForPackedPF(self.process)
                 self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
-                self.process.pileupJetIdUpdated = self.process.pileupJetId.clone(
+                self.process.pileupJetIdUpdated = self.process.pileupJetIdPuppi.clone(
                     jets = step.getObjTag('j'),
+                    srcConstituentWeights = puppiLabel,
                     inputIsCorrected = True,
                     applyJec = True,
                     vertexes = step.getObjTag('v'),
-                    algos = cms.VPSet(_chsalgos_106X_UL18),
                 )
-            else:
-                if self.year in ["2022", "2023"]:
-                    # this producer will create a ValueMap<int> filled with the given value,
-                    # so that all jets receive a 'passing' PUID for 2022-2023
-                    # (eff. ignoring PUID for these years as recommended)
-                    self.process.pileupJetIdUpdated = cms.EDProducer(
-                        "PATJetValueMapProducer",
-                        src = step.getObjTag('j'),
-                        intVals = cms.vint32(7),
-                        intLabels = cms.vstring("fullId"),
-                    )
-                elif self.year == "2024":
-                    puppiLabel, _ = setupPuppiForPackedPF(self.process)
-                    self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
-                    self.process.pileupJetIdUpdated = self.process.pileupJetIdPuppi.clone(
-                        jets = step.getObjTag('j'),
-                        srcConstituentWeights = puppiLabel,
-                        inputIsCorrected = True,
-                        applyJec = True,
-                        vertexes = step.getObjTag('v'),
-                    )
 
-                    self.process.jetPUIDSequence = cms.Sequence(
-                        getattr(self.process, puppiLabel) *
-                        self.process.pileupJetIdUpdated
-                    )
-                    step.addModule(puppiLabel, getattr(self.process, puppiLabel))
+                self.process.jetPUIDSequence = cms.Sequence(
+                    getattr(self.process, puppiLabel) *
+                    self.process.pileupJetIdUpdated
+                )
+                step.addModule(puppiLabel, getattr(self.process, puppiLabel))
             step.addModule("pileupJetIdUpdated", self.process.pileupJetIdUpdated, "puID", puID="fullId")
 
             jetPUIDEmbedder = cms.EDProducer(
@@ -119,54 +105,22 @@ class JetBaseFlow(AnalysisFlowBase):
             vetoFileP  = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jetvetomaps.json.gz")
             idFileP    = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jetid.json.gz")
 
-            if self.jetsUL:
-                jerConfig = "Summer19UL18_JRV2"
-                scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME/2018_UL", "jet_jerc.json.gz")
-                #scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
-                #                        "2018_UL", "jet_jerc.json.gz")
-
             # Jet energy corrections + uncertainties (JES)
-            if self.jetsUL:
-                corrections = ['L1FastJet', 'L2Relative', 'L3Absolute',]
-                if not self.isMC:
-                    corrections.append('L2L3Residual')
-                updateJetCollection(
-                    self.process,
-                    jetSource = step.getObjTag('j'),
-                    labelName = 'UpdatedJEC',
-                    jetCorrections = ('AK4PFchs', cms.vstring(corrections), 'None'),
+            jetCorrector = cms.EDProducer(
+                "PATJetCorrector",
+                src = step.getObjTag('j'),
+                rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
+                scaleFile = cms.string(scaleFileP),
+                config = cms.string(jesConfig),
+                isMC = cms.bool(self.isMC),
+                algo = cms.string("AK4PFPuppi"),
+            )
+            if self.isMC:
+                step.addModule("jetCorrectorMC", jetCorrector, 'j',
+                    "j_jesUp", "j_jesDown", j_jesUp="jesUp", j_jesDown="jesDown"
                 )
-
-                self.process.jecSequence = cms.Sequence(
-                    self.process.patJetCorrFactorsUpdatedJEC *
-                    self.process.updatedPatJetsUpdatedJEC
-                )
-                step.addModule('jecSequence', self.process.jecSequence, 'j')
-
-                if self.isMC:
-                    jesShifts = cms.EDProducer(
-                        "PATJetEnergyScaleShifter",
-                        src = step.getObjTag('j'),
-                    )
-                    step.addModule('jesShifts', jesShifts,
-                        'j_jesUp', 'j_jesDown',
-                        j_jesUp='jesUp', j_jesDown='jesDown')
             else:
-                jetCorrector = cms.EDProducer(
-                    "PATJetCorrector",
-                    src = step.getObjTag('j'),
-                    rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
-                    scaleFile = cms.string(scaleFileP),
-                    config = cms.string(jesConfig),
-                    isMC = cms.bool(self.isMC),
-                    algo = cms.string("AK4PFPuppi"),
-                )
-                if self.isMC:
-                    step.addModule("jetCorrectorMC", jetCorrector, 'j',
-                        "j_jesUp", "j_jesDown", j_jesUp="jesUp", j_jesDown="jesDown"
-                    )
-                else:
-                    step.addModule("jetCorrectorData", jetCorrector, 'j')
+                step.addModule("jetCorrectorData", jetCorrector, 'j')
 
             # Gen matching
             if self.isMC:
@@ -197,7 +151,7 @@ class JetBaseFlow(AnalysisFlowBase):
                 domatch = cms.bool(self.isMC),
                 idFile = cms.string(idFileP),
                 config = cms.string("AK4PUPPI_Tight"),
-                useUL = cms.bool(self.jetsUL),
+                lepveto = cms.string("AK4PUPPI_TightLeptonVeto"),
             )
             step.addModule('jetIDEmbedding', jetIDEmbedding, 'j')
 
@@ -205,7 +159,6 @@ class JetBaseFlow(AnalysisFlowBase):
             jetVetoFilter = cms.EDFilter(
                 "PATJetVetoFilter",
                 jets = step.getObjTag("j"),
-                muons = step.getObjTag("m"),
                 vetoFile = cms.string(vetoFileP),
             )
             step.addModule("jetVetoFilter", jetVetoFilter)
@@ -226,8 +179,7 @@ class JetBaseFlow(AnalysisFlowBase):
                     scaleFile = cms.string(scaleFileP),
                     config = cms.string(jerConfig),
                     systematics = cms.bool(True),
-                    algo = cms.string("AK4PFPuppi" if not self.jetsUL else "AK4PFchs"),
-                    useUL = cms.bool(self.jetsUL),
+                    algo = cms.string("AK4PFPuppi"),
                 )
                 step.addModule("jetSmearing", jetSmearing, 'j',
                     "j_jerUp", "j_jerDown", j_jerUp="jerUp", j_jerDown="jerDown"

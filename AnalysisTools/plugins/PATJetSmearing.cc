@@ -50,11 +50,13 @@ public:
 private:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
+  void scaleJetP4(Jet& jet, double scale);
+
   edm::EDGetTokenT<JetView> srcToken;
   edm::EDGetTokenT<double> rhoToken;
-  std::string scaleFileName_, smearFileName_, config_, algo_;
-  std::unique_ptr<correction::CorrectionSet> scaleFile_, smearFile_;
-  const bool systematics_, useUL_;
+  std::string scaleFileName_, config_, algo_;
+  std::unique_ptr<correction::CorrectionSet> scaleFile_;
+  const bool systematics_;
 
   std::string jerName_, jersfName_;
 };
@@ -64,21 +66,13 @@ PATJetSmearing::PATJetSmearing(const edm::ParameterSet& iConfig) :
   srcToken(consumes<JetView>(iConfig.getParameter<edm::InputTag>("src"))),
   rhoToken(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoSrc"))),
   scaleFileName_(iConfig.getParameter<std::string>("scaleFile")),
-  smearFileName_(iConfig.exists("smearFile") ?
-      iConfig.getParameter<std::string>("smearFile") :
-      "/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME/jer_smear.json.gz"),
   config_(iConfig.getParameter<std::string>("config")),
   algo_(iConfig.exists("algo") ? iConfig.getParameter<std::string>("algo") : "AK4PFPuppi"),
   systematics_(iConfig.exists("systematics") ?
-      iConfig.getParameter<bool>("systematics") : false),
-  useUL_(iConfig.exists("useUL") ?
-      iConfig.getParameter<bool>("useUL") : false)
+      iConfig.getParameter<bool>("systematics") : false)
 {
   std::ifstream checkfile(scaleFileName_);
   if (!checkfile.good()) scaleFileName_ = scaleFileName_.substr(scaleFileName_.find("/UWVV/") + 6);
-  else checkfile.close();
-  checkfile.open(smearFileName_);
-  if (!checkfile.good()) smearFileName_ = smearFileName_.substr(smearFileName_.find("/UWVV/") + 6);
   else checkfile.close();
 
   try{
@@ -87,13 +81,6 @@ PATJetSmearing::PATJetSmearing(const edm::ParameterSet& iConfig) :
   }
   catch (...){
     throw cms::Exception("Invalid JSON file") << "Filepath: " << scaleFileName_;
-  }
-  try{
-    smearFile_ = correction::CorrectionSet::from_file(smearFileName_);
-    if (smearFile_ == nullptr) throw cms::Exception("Invalid JER Smear file") << smearFileName_;
-  }
-  catch (...){
-    throw cms::Exception("Invalid JER Smear file") << smearFileName_;
   }
 
   jerName_ = config_ + "_MC_PtResolution_" + algo_;
@@ -130,6 +117,9 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::unique_ptr<JetCollection> outUp(new JetCollection());
   std::unique_ptr<JetCollection> outDn(new JetCollection());
 
+  TRandom3 rand;
+  rand.SetSeed(iEvent.id().event() + iEvent.id().run() + iEvent.id().luminosityBlock());
+
   for (size_t i=0; i<in->size(); ++i)
   {
     const Jet& jet = in->at(i);
@@ -144,28 +134,45 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     const reco::GenJet* gen = jet.genJet();
     float genpt = (gen!=nullptr)? gen->pt() : -1.0;
 
-    // JER
-    double jer       = scaleFile_->at(jerName_)->evaluate({eta, pt, *rho});
-    double jersf     = useUL_? scaleFile_->at(jersfName_)->evaluate({eta, "nom"}) :
-                               scaleFile_->at(jersfName_)->evaluate({eta, pt, "nom"});
-    double jerCorr   = smearFile_->at("JERSmear")->evaluate({pt, eta, genpt, *rho, int(iEvent.id().event()), jer, jersf});
-    out->back().setP4(math::XYZTLorentzVector(jerCorr * jet.p4()));
+    double reso    = scaleFile_->at(jerName_)->evaluate({eta, pt, *rho});
+    double scale   = scaleFile_->at(jersfName_)->evaluate({eta, pt, "nom"});
+    double jerCorr = 1.0;
+
+    double gaus = 0.0;
+    if (genpt>0.0)
+      jerCorr = std::max( 0.0, 1.0 + (scale-1.0)*(pt-genpt)/pt );
+    else{
+      gaus = rand.Gaus(0.0, reso);
+      double varp = std::max(scale*scale - 1.0, 0.0);
+      jerCorr = std::max(0.0, 1.0 + gaus * std::sqrt(varp));
+    }
+
+    scaleJetP4(out->back(), jerCorr);
     out->back().addUserFloat("jerCorrInverse", 1./jerCorr);
 
     if(systematics_)
     {
       // JER Uncertainty
-      double jersfUp   = useUL_? scaleFile_->at(jersfName_)->evaluate({eta, "up"}) :
-                                 scaleFile_->at(jersfName_)->evaluate({eta, pt, "up"});
-      double jersfDn   = useUL_? scaleFile_->at(jersfName_)->evaluate({eta, "down"}) :
-                                 scaleFile_->at(jersfName_)->evaluate({eta, pt, "down"});
-      double jerCorrUp = smearFile_->at("JERSmear")->evaluate({pt, eta, genpt, *rho, int(iEvent.id().event()), jer, jersfUp});
-      double jerCorrDn = smearFile_->at("JERSmear")->evaluate({pt, eta, genpt, *rho, int(iEvent.id().event()), jer, jersfDn});
+      double scaleUp   = scaleFile_->at(jersfName_)->evaluate({eta, pt, "up"});
+      double scaleDn   = scaleFile_->at(jersfName_)->evaluate({eta, pt, "down"});
+      double jerCorrUp = 1.0;
+      double jerCorrDn = 1.0;
 
-      outUp->back().setP4(math::XYZTLorentzVector(jerCorrUp * jet.p4()));
+      if (genpt>0.0){
+        jerCorrUp = std::max( 0.0, 1.0 + (scaleUp-1.0)*(pt-genpt)/pt );
+        jerCorrDn = std::max( 0.0, 1.0 + (scaleDn-1.0)*(pt-genpt)/pt );
+      }
+      else{
+        double varpUp = std::max(scaleUp*scaleUp - 1.0, 0.0);
+        double varpDn = std::max(scaleDn*scaleDn - 1.0, 0.0);
+        jerCorrUp = std::max(0.0, 1.0 + gaus * std::sqrt(varpUp));
+        jerCorrDn = std::max(0.0, 1.0 + gaus * std::sqrt(varpDn));
+      }
+
+      scaleJetP4(outUp->back(), jerCorrUp);
       outUp->back().addUserFloat("jerCorrInverse", 1./jerCorrUp);
 
-      outDn->back().setP4(math::XYZTLorentzVector(jerCorrDn * jet.p4()));
+      scaleJetP4(outDn->back(), jerCorrDn);
       outDn->back().addUserFloat("jerCorrInverse", 1./jerCorrDn);
     }
   }
@@ -178,6 +185,12 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 }
 
+void PATJetSmearing::scaleJetP4(Jet& jet, double scale){
+  const auto p4 = jet.p4();
+  jet.setP4(reco::Particle::LorentzVector(
+        p4.px()*scale, p4.py()*scale, p4.pz()*scale, p4.energy()*scale
+  ));
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATJetSmearing);

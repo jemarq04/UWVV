@@ -145,7 +145,7 @@ configParams = [
     "postEE=%i" % postEE,
     "postBPix=%i" % postBPix,
 ]
-for optvar in ["jetsUL", "electronsUL"]:
+for optvar in ["electronsUL"]:
     if optvar in localSettings:
         configParams.append(f"{optvar}={localSettings[optvar]}")
 
