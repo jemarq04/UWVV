@@ -77,6 +77,8 @@
 #/DYto2E-2Jets_Bin-MLL-50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v4/MINIAODSIM
 #/DYto2Mu-2Jets_Bin-MLL-50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v6/MINIAODSIM
 #/DYto2Tau-2Jets_Bin-MLL-50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v7/MINIAODSIM
+/CustomDY_MLL-10to50_2024/marquez-DY_MLL-10to50_2024-MINI-150X_mcRun3_2024_realistic_v2-9a45b264ebe46f81f5963720754cc2e7/USER
+/CustomDY_MLL-50_2024/marquez-DY_MLL-50_2024-MINI-150X_mcRun3_2024_realistic_v2-9a45b264ebe46f81f5963720754cc2e7/USER
 
 #ttbar
 /TTto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8/RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3/MINIAODSIM
