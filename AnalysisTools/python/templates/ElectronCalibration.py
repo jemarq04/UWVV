@@ -29,15 +29,14 @@ class ElectronCalibration(AnalysisFlowBase):
             from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq, _defaultEleIDModules
 
             # Embed MVAs and BDT scores
-            if self.year in ["2022", "2023", "2024"]:
-                # TODO: update 2023-2024 when available
-                eleIDModules = _defaultEleIDModules + ["RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff"]
-                setupEgammaPostRecoSeq(self.process,
-                    runEnergyCorrections=False,
-                    runVID=True,
-                    era="2022-Prompt",
-                    eleIDModules=eleIDModules,
-                )
+            # TODO: update 2023-2024 when available
+            eleIDModules = _defaultEleIDModules + ["RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff"]
+            setupEgammaPostRecoSeq(self.process,
+                runEnergyCorrections=False,
+                runVID=True,
+                era="2022-Prompt",
+                eleIDModules=eleIDModules,
+            )
             step.addModule('egammaPostRecoSeq',self.process.egammaPostRecoSeq)
 
             # Produce and embed seed gain into electrons
