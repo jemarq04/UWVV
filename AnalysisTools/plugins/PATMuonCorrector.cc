@@ -45,7 +45,6 @@ class PATMuonCorrector : public edm::stream::EDProducer<>
     double getPtSmear(const Muon& muon, double pt_scale, int event, int lumi);
     double getPtScaleVar(const Muon& muon, double corr_pt, std::string var);
     double getPtSmearVar(const Muon& muon, double pt_scale, double corr_pt, std::string var);
-    void scaleP4(Muon& muon, double scale);
 
     edm::EDGetTokenT<MuonView> srcToken_;
     const bool isMC_;
@@ -105,7 +104,7 @@ void PATMuonCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       mu.addUserFloat("smearUp_pt", getPtSmearVar(mu, pt_scale, corr_pt, "up"));
       mu.addUserFloat("smearDn_pt", getPtSmearVar(mu, pt_scale, corr_pt, "dn"));
     }
-    scaleP4(mu, corr_pt/uncorr_pt);
+    mu.setP4(reco::Particle::PolarLorentzVector(corr_pt, mu.eta(), mu.phi(), mu.mass()));
   }
 
   iEvent.put(std::move(out));
@@ -129,13 +128,6 @@ double PATMuonCorrector::getPtScaleVar(const Muon& muon, double corr_pt, std::st
 
 double PATMuonCorrector::getPtSmearVar(const Muon& muon, double pt_scale, double corr_pt, std::string var){
   return corrector_->pt_resol_var(pt_scale, corr_pt, muon.eta(), var);
-}
-
-void PATMuonCorrector::scaleP4(Muon& muon, double scale){
-  const auto p4 = muon.p4();
-  muon.setP4(reco::Particle::LorentzVector(
-        p4.px()*scale, p4.py()*scale, p4.pz()*scale, p4.energy()*scale
-  ));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

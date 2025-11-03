@@ -39,8 +39,6 @@ public:
 private:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  void scaleP4(Electron& ele, double scale);
-
   edm::EDGetTokenT<ElectronView> srcToken_;
   const bool isMC_;
   const double minPt_;
@@ -136,27 +134,20 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }
 
     float uncorr_pt = ele.pt();
-    double eleCorr = isMC_? smear : scale;
+    float corr_pt = uncorr_pt * (isMC_? smear : scale);
 
     ele.addUserFloat("uncorrected_pt", uncorr_pt);
-    ele.addUserFloat("ptScaleFactor",  eleCorr);
+    ele.addUserFloat("ptScaleFactor",  corr_pt/uncorr_pt);
     if (isMC_){
       ele.addUserFloat("scaleUp_pt", uncorr_pt*(1+err_scale));
       ele.addUserFloat("scaleDn_pt", uncorr_pt*(1-err_scale));
       ele.addUserFloat("smearUp_pt", uncorr_pt*smear_up);
       ele.addUserFloat("smearDn_pt", uncorr_pt*smear_dn);
     }
-    scaleP4(ele, eleCorr);
+    ele.setP4(reco::Particle::PolarLorentzVector(corr_pt, ele.eta(), ele.phi(), ele.mass()));
   }
 
   iEvent.put(std::move(out));
-}
-
-void PATElectronCorrector::scaleP4(Electron& ele, double scale){
-  const auto p4 = ele.p4();
-  ele.setP4(reco::Particle::LorentzVector(
-        p4.px()*scale, p4.py()*scale, p4.pz()*scale, p4.energy()*scale
-  ));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
