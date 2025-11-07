@@ -53,7 +53,6 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
 
                 #Add modules to embed jet collection in the initial state object
                 if self.isMC:
-                    #TODO: Wait for Run3 Jet PUSFs to be added to JME POG under jmar.json
                     mod = cms.EDProducer(
                         "CleanedJetCollectionEmbedder",
                         src = step.getObjTag(chan),
