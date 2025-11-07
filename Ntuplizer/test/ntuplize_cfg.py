@@ -477,21 +477,22 @@ for chan in channels:
 if state_zz and options.isMC and options.genInfo:
     process.genTreeSequence = cms.Sequence()
 
+    from UWVV.AnalysisTools.templates.GenZZXsecFlow import GenZZXsecFlow
     from UWVV.AnalysisTools.templates.GenZZBase import GenZZBase
     from UWVV.Ntuplizer.templates.vbsBranches import vbsGenBranches
 
     if "dressed" in options.genLeptonType:
         from UWVV.AnalysisTools.templates.DressedGenLeptonBase import DressedGenLeptonBase
-        from UWVV.Ntuplizer.templates.leptonBranches import dressedGenLeptonBranches
-        GenFlow = createFlow(DressedGenLeptonBase, GenZZBase)
+        GenFlow = createFlow(DressedGenLeptonBase, GenZZXsecFlow, GenZZBase)
     else:
         from UWVV.AnalysisTools.templates.GenLeptonBase import GenLeptonBase
-        GenFlow = createFlow(GenLeptonBase, GenZZBase)
+        GenFlow = createFlow(GenLeptonBase, GenZZXsecFlow, GenZZBase)
 
     genFlow = GenFlow('genFlow', process, suffix='Gen', e='prunedGenParticles',
                     m='prunedGenParticles', a='prunedGenParticles', j='slimmedGenJets',
                     pfCands='packedGenParticles',
-                    leptonStatusFlag=genLepChoices[options.genLeptonType])
+                    leptonStatusFlag=genLepChoices[options.genLeptonType],
+                    isDressed="dressed" in options.genLeptonType)
     genTrg = trgBranches.clone(trigNames=cms.vstring())
 
     extraInitialStateBranchesGen = [vbsGenBranches]
@@ -511,6 +512,7 @@ if state_zz and options.isMC and options.genInfo:
 
     for chan in channels:
         if 'dressed' in options.genLeptonType.lower():
+            from UWVV.Ntuplizer.templates.leptonBranches import dressedGenLeptonBranches
             genBranches = makeGenBranchSet(chan,
                                            extraInitialStateBranches=extraInitialStateBranchesGen,
                                            extraIntermediateStateBranches=extraIntermediateStateBranchesGen,
