@@ -9,7 +9,7 @@
 // CMS includes
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -27,16 +27,16 @@ typedef edm::View<CCand> CCandView;
 typedef std::vector<CCand> CCandCollection;
 using reco::GenParticle, reco::GenParticleCollection;
 
-class GenZZXsecAnalyzer : public edm::stream::EDAnalyzer<>
+class GenZZXsecAnalyzer : public edm::one::EDAnalyzer<>
 {
   public:
     explicit GenZZXsecAnalyzer(const edm::ParameterSet &iConfig);
     virtual ~GenZZXsecAnalyzer(){};
 
   private:
-    void beginStream(edm::StreamID) override;
-    virtual void analyze(edm::Event &iEvent, const edm::EventSetup &iSetup);
-    void endStream() override;
+    void beginJob() override;
+    void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+    void endJob() override;
 
     edm::EDGetTokenT<GenParticleCollection> eSrc_, mSrc_;
     edm::EDGetTokenT<CCandView> candSrc_;
@@ -55,7 +55,7 @@ GenZZXsecAnalyzer::GenZZXsecAnalyzer(const edm::ParameterSet &iConfig) :
 {
 }
 
-void GenZZXsecAnalyzer::analyze(edm::Event &iEvent, const edm::EventSetup &iSetup)
+void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 {
   edm::Handle<GenParticleCollection> electrons;
   iEvent.getByToken(eSrc_, electrons);
@@ -69,13 +69,13 @@ void GenZZXsecAnalyzer::analyze(edm::Event &iEvent, const edm::EventSetup &iSetu
   numEvents_++;
 }
 
-void GenZZXsecAnalyzer::beginStream(edm::StreamID){
+void GenZZXsecAnalyzer::beginJob(){
   numEvents_ = 0;
   sumWeightsOnShell_ = 0.0;
   sumWeightsFiducial_ = 0.0;
 }
 
-void GenZZXsecAnalyzer::endStream(){
+void GenZZXsecAnalyzer::endJob(){
   std::cout << std::endl;
 }
 
