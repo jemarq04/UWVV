@@ -60,7 +60,7 @@ class GenZZBase(ZPlusXBaseFlowGen):
             mod = cms.EDProducer(
                 "GenJetCleaner",
                 src=step.getObjTag('j'),
-                preselection=cms.string('pt > 30. && abs(eta) < 4.7'),
+                preselection=cms.string('pt > 50. && abs(eta) < 4.7'),
                 checkOverlaps = cms.PSet(
                     electrons = cms.PSet(
                         src=step.getObjTag('e'),
@@ -78,16 +78,3 @@ class GenZZBase(ZPlusXBaseFlowGen):
             step.addModule('genJetCleaner', mod, 'j')
 
         return step
-
-    def addAlternatePairInfo(self, step):
-        '''
-        Add modules to embed alternate lepton pair (e.g. e1+m1) info.
-        '''
-        for chan in parseChannels('zz'):
-            mod = cms.EDProducer(
-                'AlternateDaughterInfoEmbedder',
-                src = step.getObjTag(chan),
-                names = cms.vstring(*mapObjects(chan)),
-                fsrLabel = cms.string("fsr"),
-                )
-            step.addModule(chan+'AlternatePairs', mod, chan)
