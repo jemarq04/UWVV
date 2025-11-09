@@ -42,7 +42,8 @@ class GenZZXsecAnalyzer : public edm::one::EDAnalyzer<>
     edm::EDGetTokenT<CCandView> candSrc_;
     const bool isDressed_;
 
-    int numEvents_;
+    int numEventsOnShell_;
+    int numEventsFiducial_;
     double sumWeightsOnShell_;
     double sumWeightsFiducial_;
 };
@@ -66,11 +67,13 @@ void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
   edm::Handle<CCandView> cands;
   iEvent.getByToken(candSrc_, cands);
 
-  numEvents_++;
+  numEventsOnShell_++;
+  numEventsFiducial_++;
 }
 
 void GenZZXsecAnalyzer::beginJob(){
-  numEvents_ = 0;
+  numEventsOnShell_ = 0;
+  numEventsFiducial_ = 0;
   sumWeightsOnShell_ = 0.0;
   sumWeightsFiducial_ = 0.0;
 }
