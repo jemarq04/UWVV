@@ -151,6 +151,8 @@ for optvar in ["electronsUL"]:
 
 today = (datetime.date.today()).strftime("%d%b%Y")
 campaign_name = localSettings["campaign"].replace("$DATE", today)
+if localSettings["channels"] == "zl":
+    campaign_name += "_ZL"
 if isMC:
     config.General.requestName = '_'.join([campaign_name, primaryDS if not customMC else localSettings["requestName"]])
     # Check for extension dataset, force unique request name
