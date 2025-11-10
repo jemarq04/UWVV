@@ -151,6 +151,8 @@ for optvar in ["electronsUL"]:
 
 today = (datetime.date.today()).strftime("%d%b%Y")
 campaign_name = localSettings["campaign"].replace("$DATE", today)
+if localSettings["channels"] == "zl":
+    campaign_name += "_ZL"
 if isMC:
     config.General.requestName = '_'.join([campaign_name, primaryDS if not customMC else localSettings["requestName"]])
     # Check for extension dataset, force unique request name
@@ -221,6 +223,7 @@ config.JobType.allowUndistributedCMSSW = True
 config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg.py' % os.environ["CMSSW_BASE"]
 config.JobType.numCores = 1
 config.JobType.inputFiles = ["%s/src/UWVV/data" % os.environ["CMSSW_BASE"]]
+config.JobType.maxMemoryMB = int(localSettings["maxMemoryMB"]) #(default is 2000)
 
 config.Data.inputDBS = 'global' if 'USER' not in dataset else 'phys03'
 #config.Data.allowNonValidInputDataset = True
