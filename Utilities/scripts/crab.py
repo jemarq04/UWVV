@@ -223,7 +223,6 @@ config.JobType.allowUndistributedCMSSW = True
 config.JobType.psetName = '%s/src/UWVV/Ntuplizer/test/ntuplize_cfg.py' % os.environ["CMSSW_BASE"]
 config.JobType.numCores = 1
 config.JobType.inputFiles = ["%s/src/UWVV/data" % os.environ["CMSSW_BASE"]]
-config.JobType.maxMemoryMB = int(localSettings["maxMemoryMB"]) #(default is 2000)
 
 config.Data.inputDBS = 'global' if 'USER' not in dataset else 'phys03'
 #config.Data.allowNonValidInputDataset = True
