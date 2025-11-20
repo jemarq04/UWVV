@@ -19,5 +19,6 @@ if [[ ! -f $infile ]]; then
 fi
 
 [[ $year = 2024 ]] && extra="electronsUL=0"
+[[ $year = 2025 ]] && extra="eCalib=0 muCalib=0"
 
-cmsRun ntuplize_cfg.py inputFileList=$infile year=$year channels=zz isMC=0 eCalib=1 muCalib=1 genInfo=0 $extra $@
+cmsRun ntuplize_cfg.py inputFileList=$infile year=$year channels=zz isMC=0 genInfo=0 $extra $@

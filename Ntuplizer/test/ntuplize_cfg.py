@@ -34,7 +34,7 @@ genLepChoices = {
     "dressedPromptFS": "isPromptFinalState()"
 }
 yearDefault = "2022"
-yearChoices = ["2022", "2023", "2024"]
+yearChoices = ["2022", "2023", "2024", "2025"]
 outputFileDefault = "ntuple.root"
 
 # Parsing command-line arguments
@@ -219,6 +219,7 @@ state_wz = "wz" in options.channels
 # 2022: https://docs.google.com/presentation/d/1F4ndU7DBcyvrEEyLfYqb29NGkBPs20EAnBxe_l7AEII/edit?usp=sharing
 # 2023: https://docs.google.com/presentation/d/1TjPem5jX0fzqvTGl271_nQFoVBabsrdrO0i8Qo1uD5E/edit?usp=sharing
 # 2024: https://docs.google.com/presentation/d/1EHxQcWzw8IxPgCn8hm1prwSP-EktFtiuaEzH8WkQNVY/edit?usp=sharing
+# 2025: https://docs.google.com/presentation/d/1H_WuzeAGkW3xZvo3oN4qGZWfw2eBuUzMhPLeShYAQoU/edit?usp=sharing
 if options.globalTag:
     gt = options.globalTag
 elif options.isMC:
@@ -250,6 +251,11 @@ else:
             gt = "150X_dataRun3_v2"
         else:
             gt = "140X_dataRun3_Prompt_v4"
+    elif options.year == "2025":
+        if not options.isPrompt:
+            gt = ""
+        else:
+            gt = "150X_dataRun3_Prompt_v1"
 
 print("globalTag: %s" % gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
@@ -440,9 +446,8 @@ process.schedule.append(process.metaTreePath)
 
 # Get trigger branches
 if not state_wz:
-    if options.year in ["2022", "2023", "2024"]:
-        from UWVV.Ntuplizer.templates.triggerBranches import triggerBranches_2022
-        trgBranches = triggerBranches_2022
+    from UWVV.Ntuplizer.templates.triggerBranches import triggerBranches_2022
+    trgBranches = triggerBranches_2022
 else:
     from UWVV.Ntuplizer.templates.triggerBranches import verboseTriggerBranches
     trgBranches = verboseTriggerBranches
