@@ -118,8 +118,8 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool includePhi = !(
     config_.find("Summer22") != std::string::npos ||
     (config_.find("Summer23") != std::string::npos && jesName_.find("BPix") == std::string::npos)
-  );
-  bool includeRun = !(config_.find("Summer22") != std::string::npos);
+  ); //true starting 2023BPix
+  bool includeRun = !(config_.find("Summer22") != std::string::npos); //true starting 2023
 
   for (size_t i = 0; i<in->size(); ++i)
   {
