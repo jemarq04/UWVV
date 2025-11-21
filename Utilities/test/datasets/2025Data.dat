@@ -5,7 +5,7 @@
 /Muon0/Run2025E-PromptReco-v1/MINIAOD
 /Muon0/Run2025F-PromptReco-v1/MINIAOD
 /Muon0/Run2025F-PromptReco-v2/MINIAOD
-/Muon0/Run2025G-PromptReco-v1/MINIAOD
+#/Muon0/Run2025G-PromptReco-v1/MINIAOD
 # Muon1
 /Muon1/Run2025C-PromptReco-v1/MINIAOD
 /Muon1/Run2025C-PromptReco-v2/MINIAOD
@@ -13,7 +13,7 @@
 /Muon1/Run2025E-PromptReco-v1/MINIAOD
 /Muon1/Run2025F-PromptReco-v1/MINIAOD
 /Muon1/Run2025F-PromptReco-v2/MINIAOD
-/Muon1/Run2025G-PromptReco-v1/MINIAOD
+#/Muon1/Run2025G-PromptReco-v1/MINIAOD
 # MuonEG
 /MuonEG/Run2025C-PromptReco-v1/MINIAOD
 /MuonEG/Run2025C-PromptReco-v2/MINIAOD
@@ -21,7 +21,7 @@
 /MuonEG/Run2025E-PromptReco-v1/MINIAOD
 /MuonEG/Run2025F-PromptReco-v1/MINIAOD
 /MuonEG/Run2025F-PromptReco-v2/MINIAOD
-/MuonEG/Run2025G-PromptReco-v1/MINIAOD
+#/MuonEG/Run2025G-PromptReco-v1/MINIAOD
 # EGamma0
 /EGamma0/Run2025C-PromptReco-v1/MINIAOD
 /EGamma0/Run2025C-PromptReco-v2/MINIAOD
@@ -29,7 +29,7 @@
 /EGamma0/Run2025E-PromptReco-v1/MINIAOD
 /EGamma0/Run2025F-PromptReco-v1/MINIAOD
 /EGamma0/Run2025F-PromptReco-v2/MINIAOD
-/EGamma0/Run2025G-PromptReco-v1/MINIAOD
+#/EGamma0/Run2025G-PromptReco-v1/MINIAOD
 # EGamma1
 /EGamma1/Run2025C-PromptReco-v1/MINIAOD
 /EGamma1/Run2025C-PromptReco-v2/MINIAOD
@@ -37,4 +37,4 @@
 /EGamma1/Run2025E-PromptReco-v1/MINIAOD
 /EGamma1/Run2025F-PromptReco-v1/MINIAOD
 /EGamma1/Run2025F-PromptReco-v2/MINIAOD
-/EGamma1/Run2025G-PromptReco-v1/MINIAOD
+#/EGamma1/Run2025G-PromptReco-v1/MINIAOD
