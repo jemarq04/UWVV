@@ -34,19 +34,3 @@ for pog in data/XPOG/*/; do
     fi
   done
 done
-
-if [[ -d ../MuonScaReKIT ]]; then
-  pushd ../MuonScaReKIT/ >& /dev/null
-  git pull
-  popd >& /dev/null
-
-  for f in data/MuonCorrections/*.json; do
-    muoncorr="../MuonScaReKIT/corrections/$(basename $f)"
-    if ! diff $f $muoncorr >& /dev/null; then
-      echo
-      echo $f is out-of-date.
-      read -p "Update the file? (y/n): " choice
-      [[ $choice == [yY] ]] && cp -v $muoncorr $f
-    fi
-  done
-fi

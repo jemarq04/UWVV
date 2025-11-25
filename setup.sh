@@ -20,8 +20,6 @@ git clone -b ULSSfiles_correctScaleSysMC https://github.com/jainshilpi/EgammaAna
 git cms-addpkg EgammaAnalysis/ElectronTools
 
 # === Run 3 Muon Corrections ===
-git clone ssh://git@gitlab.cern.ch:7999/cms-muonPOG/muonscarekit.git MuonScaReKIT
-[[ -d MuonScaReKIT ]] && cp MuonScaReKIT/corrections/*.json UWVV/data/MuonCorrections/ || echo "ERROR: error cloning MuonScaReKIT gitlab repo"
 git clone https://github.com/cms-cat/nanoAOD-tools-modules.git PhysicsTools/NATModules
 
 scram b -j 12
