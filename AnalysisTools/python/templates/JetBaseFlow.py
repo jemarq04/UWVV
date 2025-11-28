@@ -1,4 +1,5 @@
 from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
+from UWVV.Utilities.helpers import getCorrectionFile
 
 import FWCore.ParameterSet.Config as cms
 
@@ -64,21 +65,22 @@ class JetBaseFlow(AnalysisFlowBase):
             step.addModule("jetPUIDEmbedder", jetPUIDEmbedder, 'j')
 
             # Setup/configuration
-            yearstring = jesConfig = jerConfig = ""
+            yearstring = self.year
+            jesConfig = jerConfig = ""
             if self.year == "2022":
                 dataPeriod = "_Run"
                 if self.dataPeriod.split("v")[0] in ["C", "D"]:
                     dataPeriod += "CD"
                 else:
                     dataPeriod += self.dataPeriod.split("v")[0]
-                yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
+                yearstring += "" if self.calibEra22 == "preEE" else "EE"
                 jesConfig = "Summer22%s_22Sep2023%s_V3" % (
                     "" if self.calibEra22 == "preEE" else "EE",
                     "" if self.isMC else dataPeriod
                 )
                 jerConfig = "Summer22%s_22Sep2023_JRV1" % ("" if self.calibEra22 == "preEE" else "EE")
             elif self.year == "2023":
-                yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
+                yearstring += "" if self.calibEra23 == "preBPix" else "BPix"
                 jesConfig = "Summer23%sPrompt23_V%s" % (
                     "" if self.calibEra23 == "preBPix" else "BPix",
                     "2" if self.calibEra23 == "preBPix" else "3",
@@ -88,33 +90,22 @@ class JetBaseFlow(AnalysisFlowBase):
                     "RunCv1234" if self.calibEra23 == "preBPix" else "RunD"
                 )
             elif self.year == "2024":
-                yearstring = "2024_Summer24"
                 jesConfig = "Summer24Prompt24_V1"
                 jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
             elif self.year == "2025":
-                yearstring = "2025_Winter25"
                 jesConfig = "Winter25Prompt25_V2"
                 jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
 
-            """
-            scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
-                                    yearstring, "jet_jerc.json.gz")
-            vetoFileP  = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
-                                    yearstring, "jetvetomaps.json.gz")
-            idFileP    = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
-                                    yearstring, "jetid.json.gz")
-            """
-
-            scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jet_jerc.json.gz")
-            vetoFileP  = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jetvetomaps.json.gz")
-            idFileP    = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jetid.json.gz")
+            scaleFile = getCorrectionFile("JME", yearstring, "jet_jerc.json.gz")
+            vetoFile  = getCorrectionFile("JME", yearstring, "jetvetomaps.json.gz")
+            idFile    = getCorrectionFile("JME", yearstring, "jetid.json.gz")
 
             # Jet energy corrections + uncertainties (JES)
             jetCorrector = cms.EDProducer(
                 "PATJetCorrector",
                 src = step.getObjTag('j'),
                 rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
-                scaleFile = cms.string(scaleFileP),
+                scaleFile = cms.string(scaleFile),
                 config = cms.string(jesConfig),
                 isMC = cms.bool(self.isMC),
                 algo = cms.string("AK4PFPuppi"),
@@ -153,7 +144,7 @@ class JetBaseFlow(AnalysisFlowBase):
                 "PATJetIDEmbedder",
                 src = step.getObjTag('j'),
                 domatch = cms.bool(self.isMC),
-                idFile = cms.string(idFileP),
+                idFile = cms.string(idFile),
                 config = cms.string("AK4PUPPI_Tight"),
                 lepveto = cms.string("AK4PUPPI_TightLeptonVeto"),
             )
@@ -163,7 +154,7 @@ class JetBaseFlow(AnalysisFlowBase):
             jetVetoFilter = cms.EDFilter(
                 "PATJetVetoFilter",
                 jets = step.getObjTag("j"),
-                vetoFile = cms.string(vetoFileP),
+                vetoFile = cms.string(vetoFile),
             )
             step.addModule("jetVetoFilter", jetVetoFilter)
 
@@ -180,7 +171,7 @@ class JetBaseFlow(AnalysisFlowBase):
                     "PATJetSmearing",
                     src = step.getObjTag('j'),
                     rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
-                    scaleFile = cms.string(scaleFileP),
+                    scaleFile = cms.string(scaleFile),
                     config = cms.string(jerConfig),
                     systematics = cms.bool(True),
                     algo = cms.string("AK4PFPuppi"),

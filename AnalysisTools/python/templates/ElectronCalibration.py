@@ -1,4 +1,5 @@
 from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
+from UWVV.Utilities.helpers import getCorrectionFile
 
 import FWCore.ParameterSet.Config as cms
 
@@ -55,25 +56,18 @@ class ElectronCalibration(AnalysisFlowBase):
             step.addModule("seedGainEmbedding", embedSeedGain, 'e')
 
             # Setup/configuration
-            yearstring = ""
-            if self.year == "2022":
-                yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
-            elif self.year == "2023":
-                yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
-            elif self.year == "2024":
-                yearstring = "2024_Summer24"
-
-            """
-            scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/EGM",
-                                    yearstring, "electronSS.json.gz")
-            """
-            scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/EGM", yearstring, "electronSS_EtDependent.json.gz")
+            yearstring = self.year
+            if self.year == "2022" and self.calibEra22 == "postEE":
+                yearstring += "EE"
+            elif self.year == "2023" and self.calibEra23 == "postBPix":
+                yearstring += "BPix"
+            scaleFile = getCorrectionFile("EGM", yearstring, "electronSS_EtDependent.json.gz")
 
             # Electron corrections
             eCorr = cms.EDProducer(
                 "PATElectronCorrector",
                 src = step.getObjTag('e'),
-                scaleFile = cms.string(scaleFileP),
+                scaleFile = cms.string(scaleFile),
                 isMC = cms.bool(self.isMC),
                 minPt = cms.double(3.), # essentially disabling minimum pt threshold
             )
