@@ -100,6 +100,9 @@ class JetBaseFlow(AnalysisFlowBase):
             vetoFile  = getCorrectionFile("JME", yearstring, "jetvetomaps.json.gz")
             idFile    = getCorrectionFile("JME", yearstring, "jetid.json.gz")
 
+            if self.year == "2025": #TODO: Temporary fix for missing jetid JSON for 2025
+                idFile = getCorrectionFile("JME", "2024", "jetid.json.gz")
+
             # Jet energy corrections + uncertainties (JES)
             jetCorrector = cms.EDProducer(
                 "PATJetCorrector",
