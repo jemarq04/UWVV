@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Mixins import _Parameterizable
 from functools import reduce
+import configparser
 
 from os import path
 from math import sqrt, pi
@@ -164,3 +165,11 @@ def deltaR(eta1, phi1, eta2, phi2):
     while dPhi > pi:
         dPhi -= 2*pi
     return sqrt(dPhi**2 + (eta2 - eta1)**2)
+
+def getCorrectionFile(POG, era, correction):
+    settings = configparser.ConfigParser()
+    settings.read(path.join(UWVV_BASE_PATH, "data", "XPOG.cfg"))
+
+    basepath = settings.get("DEFAULT", "basepath")
+    erapath = path.join(basepath, POG, settings[era]["name"])
+    return path.join(erapath, settings[era][POG], correction)
