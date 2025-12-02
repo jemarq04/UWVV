@@ -90,7 +90,7 @@ class JetBaseFlow(AnalysisFlowBase):
                     "RunCv1234" if self.calibEra23 == "preBPix" else "RunD"
                 )
             elif self.year == "2024":
-                jesConfig = "Summer24Prompt24_V1"
+                jesConfig = "Summer24Prompt24_V2"
                 jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
             elif self.year == "2025":
                 jesConfig = "Winter25Prompt25_V2"
