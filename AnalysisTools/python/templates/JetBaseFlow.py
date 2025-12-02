@@ -89,7 +89,7 @@ class JetBaseFlow(AnalysisFlowBase):
                 )
             elif self.year == "2024":
                 yearstring = "2024_Summer24"
-                jesConfig = "Summer24Prompt24_V2"
+                jesConfig = "Summer24Prompt24_V1"
                 jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
             elif self.year == "2025":
                 yearstring = "2025_Winter25"
