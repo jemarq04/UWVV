@@ -83,7 +83,7 @@ options.register("muCalib", 1,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
         "muon corrections 0: off, 1: on")
-options.register("electronsUL", 1,
+options.register("electronsUL", 0,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.bool,
         "use 2018UL MVA for electron ID 0: off, 1: on")

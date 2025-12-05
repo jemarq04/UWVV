@@ -11,7 +11,7 @@ class ZZID(AnalysisFlowBase):
         if not hasattr(self, 'debug'):
             self.debug = kwargs.pop('debug', False)
         if not hasattr(self, 'electronsUL'):
-            self.electronsUL = kwargs.pop('electronsUL', True)
+            self.electronsUL = kwargs.pop('electronsUL', False)
 
         super(ZZID, self).__init__(*args, **kwargs)
 
