@@ -18,7 +18,7 @@ if [[ ! -f $infile ]]; then
   exit 2
 fi
 
-[[ $year = 2024 ]] && extra="electronsUL=0"
+[[ $year = 202[23] ]] && extra="electronsUL=1"
 [[ $year = 2025 ]] && extra="eCalib=0 muCalib=0"
 
 cmsRun ntuplize_cfg.py inputFileList=$infile year=$year channels=zz isMC=0 genInfo=0 $extra $@
