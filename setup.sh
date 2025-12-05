@@ -22,5 +22,8 @@ git cms-addpkg EgammaAnalysis/ElectronTools
 # === Run 3 Muon Corrections ===
 git clone https://github.com/cms-cat/nanoAOD-tools-modules.git PhysicsTools/NATModules
 
+# === Calibrations/Corrections ===
+UWVV/check_corrections.sh
+
 scram b -j 12
 popd
