@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ -z $CMSSW_BASE ]]; then
+  echo "CMSSW environment not set. Don't forget to run cmsenv!"
+  exit 1
+fi
+
 eras=(
   Run3-22CDSep23-Summer22-NanoAODv12
   Run3-22EFGSep23-Summer22EE-NanoAODv12
