@@ -161,7 +161,7 @@ bool PATElectronZZIDEmbedder::passKinematics(const Electron& ele) const
 
 bool PATElectronZZIDEmbedder::passVertex(const Electron& ele) const
 {
-  return (fabs(ele.dB(Electron::PV3D))/ele.edB(Electron::PV3D) < sipCut &&
+  return (fabs(ele.dB(Electron::PV3D)/ele.edB(Electron::PV3D)) < sipCut &&
           fabs(ele.dB(Electron::PV2D)) < pvDXYCut &&
           fabs(ele.dB(Electron::PVDZ)) < pvDZCut);
 }

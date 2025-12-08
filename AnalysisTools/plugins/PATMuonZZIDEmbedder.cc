@@ -141,7 +141,7 @@ bool PATMuonZZIDEmbedder::passKinematics(const Muon& mu) const
 
 bool PATMuonZZIDEmbedder::passVertex(const Muon& mu) const
 {
-  return fabs(mu.dB(Muon::PV3D))/mu.edB(Muon::PV3D) < sipCut &&
+  return fabs(mu.dB(Muon::PV3D)/mu.edB(Muon::PV3D)) < sipCut &&
     fabs(mu.dB(Muon::PV2D)) < pvDXYCut && fabs(mu.dB(Muon::PVDZ)) < pvDZCut;
 }
 
