@@ -101,11 +101,11 @@ PATLeptonFSREmbedder::PATLeptonFSREmbedder(const edm::ParameterSet& iConfig) :
   chIsoConeMin_(iConfig.exists("chIsoConeMin") ?
       iConfig.getParameter<double>("chIsoConeMin") : 0.0001),
   chIsoPtCut_(iConfig.exists("chIsoPtCut") ?
-      iConfig.getParameter<double>("chIsoPtCut") : 0.0001),
+      iConfig.getParameter<double>("chIsoPtCut") : 0.2),
   nIsoConeMin_(iConfig.exists("nIsoConeMin") ?
-      iConfig.getParameter<double>("nIsoConeMin") : 0.0001),
+      iConfig.getParameter<double>("nIsoConeMin") : 0.01),
   nIsoPtCut_(iConfig.exists("nIsoPtCut") ?
-      iConfig.getParameter<double>("nIsoPtCut") : 0.0001),
+      iConfig.getParameter<double>("nIsoPtCut") : 0.5),
   isoConeMin_(std::min(chIsoConeMin_, nIsoConeMin_)),
   isoConeMax_(iConfig.exists("isoConeMax") ?
       iConfig.getParameter<double>("isoConeMax") : 0.3),
