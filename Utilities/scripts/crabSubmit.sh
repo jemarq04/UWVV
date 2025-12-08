@@ -8,17 +8,17 @@
 settingsFile=local.cfg
 scripts_path=$CMSSW_BASE/src/UWVV/Utilities/scripts
 if [ $# -eq 0 ]; then
-  echo "usage: ${0##*/} datasetList.dat [config]"
-  echo
-  echo "datasetList.dat: A file containing a list of datasets to process"
-  echo "[config]: optional identifier for section within '${settingsFile}' file with the appropriate settings"
-  echo "  if 'auto' is given, the script attempts to determine the section name from"
-  echo "  the first four characters of the dataset list filename. (e.g. 2022MC.dat -> 2022)"
+  (>&2 echo "usage: ${0##*/} datasetList.dat [config]")
+  (>&2 echo "")
+  (>&2 echo "datasetList.dat: A file containing a list of datasets to process")
+  (>&2 echo "[config]: optional identifier for section within '${settingsFile}' file with the appropriate settings")
+  (>&2 echo "  if 'auto' is given, the script attempts to determine the section name from")
+  (>&2 echo "  the first four characters of the dataset list filename. (e.g. 2022MC.dat -> 2022)")
   exit 1
 fi
 
 if [[ ! -f ${settingsFile} ]]; then
-  echo "error: config file '${settingsFile}' not found"
+  (>&2 echo "error: config file '${settingsFile}' not found")
   exit 1
 fi
 
@@ -37,7 +37,7 @@ if [[ ! -z $2 ]]; then
     (>&2 echo "Using setup $2")
     sed -i -e "s|^setup: .*|setup: $2|" ${settingsFile}
   else
-    echo "Section name $2 not found in ${settingsFile}"
+    (>&2 echo "Section name $2 not found in ${settingsFile}")
     exit 1
   fi
 fi
