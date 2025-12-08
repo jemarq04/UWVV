@@ -34,7 +34,6 @@ class ZZID(AnalysisFlowBase):
                 idCutHighPtLowEta = cms.double(0.1968600840),
                 idCutHighPtMedEta = cms.double(0.0759172100),
                 idCutHighPtHighEta = cms.double(-0.5169136775),
-                missingHitsCut = cms.int32(999),
                 ptCut = cms.double(7.),
                 etaCut = cms.double(2.5),
             )
