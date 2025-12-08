@@ -113,11 +113,15 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
     // NOTE: pt scaling will affect energy uncertainty. not used in this analysis
     if (ele.pt() > minPt_){
       if (isMC_){
-        rho      = scaleFile_->at(smearConfig_)->evaluate({"smear",      ele.pt(), ele.r9(), ele.eta()});
-        rho_up   = scaleFile_->at(smearConfig_)->evaluate({"smear_up",   ele.pt(), ele.r9(), ele.eta()});
-        rho_dn   = scaleFile_->at(smearConfig_)->evaluate({"smear_down", ele.pt(), ele.r9(), ele.eta()});
-        scale_up = scaleFile_->at(smearConfig_)->evaluate({"scale_up",   ele.pt(), ele.r9(), ele.eta()});
-        scale_dn = scaleFile_->at(smearConfig_)->evaluate({"scale_down", ele.pt(), ele.r9(), ele.eta()});
+        double ele_pt = ele.pt();
+        double ele_r9 = ele.r9();
+        double ele_eta = ele.superCluster()->eta();
+
+        rho      = scaleFile_->at(smearConfig_)->evaluate({"smear",      ele_pt, ele_r9, ele_eta});
+        rho_up   = scaleFile_->at(smearConfig_)->evaluate({"smear_up",   ele_pt, ele_r9, ele_eta});
+        rho_dn   = scaleFile_->at(smearConfig_)->evaluate({"smear_down", ele_pt, ele_r9, ele_eta});
+        scale_up = scaleFile_->at(smearConfig_)->evaluate({"scale_up",   ele_pt, ele_r9, ele_eta});
+        scale_dn = scaleFile_->at(smearConfig_)->evaluate({"scale_down", ele_pt, ele_r9, ele_eta});
 
         TRandom3 rand;
         rand.SetSeed(hasSeed_? seed_ : std::abs(static_cast<int>(std::sin(ele.phi())*100000)));
@@ -129,7 +133,7 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
       }
       else{
         scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-            "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
+            "scale", (double)iEvent.run(), ele.superCluster()->eta(), ele.r9(),
             ele.pt(), (double)ele.userInt("seedGain")
         });
       }
