@@ -87,7 +87,7 @@ PATJetCorrector::PATJetCorrector(const edm::ParameterSet& iConfig) :
     throw cms::Exception("Invalid JES config") << "Config: " << jesName_;
 
   if (systematics_){
-    jesUncName_ = config_ + "_MC_AbsoluteStat_" + algo_;
+    jesUncName_ = config_ + "_MC_Total_" + algo_;
     auto unc_it = scaleFile_->begin();
     for (; unc_it != scaleFile_->end(); unc_it++)
       if (unc_it->first == jesUncName_) break;
