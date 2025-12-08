@@ -31,7 +31,10 @@ class ElectronCalibration(AnalysisFlowBase):
 
             # Embed MVAs and BDT scores
             # TODO: update 2023-2024 when available
-            eleIDModules = _defaultEleIDModules + ["RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff"]
+            eleIDModules = _defaultEleIDModules + [
+                "RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer18UL_ID_ISO_cff",
+                "RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff",
+            ]
             setupEgammaPostRecoSeq(self.process,
                 runEnergyCorrections=False,
                 runVID=True,

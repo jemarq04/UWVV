@@ -19,21 +19,13 @@ class ZZID(AnalysisFlowBase):
         step = super(ZZID, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == 'embedding':
-            # TODO: update 2023-2025 when available
+            # TODO: update MVA for 2023-2025 when available
             eIDEmbedder = cms.EDProducer(
                 "PATElectronZZIDEmbedder",
                 src = step.getObjTag('e'),
                 idLabel = cms.string(self.getZZIDLabel()),
                 vtxSrc = step.getObjTag('v'),
-                mvaLabel = cms.string("mvaEleID-Winter22-HZZ-V1"),
-                useMVA = cms.bool(not self.electronsUL),
-                bdtLabel = cms.string("ElectronMVAEstimatorRun2Summer18ULIdIsoValues"),
-                idCutLowPtLowEta = cms.double(0.9044286167),
-                idCutLowPtMedEta = cms.double(0.9094166886),
-                idCutLowPtHighEta = cms.double(0.9443653660),
-                idCutHighPtLowEta = cms.double(0.1968600840),
-                idCutHighPtMedEta = cms.double(0.0759172100),
-                idCutHighPtHighEta = cms.double(-0.5169136775),
+                mvaLabel = cms.string("mvaEleID-Winter22-HZZ-V1" if not self.electronsUL else "mvaEleID-Summer18UL-ID-ISO-HZZ"),
                 ptCut = cms.double(7.),
                 etaCut = cms.double(2.5),
             )
