@@ -26,8 +26,7 @@ class JetBaseFlow(AnalysisFlowBase):
         if stepName == 'preliminary':
             # Pileup ID
             # This puts the IDs in the event stream, not an updated jet collection
-            # "Disable" PUID for now until JME provides instructions
-            if self.year in ["2022", "2023", "2024", "2025"]:
+            if self.year in ["2022", "2023"]:
                 # this producer will create a ValueMap<int> filled with the given value,
                 # so that all jets receive a 'passing' PUID for 2022-2023
                 # (eff. ignoring PUID for these years as recommended)
@@ -37,7 +36,7 @@ class JetBaseFlow(AnalysisFlowBase):
                     intVals = cms.vint32(7),
                     intLabels = cms.vstring("fullId"),
                 )
-            else: #self.year in ["2024", "2025"]:
+            elif self.year in ["2024", "2025"]:
                 puppiLabel, _ = setupPuppiForPackedPF(self.process)
                 self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
                 self.process.pileupJetIdUpdated = self.process.pileupJetIdPuppi.clone(
