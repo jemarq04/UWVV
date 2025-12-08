@@ -64,15 +64,18 @@ bool PATJetVetoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (JetView::const_iterator ijet = jets->begin(); ijet != jets->end(); ijet++)
   {
     bool jetID    = ijet->userFloat("idTightLepVeto") > 0.5;
+    float jeteta  = ijet->eta();
+    float jetphi  = ijet->phi();
     float jetpt   = ijet->pt();
     float jetCEMF = ijet->chargedEmEnergyFraction();
     float jetNEMF = ijet->neutralEmEnergyFraction();
 
-    // Jet must pass loose selections
-    if (jetpt < 15 || !jetID || jetCEMF+jetNEMF < 0.9) continue;
+    // Jet must pass loose selections (and sit within eta,phi range for JSON evaluation)
+    if (jetpt < 15 || std::abs(jeteta) > 5.191 || std::abs(jetphi) > 3.1415926 || !jetID || jetCEMF+jetNEMF < 0.9)
+      continue;
 
     // Now, apply veto to jets passing above selections
-    float output = vetoFile_->begin()->second->evaluate({"jetvetomap", ijet->eta(), ijet->phi()});
+    float output = vetoFile_->begin()->second->evaluate({"jetvetomap", jeteta, jetphi});
     if (std::fabs(output) > 0.0)
       return false; // if a jet failes the veto, the event is discarded
   }
