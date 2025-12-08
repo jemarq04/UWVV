@@ -43,20 +43,21 @@ class ElectronCalibration(AnalysisFlowBase):
             )
             step.addModule('egammaPostRecoSeq',self.process.egammaPostRecoSeq)
 
-            # Produce and embed seed gain into electrons
-            seedGainEle = cms.EDProducer(
-                "ElectronSeedGainProducer",
-                src = step.getObjTag('e')
-            )
-            step.addModule("seedGainEle", seedGainEle)
+            if not self.isMC:
+                # Produce and embed seed gain into electrons
+                seedGainEle = cms.EDProducer(
+                    "ElectronSeedGainProducer",
+                    src = step.getObjTag('e')
+                )
+                step.addModule("seedGainEle", seedGainEle)
 
-            embedSeedGain = cms.EDProducer(
-                "PATElectronValueMapEmbedder",
-                src = step.getObjTag('e'),
-                intLabels = cms.untracked.vstring("seedGain"),
-                intVals = cms.untracked.VInputTag("seedGainEle")
-            )
-            step.addModule("seedGainEmbedding", embedSeedGain, 'e')
+                embedSeedGain = cms.EDProducer(
+                    "PATElectronValueMapEmbedder",
+                    src = step.getObjTag('e'),
+                    intLabels = cms.untracked.vstring("seedGain"),
+                    intVals = cms.untracked.VInputTag("seedGainEle")
+                )
+                step.addModule("seedGainEmbedding", embedSeedGain, 'e')
 
             # Setup/configuration
             yearstring = self.year
@@ -72,6 +73,7 @@ class ElectronCalibration(AnalysisFlowBase):
                 src = step.getObjTag('e'),
                 scaleFile = cms.string(scaleFile),
                 isMC = cms.bool(self.isMC),
+                seedGainLabel = cms.string("seedGain"),
                 minPt = cms.double(3.), # essentially disabling minimum pt threshold
             )
             step.addModule("calibratedPatElectrons", eCorr, 'e')

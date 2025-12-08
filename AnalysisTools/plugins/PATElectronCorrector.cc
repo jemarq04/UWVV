@@ -44,6 +44,7 @@ private:
   const double minPt_;
   std::string scaleFileName_, scaleConfig_, smearConfig_;
   std::unique_ptr<correction::CorrectionSet> scaleFile_;
+  std::string seedGainLabel_;
   const bool hasSeed_;
   const ULong64_t seed_;
 };
@@ -63,6 +64,9 @@ PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig) :
   smearConfig_(iConfig.exists("smearConfig") ?
       iConfig.getParameter<std::string>("smearConfig") :
       "SmearAndSyst"),
+  seedGainLabel_(iConfig.exists("seedGainLabel") ?
+      iConfig.getParameter<std::string>("seedGainLabel") :
+      "seedGain"),
   hasSeed_(iConfig.exists("seed")),
   seed_(hasSeed_? iConfig.getParameter<ULong64_t>("seed") : 0)
 {
@@ -134,7 +138,7 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
       else{
         scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
             "scale", (double)iEvent.run(), ele.superCluster()->eta(), ele.r9(),
-            ele.pt(), (double)ele.userInt("seedGain")
+            ele.pt(), (double)ele.userInt(seedGainLabel_)
         });
       }
     }
