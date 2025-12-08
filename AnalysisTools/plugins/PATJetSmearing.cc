@@ -139,12 +139,14 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double jerCorr = 1.0;
 
     double gaus = 0.0;
-    if (genpt>0.0)
-      jerCorr = std::max( 0.0, 1.0 + (scale-1.0)*(pt-genpt)/pt );
-    else{
-      gaus = rand.Gaus(0.0, reso);
-      double varp = std::max(scale*scale - 1.0, 0.0);
-      jerCorr = std::max(0.0, 1.0 + gaus * std::sqrt(varp));
+    if (eta < 2.5 || eta > 3.0){
+      if (genpt>0.0)
+        jerCorr = std::max( 0.0, 1.0 + (scale-1.0)*(pt-genpt)/pt );
+      else{
+        gaus = rand.Gaus(0.0, reso);
+        double varp = std::max(scale*scale - 1.0, 0.0);
+        jerCorr = std::max(0.0, 1.0 + gaus * std::sqrt(varp));
+      }
     }
 
     scaleJetP4(out->back(), jerCorr);
@@ -158,15 +160,17 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       double jerCorrUp = 1.0;
       double jerCorrDn = 1.0;
 
-      if (genpt>0.0){
-        jerCorrUp = std::max( 0.0, 1.0 + (scaleUp-1.0)*(pt-genpt)/pt );
-        jerCorrDn = std::max( 0.0, 1.0 + (scaleDn-1.0)*(pt-genpt)/pt );
-      }
-      else{
-        double varpUp = std::max(scaleUp*scaleUp - 1.0, 0.0);
-        double varpDn = std::max(scaleDn*scaleDn - 1.0, 0.0);
-        jerCorrUp = std::max(0.0, 1.0 + gaus * std::sqrt(varpUp));
-        jerCorrDn = std::max(0.0, 1.0 + gaus * std::sqrt(varpDn));
+      if (eta < 2.5 || eta > 3.0){
+        if (genpt>0.0){
+          jerCorrUp = std::max( 0.0, 1.0 + (scaleUp-1.0)*(pt-genpt)/pt );
+          jerCorrDn = std::max( 0.0, 1.0 + (scaleDn-1.0)*(pt-genpt)/pt );
+        }
+        else{
+          double varpUp = std::max(scaleUp*scaleUp - 1.0, 0.0);
+          double varpDn = std::max(scaleDn*scaleDn - 1.0, 0.0);
+          jerCorrUp = std::max(0.0, 1.0 + gaus * std::sqrt(varpUp));
+          jerCorrDn = std::max(0.0, 1.0 + gaus * std::sqrt(varpDn));
+        }
       }
 
       scaleJetP4(outUp->back(), jerCorrUp);
