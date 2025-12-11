@@ -1,4 +1,5 @@
 from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
+from UWVV.Utilities.helpers import getCorrectionFile
 
 import FWCore.ParameterSet.Config as cms
 
@@ -25,8 +26,6 @@ class JetBaseFlow(AnalysisFlowBase):
         if stepName == 'preliminary':
             # Pileup ID
             # This puts the IDs in the event stream, not an updated jet collection
-            # Note that due to recommendations to keep min jet pt at 50 GeV,
-            # PUID is essentially ignored. For now, the code remains.
             if self.year in ["2022", "2023"]:
                 # this producer will create a ValueMap<int> filled with the given value,
                 # so that all jets receive a 'passing' PUID for 2022-2023
@@ -37,7 +36,7 @@ class JetBaseFlow(AnalysisFlowBase):
                     intVals = cms.vint32(7),
                     intLabels = cms.vstring("fullId"),
                 )
-            elif self.year == "2024":
+            elif self.year in ["2024", "2025"]:
                 puppiLabel, _ = setupPuppiForPackedPF(self.process)
                 self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
                 self.process.pileupJetIdUpdated = self.process.pileupJetIdPuppi.clone(
@@ -64,21 +63,22 @@ class JetBaseFlow(AnalysisFlowBase):
             step.addModule("jetPUIDEmbedder", jetPUIDEmbedder, 'j')
 
             # Setup/configuration
-            yearstring = jesConfig = jerConfig = ""
+            yearstring = self.year
+            jesConfig = jerConfig = ""
             if self.year == "2022":
                 dataPeriod = "_Run"
                 if self.dataPeriod.split("v")[0] in ["C", "D"]:
                     dataPeriod += "CD"
                 else:
                     dataPeriod += self.dataPeriod.split("v")[0]
-                yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
+                yearstring += "" if self.calibEra22 == "preEE" else "EE"
                 jesConfig = "Summer22%s_22Sep2023%s_V3" % (
                     "" if self.calibEra22 == "preEE" else "EE",
                     "" if self.isMC else dataPeriod
                 )
                 jerConfig = "Summer22%s_22Sep2023_JRV1" % ("" if self.calibEra22 == "preEE" else "EE")
             elif self.year == "2023":
-                yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
+                yearstring += "" if self.calibEra23 == "preBPix" else "BPix"
                 jesConfig = "Summer23%sPrompt23_V%s" % (
                     "" if self.calibEra23 == "preBPix" else "BPix",
                     "2" if self.calibEra23 == "preBPix" else "3",
@@ -88,29 +88,25 @@ class JetBaseFlow(AnalysisFlowBase):
                     "RunCv1234" if self.calibEra23 == "preBPix" else "RunD"
                 )
             elif self.year == "2024":
-                yearstring = "2024_Summer24"
-                jesConfig = "Summer24Prompt24_V1"
+                jesConfig = "Summer24Prompt24_V2"
+                jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
+            elif self.year == "2025":
+                jesConfig = "Winter25Prompt25_V2"
                 jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
 
-            """
-            scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
-                                    yearstring, "jet_jerc.json.gz")
-            vetoFileP  = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
-                                    yearstring, "jetvetomaps.json.gz")
-            idFileP    = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME",
-                                    yearstring, "jetid.json.gz")
-            """
+            scaleFile = getCorrectionFile("JME", yearstring, "jet_jerc.json.gz")
+            vetoFile  = getCorrectionFile("JME", yearstring, "jetvetomaps.json.gz")
+            idFile    = getCorrectionFile("JME", yearstring, "jetid.json.gz")
 
-            scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jet_jerc.json.gz")
-            vetoFileP  = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jetvetomaps.json.gz")
-            idFileP    = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/JME", yearstring, "jetid.json.gz")
+            if self.year == "2025": #TODO: Temporary fix for missing jetid JSON for 2025
+                idFile = getCorrectionFile("JME", "2024", "jetid.json.gz")
 
             # Jet energy corrections + uncertainties (JES)
             jetCorrector = cms.EDProducer(
                 "PATJetCorrector",
                 src = step.getObjTag('j'),
                 rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
-                scaleFile = cms.string(scaleFileP),
+                scaleFile = cms.string(scaleFile),
                 config = cms.string(jesConfig),
                 isMC = cms.bool(self.isMC),
                 algo = cms.string("AK4PFPuppi"),
@@ -149,7 +145,7 @@ class JetBaseFlow(AnalysisFlowBase):
                 "PATJetIDEmbedder",
                 src = step.getObjTag('j'),
                 domatch = cms.bool(self.isMC),
-                idFile = cms.string(idFileP),
+                idFile = cms.string(idFile),
                 config = cms.string("AK4PUPPI_Tight"),
                 lepveto = cms.string("AK4PUPPI_TightLeptonVeto"),
             )
@@ -159,7 +155,7 @@ class JetBaseFlow(AnalysisFlowBase):
             jetVetoFilter = cms.EDFilter(
                 "PATJetVetoFilter",
                 jets = step.getObjTag("j"),
-                vetoFile = cms.string(vetoFileP),
+                vetoFile = cms.string(vetoFile),
             )
             step.addModule("jetVetoFilter", jetVetoFilter)
 
@@ -176,7 +172,7 @@ class JetBaseFlow(AnalysisFlowBase):
                     "PATJetSmearing",
                     src = step.getObjTag('j'),
                     rhoSrc = cms.InputTag("fixedGridRhoFastjetAll"),
-                    scaleFile = cms.string(scaleFileP),
+                    scaleFile = cms.string(scaleFile),
                     config = cms.string(jerConfig),
                     systematics = cms.bool(True),
                     algo = cms.string("AK4PFPuppi"),
@@ -237,11 +233,15 @@ class JetBaseFlow(AnalysisFlowBase):
         elif stepName == 'preselection':
             # For now, we're not using the PU ID, but we'll store it in the
             # ntuples later
-            selectionString = ('pt > 50. && abs(eta) < 4.7 && '
+            selectionString = ('pt > 20. && abs(eta) < 4.7 && '
                                'userFloat("idTight") > 0.5 && (userInt("{}") >= 0||pt>50.)').format(step.getObjTagString('puID'))
 
-            selectionString2 = ('pt > 50. && abs(eta) < 4.7 && '
+            selectionString2 = ('pt > 20. && abs(eta) < 4.7 && '
                                'userFloat("idTight") > 0.5 && (userInt("{}") >= 7||pt>50.)').format(step.getObjTagString('puID'))
+
+            extraSelection = ' && (abs(eta) < 2.5 || abs(eta) > 3.0 || pt > 50)' # asserts pt>50 in 2.5 < abs(eta) < 3.0 range
+            selectionString += extraSelection
+            selectionString2 += extraSelection
 
             if self.isMC:
                 step.addBasicSelector('j', selectionString) #not apply PU id here in order to calculate PU SF multiplication factor

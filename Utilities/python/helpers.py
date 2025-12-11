@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Mixins import _Parameterizable
 from functools import reduce
+import configparser
 
 from os import path
 from math import sqrt, pi
@@ -164,3 +165,19 @@ def deltaR(eta1, phi1, eta2, phi2):
     while dPhi > pi:
         dPhi -= 2*pi
     return sqrt(dPhi**2 + (eta2 - eta1)**2)
+
+def getCorrectionFile(pog, era, correction):
+    era_map = {
+        "2022": "Run3-22CDSep23-Summer22-NanoAODv12",
+        "2022EE": "Run3-22EFGSep23-Summer22EE-NanoAODv12",
+        "2023": "Run3-23CSep23-Summer23-NanoAODv12",
+        "2023BPix": "Run3-23DSep23-Summer23BPix-NanoAODv12",
+        "2024": "Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15",
+        "2025": "Run3-25Prompt-Winter25-NanoAODv15",
+    }
+
+    corr_path = path.join(UWVV_BASE_PATH, "data", "XPOG")
+    if not path.isdir(corr_path):
+        corr_path = "/cvmfs/cms-griddata.cern.ch/cat/metadata"
+        print("WARNING: central correction files can change unexpectedly, use check_corrections.sh to create local copies")
+    return path.join(corr_path, pog, era_map[era], "latest", correction)

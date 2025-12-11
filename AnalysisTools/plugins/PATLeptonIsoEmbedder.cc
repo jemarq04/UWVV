@@ -126,7 +126,7 @@ void PATLeptonIsoEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
       iso = getIso(electron);
       for (auto fsr : selectedFSR){
         double deltaR = reco::deltaR(fsr->p4(), electron.p4());
-        if (deltaR < isoDRMaxCut_ && (deltaR > eIsoDRMinCut_ || electron.superCluster()->eta() < eIsoEtaCut_))
+        if (deltaR < isoDRMaxCut_ && (deltaR > eIsoDRMinCut_ || std::abs(electron.superCluster()->eta()) < eIsoEtaCut_))
           iso = std::max(0.0, iso - fsr->pt()/electron.pt());
       }
 

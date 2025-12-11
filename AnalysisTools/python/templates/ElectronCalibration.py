@@ -1,4 +1,5 @@
 from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
+from UWVV.Utilities.helpers import getCorrectionFile
 
 import FWCore.ParameterSet.Config as cms
 
@@ -30,7 +31,10 @@ class ElectronCalibration(AnalysisFlowBase):
 
             # Embed MVAs and BDT scores
             # TODO: update 2023-2024 when available
-            eleIDModules = _defaultEleIDModules + ["RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff"]
+            eleIDModules = _defaultEleIDModules + [
+                "RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer18UL_ID_ISO_cff",
+                "RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff",
+            ]
             setupEgammaPostRecoSeq(self.process,
                 runEnergyCorrections=False,
                 runVID=True,
@@ -39,42 +43,37 @@ class ElectronCalibration(AnalysisFlowBase):
             )
             step.addModule('egammaPostRecoSeq',self.process.egammaPostRecoSeq)
 
-            # Produce and embed seed gain into electrons
-            seedGainEle = cms.EDProducer(
-                "ElectronSeedGainProducer",
-                src = step.getObjTag('e')
-            )
-            step.addModule("seedGainEle", seedGainEle)
+            if not self.isMC:
+                # Produce and embed seed gain into electrons
+                seedGainEle = cms.EDProducer(
+                    "ElectronSeedGainProducer",
+                    src = step.getObjTag('e')
+                )
+                step.addModule("seedGainEle", seedGainEle)
 
-            embedSeedGain = cms.EDProducer(
-                "PATElectronValueMapEmbedder",
-                src = step.getObjTag('e'),
-                intLabels = cms.untracked.vstring("seedGain"),
-                intVals = cms.untracked.VInputTag("seedGainEle")
-            )
-            step.addModule("seedGainEmbedding", embedSeedGain, 'e')
+                embedSeedGain = cms.EDProducer(
+                    "PATElectronValueMapEmbedder",
+                    src = step.getObjTag('e'),
+                    intLabels = cms.untracked.vstring("seedGain"),
+                    intVals = cms.untracked.VInputTag("seedGainEle")
+                )
+                step.addModule("seedGainEmbedding", embedSeedGain, 'e')
 
             # Setup/configuration
-            yearstring = ""
-            if self.year == "2022":
-                yearstring = "2022_Summer22%s" % ("" if self.calibEra22 == "preEE" else "EE")
-            elif self.year == "2023":
-                yearstring = "2023_Summer23%s" % ("" if self.calibEra23 == "preBPix" else "BPix")
-            elif self.year == "2024":
-                yearstring = "2024_Summer24"
-
-            """
-            scaleFileP = path.join("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/EGM",
-                                    yearstring, "electronSS.json.gz")
-            """
-            scaleFileP = path.join(environ["CMSSW_BASE"], "src/UWVV/data/XPOG/EGM", yearstring, "electronSS_EtDependent.json.gz")
+            yearstring = self.year
+            if self.year == "2022" and self.calibEra22 == "postEE":
+                yearstring += "EE"
+            elif self.year == "2023" and self.calibEra23 == "postBPix":
+                yearstring += "BPix"
+            scaleFile = getCorrectionFile("EGM", yearstring, "electronSS_EtDependent.json.gz")
 
             # Electron corrections
             eCorr = cms.EDProducer(
                 "PATElectronCorrector",
                 src = step.getObjTag('e'),
-                scaleFile = cms.string(scaleFileP),
+                scaleFile = cms.string(scaleFile),
                 isMC = cms.bool(self.isMC),
+                seedGainLabel = cms.string("seedGain"),
                 minPt = cms.double(3.), # essentially disabling minimum pt threshold
             )
             step.addModule("calibratedPatElectrons", eCorr, 'e')

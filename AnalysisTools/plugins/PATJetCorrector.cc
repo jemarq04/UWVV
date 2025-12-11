@@ -87,7 +87,7 @@ PATJetCorrector::PATJetCorrector(const edm::ParameterSet& iConfig) :
     throw cms::Exception("Invalid JES config") << "Config: " << jesName_;
 
   if (systematics_){
-    jesUncName_ = config_ + "_MC_AbsoluteStat_" + algo_;
+    jesUncName_ = config_ + "_MC_Total_" + algo_;
     auto unc_it = scaleFile_->begin();
     for (; unc_it != scaleFile_->end(); unc_it++)
       if (unc_it->first == jesUncName_) break;
@@ -118,8 +118,8 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool includePhi = !(
     config_.find("Summer22") != std::string::npos ||
     (config_.find("Summer23") != std::string::npos && jesName_.find("BPix") == std::string::npos)
-  );
-  bool includeRun = !(config_.find("Summer22") != std::string::npos);
+  ); //true starting 2023BPix
+  bool includeRun = !(config_.find("Summer22") != std::string::npos); //true starting 2023
 
   for (size_t i = 0; i<in->size(); ++i)
   {

@@ -44,6 +44,7 @@ private:
   const double minPt_;
   std::string scaleFileName_, scaleConfig_, smearConfig_;
   std::unique_ptr<correction::CorrectionSet> scaleFile_;
+  std::string seedGainLabel_;
   const bool hasSeed_;
   const ULong64_t seed_;
 };
@@ -63,6 +64,9 @@ PATElectronCorrector::PATElectronCorrector(const edm::ParameterSet& iConfig) :
   smearConfig_(iConfig.exists("smearConfig") ?
       iConfig.getParameter<std::string>("smearConfig") :
       "SmearAndSyst"),
+  seedGainLabel_(iConfig.exists("seedGainLabel") ?
+      iConfig.getParameter<std::string>("seedGainLabel") :
+      "seedGain"),
   hasSeed_(iConfig.exists("seed")),
   seed_(hasSeed_? iConfig.getParameter<ULong64_t>("seed") : 0)
 {
@@ -106,29 +110,35 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
     out->push_back(*ei); // copy electron to save correctly in event
     Electron& ele = out->back();
 
-    float rho = 0, err_rho = 0;
-    float scale = 1, err_scale = 0;
+    float rho = 0, rho_up = 0, rho_dn = 0;
+    float scale = 1, scale_up = 0, scale_dn = 0;
     float smear = 1, smear_up = 1, smear_dn = 1;
 
+    // NOTE: pt scaling will affect energy uncertainty. not used in this analysis
     if (ele.pt() > minPt_){
       if (isMC_){
-        rho       = scaleFile_->at(smearConfig_)->evaluate({"smear", ele.pt(), ele.r9(), ele.eta()});
-        err_rho   = scaleFile_->at(smearConfig_)->evaluate({"esmear", ele.pt(), ele.r9(), ele.eta()});
-        err_scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-            "escale", (double)iEvent.run(), ele.eta(), ele.r9(),
-            ele.pt(), (double)ele.userInt("seedGain")
-        });
+        double ele_pt = ele.pt();
+        double ele_r9 = ele.r9();
+        double ele_eta = ele.superCluster()->eta();
+
+        rho      = scaleFile_->at(smearConfig_)->evaluate({"smear",      ele_pt, ele_r9, ele_eta});
+        rho_up   = scaleFile_->at(smearConfig_)->evaluate({"smear_up",   ele_pt, ele_r9, ele_eta});
+        rho_dn   = scaleFile_->at(smearConfig_)->evaluate({"smear_down", ele_pt, ele_r9, ele_eta});
+        scale_up = scaleFile_->at(smearConfig_)->evaluate({"scale_up",   ele_pt, ele_r9, ele_eta});
+        scale_dn = scaleFile_->at(smearConfig_)->evaluate({"scale_down", ele_pt, ele_r9, ele_eta});
 
         TRandom3 rand;
         rand.SetSeed(hasSeed_? seed_ : std::abs(static_cast<int>(std::sin(ele.phi())*100000)));
-        smear = rand.Gaus(1., rho);
-        smear_up = rand.Gaus(1., rho+err_rho);
-        smear_dn = rand.Gaus(1., rho-err_rho);
+        double rand_num = rand.Gaus(0,1);
+
+        smear = 1 + rho*rand_num;
+        smear_up = 1 + rho_up*rand_num;
+        smear_dn = 1 + rho_dn*rand_num;
       }
       else{
         scale = scaleFile_->compound().at(scaleConfig_)->evaluate({
-            "scale", (double)iEvent.run(), ele.eta(), ele.r9(),
-            ele.pt(), (double)ele.userInt("seedGain")
+            "scale", (double)iEvent.run(), ele.superCluster()->eta(), ele.r9(),
+            ele.pt(), (double)ele.userInt(seedGainLabel_)
         });
       }
     }
@@ -139,10 +149,10 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
     ele.addUserFloat("uncorrected_pt", uncorr_pt);
     ele.addUserFloat("ptScaleFactor",  corr_pt/uncorr_pt);
     if (isMC_){
-      ele.addUserFloat("scaleUp_pt", uncorr_pt*(1+err_scale));
-      ele.addUserFloat("scaleDn_pt", uncorr_pt*(1-err_scale));
       ele.addUserFloat("smearUp_pt", uncorr_pt*smear_up);
       ele.addUserFloat("smearDn_pt", uncorr_pt*smear_dn);
+      ele.addUserFloat("scaleUp_pt", corr_pt*scale_up);
+      ele.addUserFloat("scaleDn_pt", corr_pt*scale_dn);
     }
     ele.setP4(reco::Particle::PolarLorentzVector(corr_pt, ele.eta(), ele.phi(), ele.mass()));
   }

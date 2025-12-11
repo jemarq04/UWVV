@@ -72,7 +72,6 @@ class PATElectronZZIDEmbedder : public edm::stream::EDProducer<>
     const bool useMVA;
     const std::string cutBasedLabel;
     //const std::string HZZWP;
-    const int missingHitsCut;
 
     StringCutObjectSelector<Electron> selector;
 };
@@ -108,7 +107,6 @@ PATElectronZZIDEmbedder::PATElectronZZIDEmbedder(const edm::ParameterSet& iConfi
   mvaLabel(iConfig.exists("mvaLabel") ? iConfig.getParameter<std::string>("mvaLabel") : "mvaEleID-Winter22-HZZ-V1"),
   useMVA(iConfig.exists("useMVA") ? iConfig.getParameter<bool>("useMVA") : true),
   cutBasedLabel(iConfig.exists("cutBasedLabel") ? iConfig.getParameter<std::string>("cutBasedLabel") : "cutBasedElectronID-RunIIIWinter22-V1"),
-  missingHitsCut(iConfig.exists("missingHitsCut") ? iConfig.getParameter<int>("missingHitsCut") : 1),
   selector(iConfig.exists("selection") ? iConfig.getParameter<std::string>("selection") : "")
 {
   produces<ElectronCollection>();
@@ -132,8 +130,7 @@ void PATElectronZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup&
 
     bool vtxResult = vertices->size() && passVertex(ele);
     bool kinResult = passKinematics(ele);
-    bool missingHitsResult = passMissingHits(ele);
-    bool idResultNoVtx = selector(ele) && kinResult && missingHitsResult;
+    bool idResultNoVtx = selector(ele) && kinResult;
     bool idResult = idResultNoVtx && vtxResult;
 
     ele.addUserFloat(idLabel_+"NoVtx", float(idResultNoVtx)); // 1 for true, 0 for false
@@ -161,7 +158,7 @@ bool PATElectronZZIDEmbedder::passKinematics(const Electron& ele) const
 
 bool PATElectronZZIDEmbedder::passVertex(const Electron& ele) const
 {
-  return (fabs(ele.dB(Electron::PV3D))/ele.edB(Electron::PV3D) < sipCut &&
+  return (fabs(ele.dB(Electron::PV3D)/ele.edB(Electron::PV3D)) < sipCut &&
           fabs(ele.dB(Electron::PV2D)) < pvDXYCut &&
           fabs(ele.dB(Electron::PVDZ)) < pvDZCut);
 }
@@ -197,11 +194,6 @@ bool PATElectronZZIDEmbedder::passBDT(const Electron& ele) const
   return ele.userFloat(bdtLabel) > bdtCut;
 }
 
-
-bool PATElectronZZIDEmbedder::passMissingHits(const Electron& ele) const
-{
-  return ele.gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS) <= missingHitsCut;
-}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATElectronZZIDEmbedder);
