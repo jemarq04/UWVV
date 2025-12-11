@@ -70,8 +70,8 @@ class PATLeptonFSREmbedder : public edm::stream::EDProducer<>
     const double chIsoPtCut_;
     const double nIsoConeMin_;
     const double nIsoPtCut_;
-    const double isoConeMin_;
     const double isoConeMax_;
+    const double drSafe_;
 
     StringCutObjectSelector<Electron> eCut_;
     StringCutObjectSelector<Muon> muCut_;
@@ -106,9 +106,9 @@ PATLeptonFSREmbedder::PATLeptonFSREmbedder(const edm::ParameterSet& iConfig) :
       iConfig.getParameter<double>("nIsoConeMin") : 0.01),
   nIsoPtCut_(iConfig.exists("nIsoPtCut") ?
       iConfig.getParameter<double>("nIsoPtCut") : 0.5),
-  isoConeMin_(std::min(chIsoConeMin_, nIsoConeMin_)),
   isoConeMax_(iConfig.exists("isoConeMax") ?
       iConfig.getParameter<double>("isoConeMax") : 0.3),
+  drSafe_(0.0001),
   eCut_(iConfig.exists("eCut") ?
       iConfig.getParameter<std::string>("eCut") : ""),
   muCut_(iConfig.exists("muCut") ?
@@ -166,7 +166,7 @@ void PATLeptonFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
         continue;
 
       double deltaR = reco::deltaR(photon->p4(), muon->p4());
-      if (deltaR < deltaRMin && deltaR > isoConeMin_ && deltaR/photon->pt()/photon->pt() < drEtCut_){
+      if (deltaR < deltaRMin && deltaR > drSafe_ && deltaR/photon->pt()/photon->pt() < drEtCut_){
         double iso = getIso(*photon, *cands);
         if (iso > isoCut_){
           skipPhoton = true;
@@ -190,7 +190,7 @@ void PATLeptonFSREmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
         continue;
 
       double deltaR = reco::deltaR(photon->p4(), electron->p4());
-      if (deltaR < deltaRMin && deltaR > isoConeMin_ && deltaR/photon->pt()/photon->pt() < drEtCut_){
+      if (deltaR < deltaRMin && deltaR > drSafe_ && deltaR/photon->pt()/photon->pt() < drEtCut_){
         if (iso > 1e8) iso = getIso(*photon, *cands);
         if (iso > isoCut_)
           break;
@@ -236,7 +236,7 @@ double PATLeptonFSREmbedder::getIso(const PackedCandidate& photon, const PackedC
 
   for (const auto& cand : cands){
     double deltaR2 = reco::deltaR2(photon.p4(), cand.p4());
-    if (deltaR2 > isoConeMax_ * isoConeMax_ || deltaR2 < isoConeMin_ * isoConeMin_)
+    if (deltaR2 > isoConeMax_ * isoConeMax_ || deltaR2 < drSafe_ * drSafe_)
       continue;
 
     //Charged hadrons
