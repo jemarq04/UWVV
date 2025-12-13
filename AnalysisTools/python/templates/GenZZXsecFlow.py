@@ -1,5 +1,5 @@
 from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
-from UWVV.Utilities.helpers import parseChannels
+from UWVV.Utilities.helpers import mapObjects, parseChannels
 
 import FWCore.ParameterSet.Config as cms
 
@@ -17,11 +17,11 @@ class GenZZXsecFlow(AnalysisFlowBase):
             for chan in parseChannels('zz'):
                 xsecMod = cms.EDAnalyzer(
                     "GenZZXsecAnalyzer",
-                    electrons = step.getObjTag('e'),
-                    muons = step.getObjTag('m'),
-                    ZZ = step.getObjTag(chan),
-                    dressed = cms.bool(self.isDressed)
+                    src = step.getObjTag(chan),
+                    dressed = cms.bool(self.isDressed),
+                    names = cms.vstring(*mapObjects(chan)),
+                    label = cms.string(chan + "xsec"),
                 )
-                step.addModule(f'{chan}Xsec', xsecMod, chan)
+                step.addModule(f'{chan}Xsec', xsecMod)
 
         return step
