@@ -23,7 +23,7 @@ from UWVV.Ntuplizer.eventParams import makeEventParams, makeGenEventParams
 #############################################################################
 
 # Defining constants
-genLepDefault = "hardProcessFS"
+genLepDefault = "dressedHPFS"
 genLepChoices = {
     "hardProcess": "isHardProcess()",
     "hardProcessFS": "fromHardProcessFinalState()",
