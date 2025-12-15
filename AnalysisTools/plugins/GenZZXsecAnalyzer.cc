@@ -46,8 +46,10 @@ class GenZZXsecAnalyzer : public edm::one::EDAnalyzer<>
     std::string label_;
     const bool isDressed_;
 
+    int numEventsTotal_;
     int numEventsOnShell_;
     int numEventsFiducial_;
+    double sumWeightsTotal_;
     double sumWeightsOnShell_;
     double sumWeightsFiducial_;
 };
@@ -82,6 +84,9 @@ void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
       }
     }
   }
+
+  numEventsTotal_++;
+  sumWeightsTotal_ += genEvent->weight();
 
   if (!passOnShellCut(cands->at(bestCandIdx))) return;
   numEventsOnShell_++;
@@ -154,8 +159,10 @@ bool GenZZXsecAnalyzer::passFiducialCuts(const CompositeCandidate& cand){
 }
 
 void GenZZXsecAnalyzer::beginJob(){
+  numEventsTotal_ = 0;
   numEventsOnShell_ = 0;
   numEventsFiducial_ = 0;
+  sumWeightsTotal_ = 0.0;
   sumWeightsOnShell_ = 0.0;
   sumWeightsFiducial_ = 0.0;
 }
@@ -163,8 +170,15 @@ void GenZZXsecAnalyzer::beginJob(){
 void GenZZXsecAnalyzer::endJob(){
   std::cout << "=== Gen ZZ Xsec Analyzer ===" << std::endl;
   std::cout << "Dressed: " << isDressed_ << std::endl;
-  std::cout << "On Shell " << label_ << ": " << sumWeightsOnShell_/numEventsOnShell_   << " (" << numEventsOnShell_ << ")" << std::endl;
-  std::cout << "Fiducial " << label_ << ": " << sumWeightsFiducial_/numEventsFiducial_ << " (" << numEventsFiducial_<< ")" << std::endl;
+
+  std::cout << "Total    " << label_ << ": " << sumWeightsTotal_/numEventsTotal_;
+  std::cout << " (" << sumWeightsTotal_ << "/" << numEventsTotal_ << ")" << std::endl;
+
+  std::cout << "On Shell " << label_ << ": " << sumWeightsOnShell_/numEventsOnShell_;
+  std::cout << " (" << sumWeightsOnShell_ << "/" << numEventsOnShell_ << ")" << std::endl;
+
+  std::cout << "Fiducial " << label_ << ": " << sumWeightsFiducial_/numEventsFiducial_;
+  std::cout << " (" << sumWeightsFiducial_ << "/" << numEventsFiducial_ << ")" << std::endl;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
