@@ -482,16 +482,15 @@ for chan in channels:
 if state_zz and options.isMC and options.genInfo:
     process.genTreeSequence = cms.Sequence()
 
-    from UWVV.AnalysisTools.templates.GenZZXsecFlow import GenZZXsecFlow
     from UWVV.AnalysisTools.templates.GenZZBase import GenZZBase
     from UWVV.Ntuplizer.templates.vbsBranches import vbsGenBranches
 
     if "dressed" in options.genLeptonType:
         from UWVV.AnalysisTools.templates.DressedGenLeptonBase import DressedGenLeptonBase
-        GenFlow = createFlow(DressedGenLeptonBase, GenZZXsecFlow, GenZZBase)
+        GenFlow = createFlow(DressedGenLeptonBase, GenZZBase)
     else:
         from UWVV.AnalysisTools.templates.GenLeptonBase import GenLeptonBase
-        GenFlow = createFlow(GenLeptonBase, GenZZXsecFlow, GenZZBase)
+        GenFlow = createFlow(GenLeptonBase, GenZZBase)
 
     genFlow = GenFlow('genFlow', process, suffix='Gen', e='prunedGenParticles',
                     m='prunedGenParticles', a='prunedGenParticles', j='slimmedGenJets',
