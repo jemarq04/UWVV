@@ -60,7 +60,7 @@ class GenZZBase(ZPlusXBaseFlowGen):
             mod = cms.EDProducer(
                 "GenJetCleaner",
                 src=step.getObjTag('j'),
-                preselection=cms.string('pt > 50. && abs(eta) < 4.7'),
+                preselection=cms.string('pt > 20. && abs(eta) < 4.7'),
                 checkOverlaps = cms.PSet(
                     electrons = cms.PSet(
                         src=step.getObjTag('e'),
