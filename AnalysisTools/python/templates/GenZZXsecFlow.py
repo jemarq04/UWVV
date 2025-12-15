@@ -14,6 +14,15 @@ class GenZZXsecFlow(AnalysisFlowBase):
         step = super(GenZZXsecFlow, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == 'selection':
+            zlepCounter = cms.EDProducer(
+                "GenParticleCounter",
+                src = cms.InputTag("prunedGenParticles"),
+                labels = cms.vstring("nZLeptons"),
+                cuts = cms.vstring("numberOfMothers > 0 && abs(mother(0).pdgId) == 23 && (abs(pdgId) == 11 || abs(pdgId) == 13)"),
+                verbose = cms.bool(True),
+            )
+            #step.addModule("zlepCounter", zlepCounter)
+
             # select and cross clean gen jets
             mod = cms.EDProducer(
                 "GenJetCleaner",
