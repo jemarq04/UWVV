@@ -26,6 +26,8 @@ class MuonCalibration(AnalysisFlowBase):
                 yearstring += "EE"
             elif self.year == "2023" and self.calibEra23 == "postBPix":
                 yearstring += "BPix"
+            elif self.year == "2025":
+                yearstring = "2024"
             scaleFile = getCorrectionFile("MUO", yearstring, "muon_scalesmearing.json.gz")
 
             # Muon corrections
