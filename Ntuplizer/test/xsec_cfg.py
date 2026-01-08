@@ -1,3 +1,7 @@
+# Calculates the gen-level cross-sections for born/dressed leptons with
+# on-shell and fiducial cuts.
+# Intended to be used with pp->ZZ->4l sample (e.g. POWHEG) and gg->ZZ->4l
+
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
