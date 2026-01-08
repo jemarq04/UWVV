@@ -15,6 +15,11 @@ options.register("inputFileList", "",
         VarParsing.varType.string,
         "name of file that lists all inputs")
 
+options.register("scale", 1.0,
+        VarParsing.multiplicity.singleton,
+        VarParsing.varType.float,
+        "value by which to scale calculated cross-section")
+
 options.parseArguments()
 
 # Initialize process
@@ -44,6 +49,7 @@ process.source = cms.Source("PoolSource",
 process.xsec = cms.EDAnalyzer(
     "GenZZXsecAnalyzer",
     src = cms.InputTag("prunedGenParticles"),
+    scale = cms.double(options.scale),
 )
 process.p += process.xsec
 
@@ -51,6 +57,7 @@ process.dressedxsec = cms.EDAnalyzer(
     "GenZZDressedXsecAnalyzer",
     src = cms.InputTag("prunedGenParticles"),
     label=cms.string("dressed"),
+    scale = cms.double(options.scale),
 )
 process.p += process.dressedxsec
 

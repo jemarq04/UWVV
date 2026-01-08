@@ -46,12 +46,14 @@ class GenZZDressedXsecAnalyzer : public edm::one::EDAnalyzer<>
     double sumWeightsOnShell_[3];
     double sumWeightsFiducial_[3];
     std::string label_;
+    double scale_;
 };
 
 GenZZDressedXsecAnalyzer::GenZZDressedXsecAnalyzer(const edm::ParameterSet &iConfig) :
   srcToken_(consumes<GenParticleView>(iConfig.getParameter<edm::InputTag>("src"))),
   genToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
-  label_(iConfig.exists("label") ? iConfig.getParameter<std::string>("label") : "xsec")
+  label_(iConfig.exists("label") ? iConfig.getParameter<std::string>("label") : "xsec"),
+  scale_(iConfig.exists("scale") ? iConfig.getParameter<double>("scale") : 1.0)
 {
 }
 
@@ -226,23 +228,24 @@ void GenZZDressedXsecAnalyzer::beginJob(){
 
 void GenZZDressedXsecAnalyzer::endJob(){
   std::cout << "=== Gen ZZ Xsec Analyzer ===" << std::endl;
-  
+
   std::cout << "---------" << std::endl;
-  std::cout << "Total         " << label_ << ": " << sumWeightsTotal_/numEventsTotal_;
-  std::cout << " pb (" << sumWeightsTotal_ << "/" << numEventsTotal_ << ")" << std::endl;
+  std::cout << "Total         " << label_ << ": " << scale_*sumWeightsTotal_/numEventsTotal_;
+  std::cout << " pb (" << scale_*sumWeightsTotal_ << "/" << numEventsTotal_ << ")" << std::endl;
   std::cout << "---------" << std::endl;
 
+  scale_ *= 1000;
   for (size_t i=0; i<3; i++){
     std::string channel;
     if (i==0) channel = "eeee";
     else if (i==1) channel = "eemm";
     else if (i==2) channel = "mmmm";
 
-    std::cout << "On Shell " << channel << " " << label_ << ": " << 1000*sumWeightsOnShell_[i]/numEventsTotal_;
-    std::cout << " fb (" << 1000*sumWeightsOnShell_[i] << "/" << numEventsTotal_ << ")" << std::endl;
+    std::cout << "On Shell " << channel << " " << label_ << ": " << scale_*sumWeightsOnShell_[i]/numEventsTotal_;
+    std::cout << " fb (" << scale_*sumWeightsOnShell_[i] << "/" << numEventsTotal_ << ")" << std::endl;
 
-    std::cout << "Fiducial " << channel << " " << label_ << ": " << 1000*sumWeightsFiducial_[i]/numEventsTotal_;
-    std::cout << " fb (" << 1000*sumWeightsFiducial_[i] << "/" << numEventsTotal_ << ")" << std::endl;
+    std::cout << "Fiducial " << channel << " " << label_ << ": " << scale_*sumWeightsFiducial_[i]/numEventsTotal_;
+    std::cout << " fb (" << scale_*sumWeightsFiducial_[i] << "/" << numEventsTotal_ << ")" << std::endl;
 
     std::cout << "---------" << std::endl;
   }
