@@ -23,7 +23,7 @@ from UWVV.Ntuplizer.eventParams import makeEventParams, makeGenEventParams
 #############################################################################
 
 # Defining constants
-genLepDefault = "hardProcessFS"
+genLepDefault = "dressedHPFS"
 genLepChoices = {
     "hardProcess": "isHardProcess()",
     "hardProcessFS": "fromHardProcessFinalState()",
@@ -487,7 +487,6 @@ if state_zz and options.isMC and options.genInfo:
 
     if "dressed" in options.genLeptonType:
         from UWVV.AnalysisTools.templates.DressedGenLeptonBase import DressedGenLeptonBase
-        from UWVV.Ntuplizer.templates.leptonBranches import dressedGenLeptonBranches
         GenFlow = createFlow(DressedGenLeptonBase, GenZZBase)
     else:
         from UWVV.AnalysisTools.templates.GenLeptonBase import GenLeptonBase
@@ -516,6 +515,7 @@ if state_zz and options.isMC and options.genInfo:
 
     for chan in channels:
         if 'dressed' in options.genLeptonType.lower():
+            from UWVV.Ntuplizer.templates.leptonBranches import dressedGenLeptonBranches
             genBranches = makeGenBranchSet(chan,
                                            extraInitialStateBranches=extraInitialStateBranchesGen,
                                            extraIntermediateStateBranches=extraIntermediateStateBranchesGen,

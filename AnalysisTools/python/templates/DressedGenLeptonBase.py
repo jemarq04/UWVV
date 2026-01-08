@@ -5,7 +5,8 @@ import FWCore.ParameterSet.Config as cms
 
 class DressedGenLeptonBase(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
-        self.flag = kwargs.pop('leptonStatusFlag', 'fromHardProcessFinalState')
+        if not hasattr(self, 'flag'):
+            self.flag = kwargs.pop('leptonStatusFlag', 'fromHardProcessFinalState')
         super(DressedGenLeptonBase, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
