@@ -16,14 +16,12 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-#include "UWVV/DataFormats/interface/DressedGenParticle.h"
-
-using pat::CompositeCandidate;
-typedef edm::View<CompositeCandidate> CCandView;
 using reco::GenParticle, reco::GenParticleCollection;
+typedef edm::View<GenParticle> GenParticleView;
 
 class GenZZXsecAnalyzer : public edm::one::EDAnalyzer<>
 {
@@ -36,149 +34,170 @@ class GenZZXsecAnalyzer : public edm::one::EDAnalyzer<>
     void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
     void endJob() override;
 
-    double getPrimaryZMassDifference(const CompositeCandidate& cand);
-    bool passOnShellCut(const CompositeCandidate& cand);
-    bool passFiducialCuts(const CompositeCandidate& cand);
+    enum Channel {c_eeee, c_eemm, c_mmmm};
 
-    edm::EDGetTokenT<CCandView> candSrc_;
-    edm::EDGetTokenT<GenEventInfoProduct> genSrc_;
-    std::vector<std::string> daughterNames_;
-    std::string label_;
-    const bool isDressed_;
+    void analyzeZZLeptons(const GenParticleCollection& leptons, double weight);
+
+    edm::EDGetTokenT<GenParticleView> srcToken_;
+    edm::EDGetTokenT<GenEventInfoProduct> genToken_;
 
     int numEventsTotal_;
-    int numEventsOnShell_;
-    int numEventsFiducial_;
     double sumWeightsTotal_;
-    double sumWeightsOnShell_;
-    double sumWeightsFiducial_;
+    double sumWeightsOnShell_[3];
+    double sumWeightsFiducial_[3];
+    std::string label_;
 };
 
 GenZZXsecAnalyzer::GenZZXsecAnalyzer(const edm::ParameterSet &iConfig) :
-  candSrc_(consumes<CCandView>(iConfig.getParameter<edm::InputTag>("src"))),
-  genSrc_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
-  daughterNames_(iConfig.getParameter<std::vector<std::string>>("names")),
-  label_(iConfig.exists("label") ? iConfig.getParameter<std::string>("label") : "xsec"),
-  isDressed_(iConfig.exists("dressed") ? iConfig.getParameter<bool>("dressed") : false)
+  srcToken_(consumes<GenParticleView>(iConfig.getParameter<edm::InputTag>("src"))),
+  genToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
+  label_(iConfig.exists("label") ? iConfig.getParameter<std::string>("label") : "xsec")
 {
 }
 
 void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 {
-  edm::Handle<CCandView> cands;
-  iEvent.getByToken(candSrc_, cands);
+  edm::Handle<GenParticleView> genparticles;
+  iEvent.getByToken(srcToken_, genparticles);
 
   edm::Handle<GenEventInfoProduct> genEvent;
-  iEvent.getByToken(genSrc_, genEvent);
-
-  if (!cands->size()) return;
-
-  size_t bestCandIdx = 0;
-  double bestZMassDifference = getPrimaryZMassDifference(cands->at(0));
-  if (isDressed_){//determine best candidate
-    for (size_t i=1; i<cands->size(); i++){
-      double zMassDifference = getPrimaryZMassDifference(cands->at(i));
-      if (zMassDifference < bestZMassDifference){
-        bestCandIdx = i;
-        bestZMassDifference = zMassDifference;
-      }
-    }
-  }
+  iEvent.getByToken(genToken_, genEvent);
 
   numEventsTotal_++;
   sumWeightsTotal_ += genEvent->weight();
 
-  if (!passOnShellCut(cands->at(bestCandIdx))) return;
-  numEventsOnShell_++;
-  sumWeightsOnShell_ += genEvent->weight();
+  GenParticleCollection leptons;
+  for (GenParticleView::const_iterator it = genparticles->begin(); it != genparticles->end(); it++){
+    int absPdgId = std::abs(it->pdgId());
 
-  if (!passFiducialCuts(cands->at(bestCandIdx))) return;
-  numEventsFiducial_++;
-  sumWeightsFiducial_ += genEvent->weight();
-}
+    // only consider leptons passing this condition
+    if (absPdgId != 11 && absPdgId != 13 && !it->fromHardProcessFinalState())
+      continue;
 
-double GenZZXsecAnalyzer::getPrimaryZMassDifference(const CompositeCandidate& cand){
-  double z1diff = std::abs(cand.userFloat((daughterNames_[0] + "_" + daughterNames_[1] + "_Mass").c_str())-91.1876);
-  double z2diff = std::abs(cand.userFloat((daughterNames_[2] + "_" + daughterNames_[3] + "_Mass").c_str())-91.1876);
-
-  return z1diff < z2diff? z1diff : z2diff;
-}
-
-bool GenZZXsecAnalyzer::passOnShellCut(const CompositeCandidate& cand){
-  double z1mass = cand.userFloat((daughterNames_[0] + "_" + daughterNames_[1] + "_Mass").c_str());
-  double z2mass = cand.userFloat((daughterNames_[2] + "_" + daughterNames_[3] + "_Mass").c_str());
-
-  return (z1mass > 60 && z1mass < 120) && (z2mass > 60 && z2mass < 120);
-}
-
-bool GenZZXsecAnalyzer::passFiducialCuts(const CompositeCandidate& cand){
-  std::vector<const reco::Candidate*> daughters;
-  for (size_t i=0; i<cand.numberOfDaughters(); i++){
-    if (cand.daughter(i)->pdgId() == 23){
-      for (size_t j=0; j<cand.daughter(i)->numberOfDaughters(); j++){
-        int pdgId = cand.daughter(i)->daughter(j)->pdgId();
-        if (std::abs(pdgId) == 11 || std::abs(pdgId) == 13)
-          daughters.push_back(cand.daughter(i)->daughter(j));
-      }
-    }
+    // check if lepton came from Z
+    if (it->numberOfMothers()>0 && std::abs(it->mother(0)->pdgId()) == 23)
+      leptons.push_back(*it);
   }
 
-  //pt cuts: at least one lepton with pt above 20 
-  //         with at least one other lepton with pt above 10
-  bool passPtCut = false;
-  for (int i=0; i<4; i++){
-    if (daughters[i]->pt() < 20.0)
-      continue;
-    bool pass = false;
-    for (int j=0; j<4; j++){
-      if (j == i) continue;
+  size_t nLeptons = leptons.size();
+  if (nLeptons < 4) return; //definitely not a ZZ event
+  if (nLeptons > 4){
+    std::cout << "ERROR: Number of true FS leptons differ from expected: " << nLeptons << std::endl;
+    return;
+  }
 
-      pass = daughters[j]->pt() > 10.0;
-      if (pass) break;
-    }
-    if (pass){
-      passPtCut = true;
+  //properly order leptons
+  GenParticleCollection zzleptons;
+  zzleptons.push_back(leptons[0]);
+  size_t z1lepidx = 0;
+  double accuracy = 1e-5;
+  auto l1zp4 = leptons[0].mother(0)->p4();
+  for (size_t i=1; i<nLeptons; i++){
+    auto l2zp4 = leptons[i].mother(0)->p4();
+    double dPt  = std::abs(l1zp4.pt()-l2zp4.pt());
+    double dEta = std::abs(l1zp4.eta()-l2zp4.eta());
+    double dPhi = std::abs(l1zp4.phi()-l2zp4.phi());
+    double dM   = std::abs(l1zp4.M()-l2zp4.M());
+    if (dPt < accuracy && dEta < accuracy && dPhi < accuracy && dM < accuracy){
+      z1lepidx = i;
+      zzleptons.push_back(leptons[i]);
       break;
     }
   }
-  if (!passPtCut) return false;
+  if (z1lepidx == 0){
+    std::cout << "ERROR: could not find two leptons from the same Z!" << std::endl;
+    return;
+  }
+  for (size_t i=1; i<nLeptons; i++){
+    if (i==z1lepidx) continue;
+    zzleptons.push_back(leptons[i]);
+  }
+  {
+    auto l3zp4 = zzleptons[2].mother(0)->p4();
+    auto l4zp4 = zzleptons[3].mother(0)->p4();
+    double dPt  = std::abs(l3zp4.pt()-l4zp4.pt());
+    double dEta = std::abs(l3zp4.eta()-l4zp4.eta());
+    double dPhi = std::abs(l3zp4.phi()-l4zp4.phi());
+    double dM   = std::abs(l3zp4.M()-l4zp4.M());
+    if (dPt > accuracy || dEta > accuracy || dPhi > accuracy || dM > accuracy){
+      std::cout << "ERROR: the z2 leptons don't come from the same Z!" << std::endl;
+      return;
+    }
+  }
+  analyzeZZLeptons(zzleptons, genEvent->weight());
+}
 
-  //eta cut
-  for (int i=0; i<4; i++)
-    if (std::abs(daughters[i]->eta()) > 2.5)
-      return false;
+void GenZZXsecAnalyzer::analyzeZZLeptons(const GenParticleCollection& leptons, double weight){
+  int nElectrons=0, nMuons=0;
+  for (const auto& lepton : leptons){
+    if (std::abs(lepton.pdgId()) == 11) nElectrons++;
+    else nMuons++;
+  }
+  Channel channel;
+  if (nElectrons == 4) channel = c_eeee;
+  else if (nMuons== 4) channel = c_mmmm;
+  else channel = c_eemm;
+  
+  double z1mass = (leptons[0].p4() + leptons[1].p4()).M();
+  double z2mass = (leptons[2].p4() + leptons[3].p4()).M();
+  if (z1mass < 60 || z1mass > 120 || z2mass < 60 || z2mass > 120)
+    return;
 
-  //QCD veto
-  for (int i=0; i<3; i++)
-    for (int j=i+1; j<4; j++)
-      if (cand.userFloat((daughterNames_[i] + "_" + daughterNames_[j] + "_SS").c_str()) < 0.5 && 
-          cand.userFloat((daughterNames_[i] + "_" + daughterNames_[j] + "_Mass").c_str()) < 4.0)
-        return false;
+  sumWeightsOnShell_[channel] += weight;
 
-  return true;
+  double maxLepPt = 0.0;
+  for (size_t i=0; i<4; i++){
+    // eta cut
+    if (std::abs(leptons[i].eta()) > 2.5) return;
+
+    // QCD veto
+    for (size_t j=i+1; j<4; j++)
+      if (leptons[i].pdgId() * leptons[j].pdgId() < 0 && (leptons[i].p4() + leptons[j].p4()).M() < 4.0)
+        return;
+
+    // pt cut - check that all are above 10 GeV
+    double lepPt = leptons[i].pt();
+    if (lepPt > maxLepPt) maxLepPt = lepPt;
+    if (lepPt < 10.0) return;
+  }
+  // pt cut - check that at least one pt was above 20 GeV
+  if (maxLepPt < 20.0) return;
+
+  sumWeightsFiducial_[channel] += weight;
 }
 
 void GenZZXsecAnalyzer::beginJob(){
   numEventsTotal_ = 0;
-  numEventsOnShell_ = 0;
-  numEventsFiducial_ = 0;
   sumWeightsTotal_ = 0.0;
-  sumWeightsOnShell_ = 0.0;
-  sumWeightsFiducial_ = 0.0;
+  for (size_t i=0; i<3; i++){
+    sumWeightsOnShell_[i] = 0.0;
+    sumWeightsFiducial_[i] = 0.0;
+  }
 }
 
 void GenZZXsecAnalyzer::endJob(){
   std::cout << "=== Gen ZZ Xsec Analyzer ===" << std::endl;
-  std::cout << "Dressed: " << isDressed_ << std::endl;
 
-  std::cout << "Total    " << label_ << ": " << sumWeightsTotal_/numEventsTotal_;
-  std::cout << " (" << sumWeightsTotal_ << "/" << numEventsTotal_ << ")" << std::endl;
+  std::cout << "---------" << std::endl;
+  std::cout << "Total         " << label_ << ": " << sumWeightsTotal_/numEventsTotal_;
+  std::cout << " pb (" << sumWeightsTotal_ << "/" << numEventsTotal_ << ")" << std::endl;
+  std::cout << "---------" << std::endl;
 
-  std::cout << "On Shell " << label_ << ": " << sumWeightsOnShell_/numEventsOnShell_;
-  std::cout << " (" << sumWeightsOnShell_ << "/" << numEventsOnShell_ << ")" << std::endl;
+  for (size_t i=0; i<3; i++){
+    std::string channel;
+    if (i==0) channel = "eeee";
+    else if (i==1) channel = "eemm";
+    else if (i==2) channel = "mmmm";
 
-  std::cout << "Fiducial " << label_ << ": " << sumWeightsFiducial_/numEventsFiducial_;
-  std::cout << " (" << sumWeightsFiducial_ << "/" << numEventsFiducial_ << ")" << std::endl;
+    std::cout << "On Shell " << channel << " " << label_ << ": " << 1000*sumWeightsOnShell_[i]/numEventsTotal_;
+    std::cout << " fb (" << 1000*sumWeightsOnShell_[i] << "/" << numEventsTotal_ << ")" << std::endl;
+
+    std::cout << "Fiducial " << channel << " " << label_ << ": " << 1000*sumWeightsFiducial_[i]/numEventsTotal_;
+    std::cout << " fb (" << 1000*sumWeightsFiducial_[i] << "/" << numEventsTotal_ << ")" << std::endl;
+
+    std::cout << "---------" << std::endl;
+  }
+  std::cout << std::endl;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
