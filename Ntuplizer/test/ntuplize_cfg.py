@@ -495,8 +495,7 @@ if state_zz and options.isMC and options.genInfo:
     genFlow = GenFlow('genFlow', process, suffix='Gen', e='prunedGenParticles',
                     m='prunedGenParticles', a='prunedGenParticles', j='slimmedGenJets',
                     pfCands='packedGenParticles',
-                    leptonStatusFlag=genLepChoices[options.genLeptonType],
-                    isDressed="dressed" in options.genLeptonType)
+                    leptonStatusFlag=genLepChoices[options.genLeptonType])
     genTrg = trgBranches.clone(trigNames=cms.vstring())
 
     extraInitialStateBranchesGen = [vbsGenBranches]
