@@ -20,7 +20,8 @@ import logging
 from sys import stdout as _stdout
 
 _log = logging.getLogger("resubmitFailedJobs")
-logging.basicConfig(level=logging.INFO, stream=_stdout, format="%(message)s")
+logging.basicConfig(level=logging.INFO, stream=_stdout,
+                    format='%(message)s')
 
 
 def resubmit(sample, dryrun=False, quiet=False):
@@ -29,64 +30,56 @@ def resubmit(sample, dryrun=False, quiet=False):
     the rescue dag files to farmoutAnalysisJobs.
     Sample should be a path to the submit directory.
     """
-    statusDag = "%s/dags/dag.status" % sample
+    statusDag = '%s/dags/dag.status' % sample
 
-    pattern = _reCompile(r"Nodes(?P<status>[A-Za-z]+) = (?P<nNodes>\d+)")
+    pattern = _reCompile(r'Nodes(?P<status>[A-Za-z]+) = (?P<nNodes>\d+)')
 
     results = {}
     try:
-        with open(statusDag, "r") as f:
+        with open(statusDag, 'r') as f:
             for line in f:
                 # we only care about the summary block, which is first
-                if "]" in line:
+                if ']' in line:
                     break
 
                 match = pattern.search(line)
                 if match:
-                    results[match.group("status")] = int(match.group("nNodes"))
+                    results[match.group('status')] = int(match.group("nNodes"))
     except IOError:
-        _log.error(
-            "Unable to find DAG status file for {} -- did it get submitted?".format(
-                sample
-            )
-        )
+        _log.error("Unable to find DAG status file for {} -- did it get submitted?".format(sample))
         raise
 
     try:
-        total = results["Total"]
-        succeeded = results["Done"]
-        failed = results["Failed"]
-        inProgress = (
-            results["Pre"] + results["Post"] + results["Queued"] + results["Ready"]
-        )
-        ignore = results["Unready"]  # email job or something
+        total = results['Total']
+        succeeded = results['Done']
+        failed = results['Failed']
+        inProgress = results['Pre'] + results['Post'] + results['Queued'] + \
+            results['Ready']
+        ignore = results['Unready'] # email job or something
     except KeyError:
         _log.error("DAG status file {} is broken somehow".format(statusDag))
         raise
 
     if failed or not quiet:
-        _log.info("    " + sample)
-        _log.info(
-            "        Total: {0} Done: {1} Queued: {2} Failed: {3}".format(
-                total - ignore, succeeded, inProgress, failed
-            )
-        )
+        _log.info('    ' + sample)
+        _log.info("        Total: {0} Done: {1} Queued: {2} Failed: {3}".format(total-ignore,succeeded,inProgress,failed))
+
 
     if inProgress and (failed or not quiet):
         _log.info("        Not done, try again later")
     elif failed:
         _log.info("        Resubmitting...")
-        rescue_dag = max(_glob("{}/dags/*dag.rescue[0-9][0-9][0-9]".format(sample)))
-        _log.info("        Rescue file: {0}".format(rescue_dag))
+        rescue_dag = max(_glob('{}/dags/*dag.rescue[0-9][0-9][0-9]'.format(sample)))
+        _log.info('        Rescue file: {0}'.format(rescue_dag))
         if not dryrun:
-            cmd = "farmoutAnalysisJobs --rescue-dag-file={}".format(rescue_dag)
+            cmd = 'farmoutAnalysisJobs --rescue-dag-file={}'.format(rescue_dag)
             _bash(cmd)
 
     return succeeded, failed, inProgress
 
 
 def generate_submit_dirs(jobids):
-    """
+    '''
     Make a list of submit directories from an input argument.
     If two or more forward slashes ('/') appear in a jobid, it is interpreted
     as a path to a submit directory (which is resubmitted) or directory
@@ -98,24 +91,24 @@ def generate_submit_dirs(jobids):
     If there is exactly one forward slash, it is considered a jobid/sample pair
     and the sample is resubmitted.
     Either way, UNIX-style wildcards are allowed.
-    """
+    '''
     dirs = []
 
-    if "uwlogin" in _hostname():
-        scratch = "/data"
+    if 'uwlogin' in _hostname():
+        scratch = '/data'
     else:
-        scratch = "/nfs_scratch"
+        scratch = '/nfs_scratch'
 
-    user = _env["USER"]
+    user = _env['USER']
 
     for job in jobids:
-        if job.count("/") > 1:  # full path
+        if job.count('/') > 1: # full path
             unixPath = job
-        else:  # jobid or jobid/sample
+        else: # jobid or jobid/sample
             unixPath = _join(scratch, user, job)
 
-        subdirs = _glob("%s/*" % unixPath)
-        if any("dags" in s for s in subdirs):  # this is a sample
+        subdirs = _glob('%s/*' % unixPath)
+        if any('dags' in s for s in subdirs): # this is a sample
             dirs += _glob(unixPath)
         else:
             dirs += subdirs
@@ -123,40 +116,27 @@ def generate_submit_dirs(jobids):
     return dirs
 
 
+
 if __name__ == "__main__":
-    parser = _ArgParser(description="Resubmit failed Condor jobs")
+    parser = _ArgParser(description='Resubmit failed Condor jobs')
 
-    parser.add_argument(
-        "jobids",
-        nargs="+",
-        help="Provide the FSA sample(s) in"
-        " one of the following formats (UNIX wildcards allowed):\n"
-        "jobID \n"
-        "jobID/sample \n"
-        "/path/to/job/or/submit/directory",
-    )
+    parser.add_argument('jobids', nargs='+', help='Provide the FSA sample(s) in'
+                        ' one of the following formats (UNIX wildcards allowed):\n'
+                        'jobID \n'
+                        'jobID/sample \n'
+                        '/path/to/job/or/submit/directory')
 
-    parser.add_argument(
-        "--dry-run",
-        dest="dryrun",
-        action="store_true",
-        help="Show samples to submit without submitting them",
-    )
-    parser.add_argument(
-        "--quiet",
-        "-q",
-        action="store_true",
-        help="Only print information about samples with failed jobs",
-    )
+    parser.add_argument('--dry-run', dest='dryrun', action='store_true',
+                        help='Show samples to submit without submitting them')
+    parser.add_argument('--quiet', '-q', action='store_true',
+                        help='Only print information about samples with failed jobs')
 
     args = parser.parse_args()
 
     if args.dryrun:
-        _log.info(
-            "Pretending to resubmit samples from {}".format(", ".join(args.jobids))
-        )
+        _log.info("Pretending to resubmit samples from {}".format(', '.join(args.jobids)))
     else:
-        _log.info("Trying to resubmit samples from {}".format(", ".join(args.jobids)))
+        _log.info("Trying to resubmit samples from {}".format(', '.join(args.jobids)))
 
     samples = generate_submit_dirs(args.jobids)
 
@@ -177,11 +157,9 @@ if __name__ == "__main__":
         if not prog:
             resubmitted += fail
 
-    _log.info(
-        "Total: {}  Done: {}  In Progress: {}  Failed: {}".format(
-            succeeded + failed + inProgress, succeeded, inProgress, failed
-        )
-    )
+    _log.info("Total: {}  Done: {}  In Progress: {}  Failed: {}".format(succeeded+failed+inProgress,
+                                                                        succeeded, inProgress,
+                                                                        failed))
     if resubmitted:
         _log.info("Resubmitted: {}".format(resubmitted))
     if inProgress:
