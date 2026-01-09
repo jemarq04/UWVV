@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 dasgoclient -limit 50 -query "file dataset=/ZZto4L_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer22MiniAODv4-130X_mcRun3_2022_realistic_v5-v2/MINIAODSIM" > .temp_inputs.dat
 cmsRun xsec_cfg.py inputFileList=inputs/xsec/ZZto4L_TuneCP5_13p6TeV_powheg-pythia8.dat 2>&1 | tee out_zz4l.txt
 
