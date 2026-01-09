@@ -24,17 +24,20 @@
 // UWVV
 #include "UWVV/Ntuplizer/interface/TriggerPathInfo.h"
 
-namespace uwvv {
+
+namespace uwvv
+{
 
   // Single Branch
-  class TriggerBranch {
+  class TriggerBranch
+  {
   public:
     TriggerBranch(const std::string& name,
                   const std::vector<std::string>& pathExps,
                   TTree* const tree,
                   bool checkPrescale,
                   bool ignoreMissing);
-    ~TriggerBranch() { ; }
+    ~TriggerBranch(){;}
 
     void setup(const edm::TriggerNames& names);
 
@@ -52,17 +55,21 @@ namespace uwvv {
     std::vector<TriggerPathInfo> paths;
   };
 
+
   // Collection of branches
-  class TriggerBranches {
-  public:
-    TriggerBranches(edm::ConsumesCollector cc, const edm::ParameterSet& config, TTree* const tree);
-    ~TriggerBranches() { ; }
+  class TriggerBranches
+  {
+   public:
+    TriggerBranches(edm::ConsumesCollector cc,
+                    const edm::ParameterSet& config,
+                    TTree* const tree);
+    ~TriggerBranches() {;}
 
     void setEvent(const edm::Event& event);
 
     void fill();
 
-  private:
+   private:
     const edm::EDGetTokenT<edm::TriggerResults> resultsToken;
     edm::Handle<edm::TriggerResults> results;
     const edm::EDGetTokenT<pat::PackedTriggerPrescales> prescalesToken;
@@ -77,6 +84,6 @@ namespace uwvv {
     const bool checkPrescale;
   };
 
-}  // namespace uwvv
+} // namespace
 
-#endif  // header guard
+#endif // header guard

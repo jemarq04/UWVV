@@ -8,27 +8,33 @@
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 
-namespace uwvv {
 
-  class TriggerPathInfo {
-  public:
+namespace uwvv
+{
+
+  class TriggerPathInfo
+  {
+   public:
     TriggerPathInfo(const std::string& nameExp, bool ignoreMissing);
-    ~TriggerPathInfo() { ; }
+    ~TriggerPathInfo() {;}
 
     // Set bit, name
     void setup(const edm::TriggerNames& names);
 
     bool pass(const edm::TriggerResults& results) const;
 
-    double prescale(const pat::PackedTriggerPrescales& prescales) const;
+    double
+    prescale(const pat::PackedTriggerPrescales& prescales) const;
 
-    std::string& name() { return name_; }
+    std::string& name() {return name_;}
 
-  private:
+   private:
     // for attempted uninitialized use
-    void explode() const {
+    void explode() const
+    {
       throw cms::Exception("UninitializedTriggerInfo")
-          << "ERROR: attempt to use trigger info before it's set up." << std::endl;
+        << "ERROR: attempt to use trigger info before it's set up."
+        << std::endl;
     }
 
     // reg exp for trigger name
@@ -43,6 +49,7 @@ namespace uwvv {
     bool ignoreMissing_;
   };
 
-}  // namespace uwvv
+} // namespace
 
-#endif  // header guard
+
+#endif // header guard
