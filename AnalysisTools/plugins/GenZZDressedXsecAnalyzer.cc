@@ -34,7 +34,7 @@ class GenZZDressedXsecAnalyzer : public edm::one::EDAnalyzer<>
     void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
     void endJob() override;
 
-    enum Channel {c_eeee, c_eemm, c_mmmm};
+    enum Channel {c_eemm, c_mmmm, c_eeee};
 
     void analyzeZZLeptons(const GenParticleCollection& leptons, double weight, Channel channel);
 
@@ -237,9 +237,9 @@ void GenZZDressedXsecAnalyzer::endJob(){
   scale_ *= 1000;
   for (size_t i=0; i<3; i++){
     std::string channel;
-    if (i==0) channel = "eeee";
-    else if (i==1) channel = "eemm";
-    else if (i==2) channel = "mmmm";
+    if (i==0) channel = "eemm";
+    else if (i==1) channel = "mmmm";
+    else if (i==2) channel = "eeee";
 
     std::cout << "On Shell " << channel << " " << label_ << ": " << scale_*sumWeightsOnShell_[i]/numEventsTotal_;
     std::cout << " fb (" << scale_*sumWeightsOnShell_[i] << "/" << numEventsTotal_ << ")" << std::endl;
