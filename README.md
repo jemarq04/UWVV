@@ -195,21 +195,14 @@ Z+L samples is not usually needed.
 This repository has some configuration set up for minor linting/formatting checks. Note that this is not required, but it can keep the code nicely
 formatted. To do this, you need to install `pre-commit` either through `pip` or using a virtual environment (such as through `uv`). For a user
 installation through `pip`, simply run `pip install --user pre-commit`. Virtual environments can be helpful if you only need certain packages
-while in certain environments, but will need some initial setup. A new tool for this is `uv`, and it works well. If you want to use `uv`, you can run
-the following code.
+while in certain environments, but will need some initial setup. A new tool for this is `uv`, and it works well. Since we are just running
+`pre-commit`, we can use run it with the following commands.
 
 ```bash
 pip install --user uv
-uv venv
-uv pip install pre-commit ruff
-uv pip uninstall virtualenv # to avoid conflicts with the one from CMSSW
-source .venv/bin/activate
-#to deactivate this virtual environment and restore your usual python, run 'deactivate'
+uvx pre-commit run -a
 ```
 
-After you've set up the virtual environment, you need to 'activate' it by running `source .venv/bin/activate`. This will bring this local python
-environment into scope and allow you to run `pre-commit`. To deactivate this virtual environment and restore your setup, run `deactivate`.
-
-To run the command, simply run `pre-commit run -a`. It will go through a series of checks/formats over all of the files. The configuration for
+This will go through a series of checks/formats over all of the files. The configuration for
 this command can be found in [`.pre-commit-config.yaml`](.pre-commit-config.yaml). Other linting/formatting checks are done through `ruff` and are
 configured in [`.ruff.toml`](.ruff.toml).
