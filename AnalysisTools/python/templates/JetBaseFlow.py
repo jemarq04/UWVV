@@ -3,8 +3,7 @@ from UWVV.Utilities.helpers import getCorrectionFile
 
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection, setupPuppiForPackedPF
-from os import path, environ
+from PhysicsTools.PatAlgos.tools.jetTools import setupPuppiForPackedPF
 
 class JetBaseFlow(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):

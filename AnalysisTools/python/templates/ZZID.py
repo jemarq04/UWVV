@@ -2,7 +2,6 @@ from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 
 import FWCore.ParameterSet.Config as cms
 
-from os import environ
 
 class ZZID(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):

@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Mixins import _Parameterizable
 from functools import reduce
-import configparser
 
 from os import path
 from math import sqrt, pi

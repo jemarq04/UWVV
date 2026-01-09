@@ -3,7 +3,6 @@ from UWVV.Utilities.helpers import getCorrectionFile
 
 import FWCore.ParameterSet.Config as cms
 
-from os import path,environ
 
 class ElectronCalibration(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):

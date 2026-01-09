@@ -1,6 +1,5 @@
 from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 from UWVV.Utilities.helpers import getCorrectionFile
-from os import path,environ
 
 import FWCore.ParameterSet.Config as cms
 
