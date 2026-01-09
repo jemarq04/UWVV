@@ -68,7 +68,7 @@ void GenZZDressedXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::Even
   numEventsTotal_++;
   sumWeightsTotal_ += genEvent->weight();
 
-  
+
   GenParticleCollection dressedleptons, photons, zzleptons;
   for (GenParticleView::const_iterator it = genparticles->begin(); it != genparticles->end(); it++){
     int absPdgId = std::abs(it->pdgId());
@@ -106,7 +106,7 @@ void GenZZDressedXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::Even
           // check opposite-sign pairs
           if (pdgIds[0] * pdgIds[1] * pdgIds[2] * pdgIds[3] < 0)
             continue;
-          
+
           nElectrons = nMuons = 0;
           pdgIds[0] = std::abs(pdgIds[0]);
           pdgIds[1] = std::abs(pdgIds[1]);

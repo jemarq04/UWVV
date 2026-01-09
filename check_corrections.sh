@@ -38,7 +38,7 @@ for pog in "${POGs[@]}"; do
         continue
       fi
       if ! diff $f $centralfile >& /dev/null; then
-        echo 
+        echo
         echo $f is out-of-date.
         read -p "Update the file? (y/n): " choice
         [[ $choice == [yY] ]] && cp -v $centralfile $f

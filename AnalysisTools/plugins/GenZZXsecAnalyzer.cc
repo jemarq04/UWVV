@@ -139,7 +139,7 @@ void GenZZXsecAnalyzer::analyzeZZLeptons(const GenParticleCollection& leptons, d
   if (nElectrons == 4) channel = c_eeee;
   else if (nMuons== 4) channel = c_mmmm;
   else channel = c_eemm;
-  
+
   double z1mass = (leptons[0].p4() + leptons[1].p4()).M();
   double z2mass = (leptons[2].p4() + leptons[3].p4()).M();
   if (z1mass < 60 || z1mass > 120 || z2mass < 60 || z2mass > 120)
