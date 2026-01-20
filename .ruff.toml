@@ -1,4 +1,5 @@
 target-version = "py39" # python3.9
+line-length = 120
 
 [lint]
 extend-select = [
@@ -11,4 +12,6 @@ ignore = [
   "PLR",      # design-related Pylint codes
   "E402",     # ignore module imports not at the top
   "PLC0415",  # ^ ^ ^
+  "PLW2901",  # ignore overwrites of loop variable
+  "E731",     # ignore assignments to lambda
 ]
