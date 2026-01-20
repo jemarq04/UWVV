@@ -3,97 +3,97 @@ from UWVV.AnalysisTools.AnalysisFlowBase import AnalysisFlowBase
 
 class ZZCrossCleaning(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
-        if not hasattr(self, 'isMC'):
-            self.isMC = kwargs.pop('isMC', True)
-        if not hasattr(self, 'debug'):
-            self.debug = kwargs.pop('debug', False)
+        if not hasattr(self, "isMC"):
+            self.isMC = kwargs.pop("isMC", True)
+        if not hasattr(self, "debug"):
+            self.debug = kwargs.pop("debug", False)
         super(ZZCrossCleaning, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(ZZCrossCleaning, self).makeAnalysisStep(stepName, **inputs)
 
-        if stepName == 'selection':
+        if stepName == "selection":
             # remove jets close to tight, isolated electrons and muons
             step.addCrossSelector(
-                'j',
-                '', # no further basic selection here
+                "j",
+                "",  # no further basic selection here
                 e={
-                    'deltaR' : 0.4,
-                    'selection' : ('userFloat("{}Tight") > 0.5 && '
-                                   'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
-                                                                   self.getZZIsoLabel()),
+                    "deltaR": 0.4,
+                    "selection": ('userFloat("{}Tight") > 0.5 && userFloat("{}") > 0.5').format(
+                        self.getZZIDLabel(), self.getZZIsoLabel()
+                    ),
                 },
                 m={
-                    'deltaR' : 0.4,
-                    'selection' : ('userFloat("{}Tight") > 0.5 && '
-                                   'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
-                                                                   self.getZZIsoLabel()),
+                    "deltaR": 0.4,
+                    "selection": ('userFloat("{}Tight") > 0.5 && userFloat("{}") > 0.5').format(
+                        self.getZZIDLabel(), self.getZZIsoLabel()
+                    ),
                 },
             )
 
             if self.isMC:
                 step.addCrossSelector(
-                    'j_jesUp',
-                    '', # no further basic selection here
+                    "j_jesUp",
+                    "",  # no further basic selection here
                     e={
-                        'deltaR' : 0.4,
-                        'selection' : ('userFloat("{}Tight") > 0.5 && '
-                                       'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
-                                                                       self.getZZIsoLabel()),
+                        "deltaR": 0.4,
+                        "selection": ('userFloat("{}Tight") > 0.5 && userFloat("{}") > 0.5').format(
+                            self.getZZIDLabel(), self.getZZIsoLabel()
+                        ),
                     },
                     m={
-                        'deltaR' : 0.4,
-                        'selection' : ('userFloat("{}Tight") > 0.5 && '
-                                       'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
-                                                                       self.getZZIsoLabel()),
+                        "deltaR": 0.4,
+                        "selection": ('userFloat("{}Tight") > 0.5 && userFloat("{}") > 0.5').format(
+                            self.getZZIDLabel(), self.getZZIsoLabel()
+                        ),
                     },
                 )
                 step.addCrossSelector(
-                    'j_jesDown',
-                    '', # no further basic selection here
+                    "j_jesDown",
+                    "",  # no further basic selection here
                     e={
-                        'deltaR' : 0.4,
-                        'selection' : ('userFloat("{}Tight") > 0.5 && '
-                                       'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
-                                                                       self.getZZIsoLabel()),
+                        "deltaR": 0.4,
+                        "selection": ('userFloat("{}Tight") > 0.5 && userFloat("{}") > 0.5').format(
+                            self.getZZIDLabel(), self.getZZIsoLabel()
+                        ),
                     },
                     m={
-                        'deltaR' : 0.4,
-                        'selection' : ('userFloat("{}Tight") > 0.5 && '
-                                       'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
-                                                                       self.getZZIsoLabel()),
+                        "deltaR": 0.4,
+                        "selection": ('userFloat("{}Tight") > 0.5 && userFloat("{}") > 0.5').format(
+                            self.getZZIDLabel(), self.getZZIsoLabel()
+                        ),
                     },
                 )
                 step.addCrossSelector(
-                    'j_jerUp',
-                    '', # no further basic selection here
+                    "j_jerUp",
+                    "",  # no further basic selection here
                     e={
-                        'deltaR' : 0.4,
-                        'selection' : ('userFloat("{}Tight") > 0.5 && '
-                                       'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
-                                                                       self.getZZIsoLabel()),
+                        "deltaR": 0.4,
+                        "selection": ('userFloat("{}Tight") > 0.5 && userFloat("{}") > 0.5').format(
+                            self.getZZIDLabel(), self.getZZIsoLabel()
+                        ),
                     },
                     m={
-                        'deltaR' : 0.4,
-                        'selection' : ('userFloat("{}Tight") > 0.5 && '
-                                       'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
-                                                                       self.getZZIsoLabel()),
+                        "deltaR": 0.4,
+                        "selection": ('userFloat("{}Tight") > 0.5 && userFloat("{}") > 0.5').format(
+                            self.getZZIDLabel(), self.getZZIsoLabel()
+                        ),
                     },
                 )
                 step.addCrossSelector(
-                    'j_jerDown',
-                    '', # no further basic selection here
+                    "j_jerDown",
+                    "",  # no further basic selection here
                     e={
-                        'deltaR' : 0.4,
-                        'selection' : ('userFloat("{}Tight") > 0.5 && '
-                                       'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
-                                                                       self.getZZIsoLabel()),
+                        "deltaR": 0.4,
+                        "selection": ('userFloat("{}Tight") > 0.5 && userFloat("{}") > 0.5').format(
+                            self.getZZIDLabel(), self.getZZIsoLabel()
+                        ),
                     },
                     m={
-                        'deltaR' : 0.4,
-                        'selection' : ('userFloat("{}Tight") > 0.5 && '
-                                       'userFloat("{}") > 0.5').format(self.getZZIDLabel(),
-                                                                       self.getZZIsoLabel()),
+                        "deltaR": 0.4,
+                        "selection": ('userFloat("{}Tight") > 0.5 && userFloat("{}") > 0.5').format(
+                            self.getZZIDLabel(), self.getZZIsoLabel()
+                        ),
                     },
                 )
 

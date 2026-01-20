@@ -1,7 +1,6 @@
 #ifndef UWVV_Ntuplizer_StringFunctionMaker_h
 #define UWVV_Ntuplizer_StringFunctionMaker_h
 
-
 #include <functional>
 #include <string>
 
@@ -12,50 +11,43 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
+namespace {
+  template <typename T>
+  T convertFromFloat(float x) {
+    return T(x);
+  }
 
+  template <>
+  int convertFromFloat(float x) {
+    return TMath::Nint(x);
+  }
 
-namespace
-{
-  template<typename T> T convertFromFloat(float x)
-    {
-      return T(x);
-    }
+  template <>
+  unsigned convertFromFloat(float x) {
+    return TMath::Nint(fabs(x));
+  }
 
-  template<> int convertFromFloat(float x)
-    {
-      return TMath::Nint(x);
-    }
+  template <>
+  unsigned long long convertFromFloat(float x) {
+    return lrint(fabs(x));
+  }
+}  // namespace
 
-  template<> unsigned convertFromFloat(float x)
-    {
-      return TMath::Nint(fabs(x));
-    }
+namespace uwvv {
 
-  template<> unsigned long long convertFromFloat(float x)
-    {
-      return lrint(fabs(x));
-    }
-}
-
-
-namespace uwvv
-{
-
-  class StringFunctionMaker
-  {
-   public:
-    template<typename Return, class Obj, class... OtherArgs>
-      static std::function<Return(const edm::Ptr<Obj>, OtherArgs...)>
-      makeStringFunction(const std::string& fString)
-    {
+  class StringFunctionMaker {
+  public:
+    template <typename Return, class Obj, class... OtherArgs>
+    static std::function<Return(const edm::Ptr<Obj>, OtherArgs...)> makeStringFunction(const std::string& fString) {
       StringObjectFunction<Obj, true> calculator(fString);
-      std::function<Return(const edm::Ptr<Obj>, OtherArgs...)>
-        out([calculator](const edm::Ptr<Obj>& obj, OtherArgs... otherArgs)
-            {return ::convertFromFloat<Return>(calculator(*obj));});
+      std::function<Return(const edm::Ptr<Obj>, OtherArgs...)> out(
+          [calculator](const edm::Ptr<Obj>& obj, OtherArgs... otherArgs) {
+            return ::convertFromFloat<Return>(calculator(*obj));
+          });
       return out;
     }
   };
 
-}
+}  // namespace uwvv
 
-#endif // header guard
+#endif  // header guard

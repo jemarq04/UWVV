@@ -9,7 +9,6 @@
 //                                                                          //
 //////////////////////////////////////////////////////////////////////////////
 
-
 // system includes
 #include <memory>
 #include <vector>
@@ -28,15 +27,13 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/MuonReco/interface/MuonPFIsolation.h"
 
-
-using reco::CandidatePtr;
 using pat::Electron, pat::ElectronCollection;
+using reco::CandidatePtr;
 typedef edm::View<pat::Electron> ElectronView;
 using pat::Muon, pat::MuonCollection;
 typedef edm::View<pat::Muon> MuonView;
 
-class PATLeptonIsoEmbedder : public edm::stream::EDProducer<>
-{
+class PATLeptonIsoEmbedder : public edm::stream::EDProducer<> {
 public:
   explicit PATLeptonIsoEmbedder(const edm::ParameterSet&);
   ~PATLeptonIsoEmbedder() {}
@@ -66,39 +63,26 @@ private:
   double muIsoCut_;
 };
 
-PATLeptonIsoEmbedder::PATLeptonIsoEmbedder(const edm::ParameterSet& iConfig) :
-  electronToken_(consumes<ElectronView>(iConfig.getParameter<edm::InputTag>("electrons"))),
-  muonToken_(consumes<MuonView>(iConfig.getParameter<edm::InputTag>("muons"))),
-  fsrLabel_(iConfig.exists("fsrLabel") ?
-      iConfig.getParameter<std::string>("fsrLabel") : "dREtFSRCand"),
-  rhoLabel_(iConfig.exists("rhoLabel") ?
-      iConfig.getParameter<std::string>("rhoLabel") : "rho_fastjet"),
-  eaLabel_(iConfig.exists("eaLabel") ?
-      iConfig.getParameter<std::string>("eaLabel") : "EffectiveArea"),
-  isoValueLabel_(iConfig.exists("isoValueLabel") ?
-      iConfig.getParameter<std::string>("isoValueLabel") : "HZZ4lIso"),
-  isoDecisionLabel_(iConfig.exists("isoDecisionLabel") ?
-      iConfig.getParameter<std::string>("isoDecisionLabel") : "HZZ4lIsoPass"),
-  muIsoDRMinCut_(iConfig.exists("muIsoDRMinCut") ?
-      iConfig.getParameter<double>("muIsoDRMinCut") : 0.01),
-  eIsoDRMinCut_(iConfig.exists("eIsoDRMinCut") ?
-      iConfig.getParameter<double>("eIsoDRMinCut") : 0.08),
-  eIsoEtaCut_(iConfig.exists("eIsoEtaCut") ?
-      iConfig.getParameter<double>("eIsoEtaCut") : 1.479),
-  isoDRMaxCut_(iConfig.exists("isoDRMaxCut") ?
-      iConfig.getParameter<double>("isoDRMaxCut") : 0.3),
-  eIsoCut_(iConfig.exists("eIsoCut") ?
-      iConfig.getParameter<double>("eIsoCut") : 9999),
-  muIsoCut_(iConfig.exists("muIsoCut") ?
-      iConfig.getParameter<double>("muIsoCut") : 0.35)
-{
+PATLeptonIsoEmbedder::PATLeptonIsoEmbedder(const edm::ParameterSet& iConfig)
+    : electronToken_(consumes<ElectronView>(iConfig.getParameter<edm::InputTag>("electrons"))),
+      muonToken_(consumes<MuonView>(iConfig.getParameter<edm::InputTag>("muons"))),
+      fsrLabel_(iConfig.exists("fsrLabel") ? iConfig.getParameter<std::string>("fsrLabel") : "dREtFSRCand"),
+      rhoLabel_(iConfig.exists("rhoLabel") ? iConfig.getParameter<std::string>("rhoLabel") : "rho_fastjet"),
+      eaLabel_(iConfig.exists("eaLabel") ? iConfig.getParameter<std::string>("eaLabel") : "EffectiveArea"),
+      isoValueLabel_(iConfig.exists("isoValueLabel") ? iConfig.getParameter<std::string>("isoValueLabel") : "HZZ4lIso"),
+      isoDecisionLabel_(iConfig.exists("isoDecisionLabel") ? iConfig.getParameter<std::string>("isoDecisionLabel")
+                                                           : "HZZ4lIsoPass"),
+      muIsoDRMinCut_(iConfig.exists("muIsoDRMinCut") ? iConfig.getParameter<double>("muIsoDRMinCut") : 0.01),
+      eIsoDRMinCut_(iConfig.exists("eIsoDRMinCut") ? iConfig.getParameter<double>("eIsoDRMinCut") : 0.08),
+      eIsoEtaCut_(iConfig.exists("eIsoEtaCut") ? iConfig.getParameter<double>("eIsoEtaCut") : 1.479),
+      isoDRMaxCut_(iConfig.exists("isoDRMaxCut") ? iConfig.getParameter<double>("isoDRMaxCut") : 0.3),
+      eIsoCut_(iConfig.exists("eIsoCut") ? iConfig.getParameter<double>("eIsoCut") : 9999),
+      muIsoCut_(iConfig.exists("muIsoCut") ? iConfig.getParameter<double>("muIsoCut") : 0.35) {
   produces<ElectronCollection>("electrons");
   produces<MuonCollection>("muons");
 }
 
-
-void PATLeptonIsoEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void PATLeptonIsoEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<ElectronView> electronsIn;
   iEvent.getByToken(electronToken_, electronsIn);
 
@@ -116,18 +100,18 @@ void PATLeptonIsoEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   // Embed iso into electron collection
   std::unique_ptr<ElectronCollection> electronsOut(new ElectronCollection());
-  for (auto it = electronsIn->begin(); it != electronsIn->end(); it++){
+  for (auto it = electronsIn->begin(); it != electronsIn->end(); it++) {
     electronsOut->push_back(*it);
     Electron& electron = electronsOut->back();
 
     double iso = 9999;
     bool pass = false;
-    if (electron.pt() > 0.0){
+    if (electron.pt() > 0.0) {
       iso = getIso(electron);
-      for (auto fsr : selectedFSR){
+      for (auto fsr : selectedFSR) {
         double deltaR = reco::deltaR(fsr->p4(), electron.p4());
         if (deltaR < isoDRMaxCut_ && (deltaR > eIsoDRMinCut_ || std::abs(electron.superCluster()->eta()) < eIsoEtaCut_))
-          iso = std::max(0.0, iso - fsr->pt()/electron.pt());
+          iso = std::max(0.0, iso - fsr->pt() / electron.pt());
       }
 
       pass = iso < eIsoCut_;
@@ -139,18 +123,18 @@ void PATLeptonIsoEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   // Embed iso into muon collection
   std::unique_ptr<MuonCollection> muonsOut(new MuonCollection());
-  for (auto it = muonsIn->begin(); it != muonsIn->end(); it++){
+  for (auto it = muonsIn->begin(); it != muonsIn->end(); it++) {
     muonsOut->push_back(*it);
     Muon& muon = muonsOut->back();
 
     double iso = 9999;
     bool pass = false;
-    if (muon.pt() > 0.0){
+    if (muon.pt() > 0.0) {
       iso = getIso(muon);
-      for (auto fsr : selectedFSR){
+      for (auto fsr : selectedFSR) {
         double deltaR = reco::deltaR(fsr->p4(), muon.p4());
         if (deltaR < isoDRMaxCut_ && deltaR > muIsoDRMinCut_)
-          iso = std::max(0.0, iso - fsr->pt()/muon.pt());
+          iso = std::max(0.0, iso - fsr->pt() / muon.pt());
       }
 
       pass = iso < muIsoCut_;
@@ -165,24 +149,24 @@ void PATLeptonIsoEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.put(std::move(muonsOut), "muons");
 }
 
-double PATLeptonIsoEmbedder::getIso(const Electron& electron){
+double PATLeptonIsoEmbedder::getIso(const Electron& electron) {
   auto vars = electron.pfIsolationVariables();
   double chHadIso = vars.sumChargedHadronPt;
   double neHadIso = vars.sumNeutralHadronEt;
-  double phoIso   = vars.sumPhotonEt;
-  double puCorr   = electron.userFloat(rhoLabel_) * electron.userFloat(eaLabel_);
+  double phoIso = vars.sumPhotonEt;
+  double puCorr = electron.userFloat(rhoLabel_) * electron.userFloat(eaLabel_);
 
-  return (chHadIso + std::max(neHadIso + phoIso - puCorr, 0.0))/electron.pt();
+  return (chHadIso + std::max(neHadIso + phoIso - puCorr, 0.0)) / electron.pt();
 }
 
-double PATLeptonIsoEmbedder::getIso(const Muon& muon){
+double PATLeptonIsoEmbedder::getIso(const Muon& muon) {
   auto vars = muon.pfIsolationR03();
   double chHadIso = vars.sumChargedHadronPt;
   double neHadIso = vars.sumNeutralHadronEt;
-  double phoIso   = vars.sumPhotonEt;
-  double puCorr   = vars.sumPUPt/2.0;
+  double phoIso = vars.sumPhotonEt;
+  double puCorr = vars.sumPUPt / 2.0;
 
-  return (chHadIso + std::max(neHadIso + phoIso - puCorr, 0.0))/muon.pt();
+  return (chHadIso + std::max(neHadIso + phoIso - puCorr, 0.0)) / muon.pt();
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

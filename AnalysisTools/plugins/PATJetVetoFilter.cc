@@ -25,59 +25,57 @@
 using pat::Jet, pat::JetCollection;
 typedef edm::View<Jet> JetView;
 
-class PATJetVetoFilter : public edm::stream::EDFilter<>
-{
-  public:
-    explicit PATJetVetoFilter(const edm::ParameterSet& iConfig);
-    virtual ~PATJetVetoFilter() {;}
+class PATJetVetoFilter : public edm::stream::EDFilter<> {
+public:
+  explicit PATJetVetoFilter(const edm::ParameterSet& iConfig);
+  virtual ~PATJetVetoFilter() { ; }
 
-  private:
-    bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup);
+private:
+  bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-    edm::EDGetTokenT<JetView> jetSrcToken_;
-    std::string vetoFileName_;
-    std::unique_ptr<correction::CorrectionSet> vetoFile_;
+  edm::EDGetTokenT<JetView> jetSrcToken_;
+  std::string vetoFileName_;
+  std::unique_ptr<correction::CorrectionSet> vetoFile_;
 };
 
-PATJetVetoFilter::PATJetVetoFilter(const edm::ParameterSet& iConfig) :
-  jetSrcToken_(consumes<JetView>(iConfig.getParameter<edm::InputTag>("jets"))),
-  vetoFileName_(iConfig.getParameter<std::string>("vetoFile"))
-{
+PATJetVetoFilter::PATJetVetoFilter(const edm::ParameterSet& iConfig)
+    : jetSrcToken_(consumes<JetView>(iConfig.getParameter<edm::InputTag>("jets"))),
+      vetoFileName_(iConfig.getParameter<std::string>("vetoFile")) {
   std::ifstream checkfile(vetoFileName_);
-  if (!checkfile.good()) vetoFileName_ = vetoFileName_.substr(vetoFileName_.find("/UWVV/") + 6);
-  else checkfile.close();
+  if (!checkfile.good())
+    vetoFileName_ = vetoFileName_.substr(vetoFileName_.find("/UWVV/") + 6);
+  else
+    checkfile.close();
 
-  try{
+  try {
     vetoFile_ = correction::CorrectionSet::from_file(vetoFileName_);
-    if (vetoFile_ == nullptr) throw cms::Exception("Invalid JSON file");
-  }
-  catch (...){
+    if (vetoFile_ == nullptr)
+      throw cms::Exception("Invalid JSON file");
+  } catch (...) {
     throw cms::Exception("Invalid JSON file") << "Filename: " << vetoFileName_;
   }
 }
 
-bool PATJetVetoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+bool PATJetVetoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<JetView> jets;
   iEvent.getByToken(jetSrcToken_, jets);
 
-  for (JetView::const_iterator ijet = jets->begin(); ijet != jets->end(); ijet++)
-  {
-    bool jetID    = ijet->userFloat("idTightLepVeto") > 0.5;
-    float jeteta  = ijet->eta();
-    float jetphi  = ijet->phi();
-    float jetpt   = ijet->pt();
+  for (JetView::const_iterator ijet = jets->begin(); ijet != jets->end(); ijet++) {
+    bool jetID = ijet->userFloat("idTightLepVeto") > 0.5;
+    float jeteta = ijet->eta();
+    float jetphi = ijet->phi();
+    float jetpt = ijet->pt();
     float jetCEMF = ijet->chargedEmEnergyFraction();
     float jetNEMF = ijet->neutralEmEnergyFraction();
 
     // Jet must pass loose selections (and sit within eta,phi range for JSON evaluation)
-    if (jetpt < 15 || std::abs(jeteta) > 5.191 || std::abs(jetphi) > 3.1415926 || !jetID || jetCEMF+jetNEMF < 0.9)
+    if (jetpt < 15 || std::abs(jeteta) > 5.191 || std::abs(jetphi) > 3.1415926 || !jetID || jetCEMF + jetNEMF < 0.9)
       continue;
 
     // Now, apply veto to jets passing above selections
     float output = vetoFile_->begin()->second->evaluate({"jetvetomap", jeteta, jetphi});
     if (std::fabs(output) > 0.0)
-      return false; // if a jet failes the veto, the event is discarded
+      return false;  // if a jet failes the veto, the event is discarded
   }
 
   return true;

@@ -10,24 +10,24 @@ class ZZIso(AnalysisFlowBase):
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(ZZIso, self).makeAnalysisStep(stepName, **inputs)
 
-        if stepName == 'embedding':
+        if stepName == "embedding":
             leptonIsoEmbedding = cms.EDProducer(
                 "PATLeptonIsoEmbedder",
-                electrons = step.getObjTag('e'),
-                muons = step.getObjTag('m'),
-                isoDecisionLabel = cms.string(self.getZZIsoLabel()),
-                isoValueLabel = cms.string(self.getZZIsoLabel().replace("Pass", "Val")),
-                fsrLabel = cms.string(self.getFSRLabel()),
-                rhoLabel = cms.string("rho_fastjet"),
-                eaLabel = cms.string("EffectiveArea"),
-                #In 2017 we moved to electron BDT that includes isolation. This is implemented in the framework by setting eIsoCut to a large number
+                electrons=step.getObjTag("e"),
+                muons=step.getObjTag("m"),
+                isoDecisionLabel=cms.string(self.getZZIsoLabel()),
+                isoValueLabel=cms.string(self.getZZIsoLabel().replace("Pass", "Val")),
+                fsrLabel=cms.string(self.getFSRLabel()),
+                rhoLabel=cms.string("rho_fastjet"),
+                eaLabel=cms.string("EffectiveArea"),
+                # In 2017 we moved to electron BDT that includes isolation. This is implemented in the framework by setting eIsoCut to a large number
                 # so that all electrons pass isolation
-                eIsoCut = cms.double(9999),
-                muIsoCut = cms.double(0.35),
+                eIsoCut=cms.double(9999),
+                muIsoCut=cms.double(0.35),
             )
-            step.addModule('leptonIsoEmbedding', leptonIsoEmbedding, 'e', 'm', e='electrons', m='muons')
+            step.addModule("leptonIsoEmbedding", leptonIsoEmbedding, "e", "m", e="electrons", m="muons")
 
         return step
 
     def getZZIsoLabel(self):
-        return 'ZZIsoPass'
+        return "ZZIsoPass"

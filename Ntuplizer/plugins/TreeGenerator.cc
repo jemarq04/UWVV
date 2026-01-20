@@ -8,7 +8,6 @@
 //                                                                         //
 /////////////////////////////////////////////////////////////////////////////
 
-
 //STL
 #include <memory>
 #include <type_traits>
@@ -35,22 +34,19 @@
 #include "UWVV/Ntuplizer/interface/TriggerBranches.h"
 #include "UWVV/DataFormats/interface/DressedGenParticle.h"
 
-
 using namespace uwvv;
 
-template<class T>
-class TreeGenerator : public edm::one::EDAnalyzer<edm::one::SharedResources>
-{
+template <class T>
+class TreeGenerator : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   // If this is a particle candidate, we can make branches directly from it
   // Otherwise, assume it specifies and composite candidate
-  typedef typename std::conditional<std::is_base_of<reco::Candidate, T>::value,
-                                    T, pat::CompositeCandidate>::type Cand;
+  typedef typename std::conditional<std::is_base_of<reco::Candidate, T>::value, T, pat::CompositeCandidate>::type Cand;
 
- public:
+public:
   explicit TreeGenerator(const edm::ParameterSet&);
-  virtual ~TreeGenerator() {;}
+  virtual ~TreeGenerator() { ; }
 
- private:
+private:
   virtual void analyze(edm::Event const& iEvent, edm::EventSetup const& iConfig) override;
 
   TTree* const makeTree() const;
@@ -67,44 +63,32 @@ class TreeGenerator : public edm::one::EDAnalyzer<edm::one::SharedResources>
   std::unique_ptr<TriggerBranches> triggerBranches;
 };
 
-
-template<class T>
-TreeGenerator<T>::TreeGenerator(const edm::ParameterSet& config) :
-  candToken(consumes<edm::View<Cand> >(config.getParameter<edm::InputTag>("src"))),
-  ntupleName(config.exists("ntupleName") ?
-             config.getParameter<std::string>("ntupleName") : "ntuple"),
-  tree(makeTree()),
-  evtInfo(consumesCollector(), config.getParameter<edm::ParameterSet>("eventParams"))
-{
+template <class T>
+TreeGenerator<T>::TreeGenerator(const edm::ParameterSet& config)
+    : candToken(consumes<edm::View<Cand> >(config.getParameter<edm::InputTag>("src"))),
+      ntupleName(config.exists("ntupleName") ? config.getParameter<std::string>("ntupleName") : "ntuple"),
+      tree(makeTree()),
+      evtInfo(consumesCollector(), config.getParameter<edm::ParameterSet>("eventParams")) {
   usesResource("TFileService");
 
   const edm::ParameterSet& branchParams = config.getParameter<edm::ParameterSet>("branches");
-  branches =
-    std::unique_ptr<BranchManager<T> >(new BranchManager<T>("", tree, branchParams));
+  branches = std::unique_ptr<BranchManager<T> >(new BranchManager<T>("", tree, branchParams));
 
   const edm::ParameterSet& triggers = config.getParameter<edm::ParameterSet>("triggers");
-  triggerBranches = std::unique_ptr<TriggerBranches>(new TriggerBranches(consumesCollector(),
-                                                                         triggers, tree));
+  triggerBranches = std::unique_ptr<TriggerBranches>(new TriggerBranches(consumesCollector(), triggers, tree));
   const edm::ParameterSet& filters = config.getParameter<edm::ParameterSet>("filters");
-  filterBranches = std::unique_ptr<TriggerBranches>(new TriggerBranches(consumesCollector(),
-                                                                         filters, tree));
+  filterBranches = std::unique_ptr<TriggerBranches>(new TriggerBranches(consumesCollector(), filters, tree));
 }
 
-
-template<class T>
-TTree* const TreeGenerator<T>::makeTree() const
-{
+template <class T>
+TTree* const TreeGenerator<T>::makeTree() const {
   edm::Service<TFileService> FS;
 
   return FS->make<TTree>(ntupleName.c_str(), ntupleName.c_str());
 }
 
-
-template<class T> void
-TreeGenerator<T>::analyze(const edm::Event &event,
-                          const edm::EventSetup &setup)
-{
-
+template <class T>
+void TreeGenerator<T>::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   edm::Handle<edm::View<Cand> > cands;
   event.getByToken(candToken, cands);
 
@@ -112,67 +96,44 @@ TreeGenerator<T>::analyze(const edm::Event &event,
   triggerBranches->setEvent(event);
   filterBranches->setEvent(event);
 
-  for(size_t i = 0; i < cands->size(); ++i)
-    {
-      branches->fill(cands->ptrAt(i), evtInfo);
-      triggerBranches->fill();
-      filterBranches->fill();
+  for (size_t i = 0; i < cands->size(); ++i) {
+    branches->fill(cands->ptrAt(i), evtInfo);
+    triggerBranches->fill();
+    filterBranches->fill();
 
-      tree->Fill();
-    }
+    tree->Fill();
+  }
 }
 
-
 typedef TreeGenerator<CompositeDaughter<CompositeDaughter<pat::Electron, pat::Electron>,
-                                        CompositeDaughter<pat::Electron, pat::Electron>
-                                        >
-                      > TreeGeneratorEEEE;
-typedef TreeGenerator<CompositeDaughter<CompositeDaughter<pat::Electron, pat::Electron>,
-                                        CompositeDaughter<pat::Muon, pat::Muon>
-                                        >
-                      > TreeGeneratorEEMuMu;
-typedef TreeGenerator<CompositeDaughter<CompositeDaughter<pat::Muon, pat::Muon>,
-                                        CompositeDaughter<pat::Muon, pat::Muon>
-                                        >
-                      > TreeGeneratorMuMuMuMu;
-typedef TreeGenerator<CompositeDaughter<CompositeDaughter<pat::Electron, pat::Electron>,
-                                        pat::Electron
-                                        >
-                      > TreeGeneratorEEE;
-typedef TreeGenerator<CompositeDaughter<CompositeDaughter<pat::Muon, pat::Muon>,
-                                        pat::Muon
-                                        >
-                      > TreeGeneratorMuMuMu;
-typedef TreeGenerator<CompositeDaughter<CompositeDaughter<pat::Electron, pat::Electron>,
-                                        pat::Muon
-                                        >
-                      > TreeGeneratorEEMu;
-typedef TreeGenerator<CompositeDaughter<CompositeDaughter<pat::Muon, pat::Muon>,
-                                        pat::Electron
-                                        >
-                      > TreeGeneratorEMuMu;
+                                        CompositeDaughter<pat::Electron, pat::Electron> > >
+    TreeGeneratorEEEE;
+typedef TreeGenerator<
+    CompositeDaughter<CompositeDaughter<pat::Electron, pat::Electron>, CompositeDaughter<pat::Muon, pat::Muon> > >
+    TreeGeneratorEEMuMu;
+typedef TreeGenerator<
+    CompositeDaughter<CompositeDaughter<pat::Muon, pat::Muon>, CompositeDaughter<pat::Muon, pat::Muon> > >
+    TreeGeneratorMuMuMuMu;
+typedef TreeGenerator<CompositeDaughter<CompositeDaughter<pat::Electron, pat::Electron>, pat::Electron> >
+    TreeGeneratorEEE;
+typedef TreeGenerator<CompositeDaughter<CompositeDaughter<pat::Muon, pat::Muon>, pat::Muon> > TreeGeneratorMuMuMu;
+typedef TreeGenerator<CompositeDaughter<CompositeDaughter<pat::Electron, pat::Electron>, pat::Muon> > TreeGeneratorEEMu;
+typedef TreeGenerator<CompositeDaughter<CompositeDaughter<pat::Muon, pat::Muon>, pat::Electron> > TreeGeneratorEMuMu;
 typedef TreeGenerator<CompositeDaughter<pat::Electron, pat::Electron> > TreeGeneratorEE;
 typedef TreeGenerator<CompositeDaughter<pat::Muon, pat::Muon> > TreeGeneratorMuMu;
 typedef TreeGenerator<pat::Electron> TreeGeneratorE;
 typedef TreeGenerator<pat::Muon> TreeGeneratorMu;
 
 typedef TreeGenerator<CompositeDaughter<CompositeDaughter<reco::GenParticle, reco::GenParticle>,
-                                        CompositeDaughter<reco::GenParticle, reco::GenParticle>
-                                        >
-                      > GenTreeGeneratorZZ;
-typedef TreeGenerator<CompositeDaughter<CompositeDaughter<reco::GenParticle, reco::GenParticle>,
-                                        reco::GenParticle
-                                        >
-                      > GenTreeGeneratorWZ;
+                                        CompositeDaughter<reco::GenParticle, reco::GenParticle> > >
+    GenTreeGeneratorZZ;
+typedef TreeGenerator<CompositeDaughter<CompositeDaughter<reco::GenParticle, reco::GenParticle>, reco::GenParticle> >
+    GenTreeGeneratorWZ;
 typedef TreeGenerator<CompositeDaughter<CompositeDaughter<DressedGenParticle, DressedGenParticle>,
-                                        CompositeDaughter<DressedGenParticle, DressedGenParticle>
-                                        >
-                      > GenDressedTreeGeneratorZZ;
-typedef TreeGenerator<CompositeDaughter<CompositeDaughter<DressedGenParticle, DressedGenParticle>,
-                                        DressedGenParticle
-                                        >
-                      > GenDressedTreeGeneratorWZ;
-
+                                        CompositeDaughter<DressedGenParticle, DressedGenParticle> > >
+    GenDressedTreeGeneratorZZ;
+typedef TreeGenerator<CompositeDaughter<CompositeDaughter<DressedGenParticle, DressedGenParticle>, DressedGenParticle> >
+    GenDressedTreeGeneratorWZ;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

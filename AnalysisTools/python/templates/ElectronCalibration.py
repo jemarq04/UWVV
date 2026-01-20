@@ -6,26 +6,26 @@ import FWCore.ParameterSet.Config as cms
 
 class ElectronCalibration(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
-        if not hasattr(self, 'isMC'):
-            self.isMC = kwargs.pop('isMC', True)
-        if not hasattr(self, 'year'):
-            self.year = kwargs.pop('year', '2022')
-        if not hasattr(self, 'calibEra22'):
-            self.calibEra22 = kwargs.pop('calibEra22', 'preEE')
-        if not hasattr(self, 'calibEra23'):
-            self.calibEra23 = kwargs.pop('calibEra23', 'preBPix')
+        if not hasattr(self, "isMC"):
+            self.isMC = kwargs.pop("isMC", True)
+        if not hasattr(self, "year"):
+            self.year = kwargs.pop("year", "2022")
+        if not hasattr(self, "calibEra22"):
+            self.calibEra22 = kwargs.pop("calibEra22", "preEE")
+        if not hasattr(self, "calibEra23"):
+            self.calibEra23 = kwargs.pop("calibEra23", "preBPix")
         super(ElectronCalibration, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(ElectronCalibration, self).makeAnalysisStep(stepName, **inputs)
 
-        if stepName == 'preliminary':
-            if not hasattr(self.process, 'RandomNumberGeneratorService'):
+        if stepName == "preliminary":
+            if not hasattr(self.process, "RandomNumberGeneratorService"):
                 self.process.RandomNumberGeneratorService = cms.Service(
-                    'RandomNumberGeneratorService',
+                    "RandomNumberGeneratorService",
                 )
 
-            #For Run3: https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun3
+            # For Run3: https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun3
             from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq, _defaultEleIDModules
 
             # Embed MVAs and BDT scores
@@ -34,29 +34,27 @@ class ElectronCalibration(AnalysisFlowBase):
                 "RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer18UL_ID_ISO_cff",
                 "RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff",
             ]
-            setupEgammaPostRecoSeq(self.process,
+            setupEgammaPostRecoSeq(
+                self.process,
                 runEnergyCorrections=False,
                 runVID=True,
                 era="2022-Prompt",
                 eleIDModules=eleIDModules,
             )
-            step.addModule('egammaPostRecoSeq',self.process.egammaPostRecoSeq)
+            step.addModule("egammaPostRecoSeq", self.process.egammaPostRecoSeq)
 
             if not self.isMC:
                 # Produce and embed seed gain into electrons
-                seedGainEle = cms.EDProducer(
-                    "ElectronSeedGainProducer",
-                    src = step.getObjTag('e')
-                )
+                seedGainEle = cms.EDProducer("ElectronSeedGainProducer", src=step.getObjTag("e"))
                 step.addModule("seedGainEle", seedGainEle)
 
                 embedSeedGain = cms.EDProducer(
                     "PATElectronValueMapEmbedder",
-                    src = step.getObjTag('e'),
-                    intLabels = cms.untracked.vstring("seedGain"),
-                    intVals = cms.untracked.VInputTag("seedGainEle")
+                    src=step.getObjTag("e"),
+                    intLabels=cms.untracked.vstring("seedGain"),
+                    intVals=cms.untracked.VInputTag("seedGainEle"),
                 )
-                step.addModule("seedGainEmbedding", embedSeedGain, 'e')
+                step.addModule("seedGainEmbedding", embedSeedGain, "e")
 
             # Setup/configuration
             yearstring = self.year
@@ -71,20 +69,20 @@ class ElectronCalibration(AnalysisFlowBase):
             # Electron corrections
             eCorr = cms.EDProducer(
                 "PATElectronCorrector",
-                src = step.getObjTag('e'),
-                scaleFile = cms.string(scaleFile),
-                isMC = cms.bool(self.isMC),
-                seedGainLabel = cms.string("seedGain"),
-                minPt = cms.double(3.), # essentially disabling minimum pt threshold
+                src=step.getObjTag("e"),
+                scaleFile=cms.string(scaleFile),
+                isMC=cms.bool(self.isMC),
+                seedGainLabel=cms.string("seedGain"),
+                minPt=cms.double(3.0),  # essentially disabling minimum pt threshold
             )
-            step.addModule("calibratedPatElectrons", eCorr, 'e')
+            step.addModule("calibratedPatElectrons", eCorr, "e")
 
             # need to re-sort now that we're calibrated
             eSort = cms.EDProducer(
                 "PATElectronCollectionSorter",
-                src = step.getObjTag('e'),
-                function = cms.string('pt'),
+                src=step.getObjTag("e"),
+                function=cms.string("pt"),
             )
-            step.addModule('electronSorting', eSort, 'e')
+            step.addModule("electronSorting", eSort, "e")
 
         return step

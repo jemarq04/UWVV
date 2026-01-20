@@ -9,7 +9,6 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-
 // system includes
 #include <memory>
 #include <vector>
@@ -32,67 +31,56 @@
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/Utilities/interface/transform.h"
 
-
-namespace
-{
-  template<class T, typename VF, typename CF>
-  std::function<bool(const T&,const T&)>
-  makeComparator(const VF& valueFunction, const CF& comparisonFunction)
-  {
-    return std::function<bool(const T&,const T&)>([&valueFunction,comparisonFunction](const T& t1, const T& t2)
-                                                  {
-                                                    return comparisonFunction(valueFunction(t1),valueFunction(t2));
-                                                  });
+namespace {
+  template <class T, typename VF, typename CF>
+  std::function<bool(const T&, const T&)> makeComparator(const VF& valueFunction, const CF& comparisonFunction) {
+    return std::function<bool(const T&, const T&)>([&valueFunction, comparisonFunction](const T& t1, const T& t2) {
+      return comparisonFunction(valueFunction(t1), valueFunction(t2));
+    });
   }
+};  // namespace
+
+template <class T>
+class PATObjectCollectionSorter : public edm::stream::EDProducer<> {
+public:
+  explicit PATObjectCollectionSorter(const edm::ParameterSet& iConfig);
+  virtual ~PATObjectCollectionSorter() { ; }
+
+private:
+  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+
+  const edm::EDGetTokenT<edm::View<T> > srcToken_;
+  const StringObjectFunction<T, true> fun_;
+  const bool ascending_;
+  const std::function<bool(const T&, const T&)> comp_;
 };
 
-template<class T>
-class PATObjectCollectionSorter : public edm::stream::EDProducer<>
-{
-  public:
-    explicit PATObjectCollectionSorter(const edm::ParameterSet& iConfig);
-    virtual ~PATObjectCollectionSorter() {;}
-
-  private:
-    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
-
-    const edm::EDGetTokenT<edm::View<T> > srcToken_;
-    const StringObjectFunction<T,true> fun_;
-    const bool ascending_;
-    const std::function<bool(const T&,const T&)> comp_;
-};
-
-
-template<class T>
-PATObjectCollectionSorter<T>::PATObjectCollectionSorter(const edm::ParameterSet& iConfig) :
-  srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
-  fun_(iConfig.getParameter<std::string>("function")),
-  ascending_(iConfig.getUntrackedParameter<bool>("ascending", false)),
-  comp_(ascending_ ?
-        std::function<bool(const T&,const T&)>([&](const T& t1, const T& t2){return fun_(t1) < fun_(t2);}) :
-        std::function<bool(const T&,const T&)>([&](const T& t1, const T& t2){return fun_(t1) > fun_(t2);}))
-{
+template <class T>
+PATObjectCollectionSorter<T>::PATObjectCollectionSorter(const edm::ParameterSet& iConfig)
+    : srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
+      fun_(iConfig.getParameter<std::string>("function")),
+      ascending_(iConfig.getUntrackedParameter<bool>("ascending", false)),
+      comp_(ascending_
+                ? std::function<bool(const T&, const T&)>([&](const T& t1, const T& t2) { return fun_(t1) < fun_(t2); })
+                : std::function<bool(const T&, const T&)>(
+                      [&](const T& t1, const T& t2) { return fun_(t1) > fun_(t2); })) {
   produces<std::vector<T> >();
 }
 
-
-template<class T>
-void PATObjectCollectionSorter<T>::produce(edm::Event& iEvent,
-                                           const edm::EventSetup& iSetup)
-{
+template <class T>
+void PATObjectCollectionSorter<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<T> > in;
   iEvent.getByToken(srcToken_, in);
 
   std::unique_ptr<std::vector<T> > out = std::make_unique<std::vector<T> >();
 
-  for(size_t i = 0; i < in->size(); ++i)
+  for (size_t i = 0; i < in->size(); ++i)
     out->push_back(in->at(i));
 
   std::sort(out->begin(), out->end(), comp_);
 
   iEvent.put(std::move(out));
 }
-
 
 typedef PATObjectCollectionSorter<pat::Electron> PATElectronCollectionSorter;
 typedef PATObjectCollectionSorter<pat::Muon> PATMuonCollectionSorter;

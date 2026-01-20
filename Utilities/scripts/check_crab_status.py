@@ -3,8 +3,8 @@ import subprocess
 import os
 import argparse
 
-#=======================================
-DESC='''
+# =======================================
+DESC = """
 Usage:
 Move all project folders into one folder, copy this script into the folder, initialize proxy and run it.
 It will run "crab status -d" for all the project folders, put printouts in "output_crab_status_data" folder, and parse the printouts to write a summary file
@@ -16,8 +16,8 @@ Then if some jobs fail in some datasets, it will create a resubmission script fo
 After Checking from the status summary file that no job is in transition or still running (and other aspects), the script can be run.
 
 The new out folder and file/script will be named with 0,1,2 each time this python script is run
-'''
-#=======================================
+"""
+# =======================================
 parser = argparse.ArgumentParser(description=DESC, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--report", action="store_true", help="if provided, also run 'crab report'")
 parser.add_argument("--noprocessing", action="store_true", help="if provided, skip processing")
@@ -58,44 +58,49 @@ if not args.noprocessing:
             code2 = subprocess.call([command2], shell=True)
 
         if code == 0:
-            count +=1
+            count += 1
             print("Processed %s folders" % count)
         else:
             print("Error in %s" % folder)
 
-        if os.path.exists(os.path.join(folder,"results","notFinishedLumis.json")):
-            print("==========WARNING: %s has not-yet-processed lumi=========="%folder)
+        if os.path.exists(os.path.join(folder, "results", "notFinishedLumis.json")):
+            print("==========WARNING: %s has not-yet-processed lumi==========" % folder)
 
 if not args.nowriting:
     with open(args.outname, "w") as fout:
         for entry in crablist:
-            fname = os.path.join(args.outdir,entry+".txt")
+            fname = os.path.join(args.outdir, entry + ".txt")
             if not os.path.isfile(fname):
                 print("Cannot find status file '%s'" % fname)
                 continue
             with open(fname, "r") as status:
-                linecount=0
+                linecount = 0
                 record = False
                 for line in status:
                     if not record:
-                        if 'Jobs status:' in line:
+                        if "Jobs status:" in line:
                             record = True
                             fout.write("%s:\n" % entry)
                         continue
 
                     if linecount < 3:
-                        if "No publication information (publication has been disabled in the CRAB configuration file)" not in line:
+                        if (
+                            "No publication information (publication has been disabled in the CRAB configuration file)"
+                            not in line
+                        ):
                             fout.write(line)
                         linecount += 1
                     else:
                         fout.write("\n")
                         break
                 else:
-                    fout.write('\nSomething wrong with %s\n\n' % entry)
+                    fout.write("\nSomething wrong with %s\n\n" % entry)
     print("Info output saved as %s" % args.outname)
 
 if not args.noresubmit:
-    print("Writing resubmit script. Before running resubmission please check status txt to make sure no job is still running or in transition")
+    print(
+        "Writing resubmit script. Before running resubmission please check status txt to make sure no job is still running or in transition"
+    )
     if not os.path.isfile(args.outname):
         print("Cannot find output file '%s'" % args.outname)
     else:

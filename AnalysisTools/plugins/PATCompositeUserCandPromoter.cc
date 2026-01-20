@@ -10,7 +10,6 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-
 // system includes
 #include <memory>
 #include <vector>
@@ -27,32 +26,25 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
 
-
 typedef reco::Candidate Cand;
 typedef edm::Ptr<Cand> CandPtr;
 typedef pat::CompositeCandidate CCand;
 typedef edm::Ptr<CCand> CCandPtr;
 
-namespace
-{
+namespace {
 
-  template<class T>
-  CandPtr getUserCand(const T& cand,
-                      const std::string& label)
-  {
-    if(cand.hasUserCand(label))
+  template <class T>
+  CandPtr getUserCand(const T& cand, const std::string& label) {
+    if (cand.hasUserCand(label))
       return cand.userCand(label);
 
     return CandPtr(NULL, 0);
   }
 
-}
+}  // namespace
 
-
-template<class T1, class T2>
-class PATCompositeUserCandPromoter : public edm::stream::EDProducer<>
-{
-
+template <class T1, class T2>
+class PATCompositeUserCandPromoter : public edm::stream::EDProducer<> {
 public:
   explicit PATCompositeUserCandPromoter(const edm::ParameterSet& iConfig);
   virtual ~PATCompositeUserCandPromoter() {};
@@ -64,27 +56,21 @@ private:
   const std::string label;
 };
 
-
-template<class T1, class T2>
-PATCompositeUserCandPromoter<T1,T2>::PATCompositeUserCandPromoter(const edm::ParameterSet& iConfig) :
-  srcToken(consumes<edm::View<CCand> >(iConfig.getParameter<edm::InputTag>("src"))),
-  label(iConfig.getParameter<std::string>("label"))
-{
+template <class T1, class T2>
+PATCompositeUserCandPromoter<T1, T2>::PATCompositeUserCandPromoter(const edm::ParameterSet& iConfig)
+    : srcToken(consumes<edm::View<CCand> >(iConfig.getParameter<edm::InputTag>("src"))),
+      label(iConfig.getParameter<std::string>("label")) {
   produces<std::vector<CCand> >();
 }
 
-
-template<class T1, class T2>
-void PATCompositeUserCandPromoter<T1,T2>::produce(edm::Event& iEvent,
-                                                  const edm::EventSetup& iSetup)
-{
+template <class T1, class T2>
+void PATCompositeUserCandPromoter<T1, T2>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<CCand> > in;
   std::unique_ptr<std::vector<CCand> > out(new std::vector<CCand>);
 
   iEvent.getByToken(srcToken, in);
 
-  for(size_t i = 0; i < in->size(); ++i)
-  {
+  for (size_t i = 0; i < in->size(); ++i) {
     out->push_back(in->at(i));
     CCand& c = out->back();
 
@@ -95,25 +81,22 @@ void PATCompositeUserCandPromoter<T1,T2>::produce(edm::Event& iEvent,
 
     size_t nFSR = 0;
 
-    if(fsr1.isNonnull())
-    {
+    if (fsr1.isNonnull()) {
       c.setP4(c.p4() + fsr1->p4());
       c.addDaughter(*fsr1, label + std::to_string(nFSR));
       nFSR++;
     }
-    if(fsr2.isNonnull())
-    {
+    if (fsr2.isNonnull()) {
       c.setP4(c.p4() + fsr2->p4());
       c.addDaughter(*fsr2, label + std::to_string(nFSR));
       nFSR++;
     }
 
-    c.addUserInt("n"+label+"Cands", nFSR);
+    c.addUserInt("n" + label + "Cands", nFSR);
   }
 
   iEvent.put(std::move(out));
 }
-
 
 typedef PATCompositeUserCandPromoter<pat::Electron, pat::Electron> PATElectronCompositeUserCandPromoter;
 typedef PATCompositeUserCandPromoter<pat::Muon, pat::Muon> PATMuonCompositeUserCandPromoter;

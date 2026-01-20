@@ -9,7 +9,6 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-
 // system includes
 #include <memory>
 #include <vector>
@@ -31,115 +30,95 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
+template <class T>
+class PATObjectValueEmbedder : public edm::stream::EDProducer<> {
+public:
+  explicit PATObjectValueEmbedder(const edm::ParameterSet& iConfig);
+  virtual ~PATObjectValueEmbedder() {};
 
-template<class T>
-class PATObjectValueEmbedder : public edm::stream::EDProducer<>
-{
-  public:
-    explicit PATObjectValueEmbedder(const edm::ParameterSet& iConfig);
-    virtual ~PATObjectValueEmbedder() {};
+private:
+  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  private:
-    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void embedValue(T& object, const int value, const std::string& label) const;
+  void embedValue(T& object, const bool value, const std::string& label) const;
+  void embedValue(T& object, const double value, const std::string& label) const;
+  void embedValue(T& object, const float value, const std::string& label) const;
+  template <typename V>
+  void embedAll(std::vector<T>& objects, const std::vector<V>& values, const std::vector<std::string>& labels) const;
 
-    void embedValue(T& object, const int value, const std::string& label) const;
-    void embedValue(T& object, const bool value, const std::string& label) const;
-    void embedValue(T& object, const double value, const std::string& label) const;
-    void embedValue(T& object, const float value, const std::string& label) const;
-    template<typename V>
-    void embedAll(std::vector<T>& objects, const std::vector<V>& values,
-          const std::vector<std::string>& labels) const;
+  template <typename V>
+  void retrieveValues(std::vector<V>& toFill,
+                      const std::vector<edm::EDGetTokenT<V> >& tokens,
+                      const edm::Event& iEvent) const;
 
-    template<typename V>
-    void retrieveValues(std::vector<V>& toFill,
-          const std::vector<edm::EDGetTokenT<V> >& tokens,
-          const edm::Event& iEvent) const;
-
-    const edm::EDGetTokenT<edm::View<T> > srcToken_;
-    const std::vector<edm::EDGetTokenT<int> > intTokens_;
-    const std::vector<edm::EDGetTokenT<bool> > boolTokens_;
-    const std::vector<edm::EDGetTokenT<double> > doubleTokens_;
-    const std::vector<edm::EDGetTokenT<float> > floatTokens_;
-    const std::vector<std::string> intLabels_;
-    const std::vector<std::string> boolLabels_;
-    const std::vector<std::string> doubleLabels_;
-    const std::vector<std::string> floatLabels_;
-
+  const edm::EDGetTokenT<edm::View<T> > srcToken_;
+  const std::vector<edm::EDGetTokenT<int> > intTokens_;
+  const std::vector<edm::EDGetTokenT<bool> > boolTokens_;
+  const std::vector<edm::EDGetTokenT<double> > doubleTokens_;
+  const std::vector<edm::EDGetTokenT<float> > floatTokens_;
+  const std::vector<std::string> intLabels_;
+  const std::vector<std::string> boolLabels_;
+  const std::vector<std::string> doubleLabels_;
+  const std::vector<std::string> floatLabels_;
 };
 
-
-template<class T>
-PATObjectValueEmbedder<T>::PATObjectValueEmbedder(const edm::ParameterSet& iConfig) :
-  srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
-  intTokens_(edm::vector_transform(iConfig.exists("intSrc") ?
-      iConfig.getParameter<std::vector<edm::InputTag> >("intSrc") :
-      std::vector<edm::InputTag>(),
-      [this](edm::InputTag const& tag){return consumes<int>(tag);})),
-  boolTokens_(edm::vector_transform(iConfig.exists("boolSrc") ?
-      iConfig.getParameter<std::vector<edm::InputTag> >("boolSrc") :
-      std::vector<edm::InputTag>(),
-      [this](edm::InputTag const& tag){return consumes<bool>(tag);})),
-  doubleTokens_(edm::vector_transform(iConfig.exists("doubleSrc") ?
-      iConfig.getParameter<std::vector<edm::InputTag> >("doubleSrc") :
-      std::vector<edm::InputTag>(),
-      [this](edm::InputTag const& tag){return consumes<double>(tag);})),
-  floatTokens_(edm::vector_transform(iConfig.exists("floatSrc") ?
-      iConfig.getParameter<std::vector<edm::InputTag> >("floatSrc") :
-      std::vector<edm::InputTag>(),
-      [this](edm::InputTag const& tag){return consumes<float>(tag);})),
-  intLabels_(iConfig.exists("intLabels") ?
-      iConfig.getParameter<std::vector<std::string> >("intLabels") :
-      std::vector<std::string>()),
-  boolLabels_(iConfig.exists("boolLabels") ?
-      iConfig.getParameter<std::vector<std::string> >("boolLabels") :
-      std::vector<std::string>()),
-  doubleLabels_(iConfig.exists("doubleLabels") ?
-      iConfig.getParameter<std::vector<std::string> >("doubleLabels") :
-      std::vector<std::string>()),
-  floatLabels_(iConfig.exists("floatLabels") ?
-      iConfig.getParameter<std::vector<std::string> >("floatLabels") :
-      std::vector<std::string>())
-{
+template <class T>
+PATObjectValueEmbedder<T>::PATObjectValueEmbedder(const edm::ParameterSet& iConfig)
+    : srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
+      intTokens_(edm::vector_transform(iConfig.exists("intSrc")
+                                           ? iConfig.getParameter<std::vector<edm::InputTag> >("intSrc")
+                                           : std::vector<edm::InputTag>(),
+                                       [this](edm::InputTag const& tag) { return consumes<int>(tag); })),
+      boolTokens_(edm::vector_transform(iConfig.exists("boolSrc")
+                                            ? iConfig.getParameter<std::vector<edm::InputTag> >("boolSrc")
+                                            : std::vector<edm::InputTag>(),
+                                        [this](edm::InputTag const& tag) { return consumes<bool>(tag); })),
+      doubleTokens_(edm::vector_transform(iConfig.exists("doubleSrc")
+                                              ? iConfig.getParameter<std::vector<edm::InputTag> >("doubleSrc")
+                                              : std::vector<edm::InputTag>(),
+                                          [this](edm::InputTag const& tag) { return consumes<double>(tag); })),
+      floatTokens_(edm::vector_transform(iConfig.exists("floatSrc")
+                                             ? iConfig.getParameter<std::vector<edm::InputTag> >("floatSrc")
+                                             : std::vector<edm::InputTag>(),
+                                         [this](edm::InputTag const& tag) { return consumes<float>(tag); })),
+      intLabels_(iConfig.exists("intLabels") ? iConfig.getParameter<std::vector<std::string> >("intLabels")
+                                             : std::vector<std::string>()),
+      boolLabels_(iConfig.exists("boolLabels") ? iConfig.getParameter<std::vector<std::string> >("boolLabels")
+                                               : std::vector<std::string>()),
+      doubleLabels_(iConfig.exists("doubleLabels") ? iConfig.getParameter<std::vector<std::string> >("doubleLabels")
+                                                   : std::vector<std::string>()),
+      floatLabels_(iConfig.exists("floatLabels") ? iConfig.getParameter<std::vector<std::string> >("floatLabels")
+                                                 : std::vector<std::string>()) {
   produces<std::vector<T> >();
 
   if (intTokens_.size() != intLabels_.size())
-    throw cms::Exception("InvalidParams")
-      << "You must supply exactly one label for each int you want to embed"
-      << "Given: intLabels_.size() == " << intLabels_.size()
-      << "; intTokens_.size() == " << intTokens_.size()
-      << std::endl;
+    throw cms::Exception("InvalidParams") << "You must supply exactly one label for each int you want to embed"
+                                          << "Given: intLabels_.size() == " << intLabels_.size()
+                                          << "; intTokens_.size() == " << intTokens_.size() << std::endl;
 
   if (boolTokens_.size() != boolLabels_.size())
-    throw cms::Exception("InvalidParams")
-      << "You must supply exactly one label for each bool you want to embed"
-      << "Given: boolLabels_.size() == " << boolLabels_.size()
-      << "; boolTokens_.size() == " << boolTokens_.size()
-      << std::endl;
+    throw cms::Exception("InvalidParams") << "You must supply exactly one label for each bool you want to embed"
+                                          << "Given: boolLabels_.size() == " << boolLabels_.size()
+                                          << "; boolTokens_.size() == " << boolTokens_.size() << std::endl;
 
   if (doubleTokens_.size() != doubleLabels_.size())
-    throw cms::Exception("InvalidParams")
-      << "You must supply exactly one label for each double you want to embed"
-      << "Given: doubleLabels_.size() == " << doubleLabels_.size()
-      << "; doubleTokens_.size() == " << doubleTokens_.size()
-      << std::endl;
+    throw cms::Exception("InvalidParams") << "You must supply exactly one label for each double you want to embed"
+                                          << "Given: doubleLabels_.size() == " << doubleLabels_.size()
+                                          << "; doubleTokens_.size() == " << doubleTokens_.size() << std::endl;
 
   if (floatTokens_.size() != floatLabels_.size())
-    throw cms::Exception("InvalidParams")
-      << "You must supply exactly one label for each float you want to embed"
-      << "Given: floatLabels_.size() == " << floatLabels_.size()
-      << "; floatTokens_.size() == " << floatTokens_.size()
-      << std::endl;
+    throw cms::Exception("InvalidParams") << "You must supply exactly one label for each float you want to embed"
+                                          << "Given: floatLabels_.size() == " << floatLabels_.size()
+                                          << "; floatTokens_.size() == " << floatTokens_.size() << std::endl;
 }
 
-
-template<class T>
-void PATObjectValueEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+template <class T>
+void PATObjectValueEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<T> > in;
   iEvent.getByToken(srcToken_, in);
 
   std::unique_ptr<std::vector<T> > out(new std::vector<T>);
-  for(size_t i = 0; i < in->size(); ++i)
+  for (size_t i = 0; i < in->size(); ++i)
     out->push_back(in->at(i));
 
   std::vector<int> ints;
@@ -161,54 +140,45 @@ void PATObjectValueEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetu
   iEvent.put(std::move(out));
 }
 
-template<class T>
-void PATObjectValueEmbedder<T>::embedValue(T& object,
-    const int value, const std::string& label) const
-{
-    object.addUserInt(label, value);
+template <class T>
+void PATObjectValueEmbedder<T>::embedValue(T& object, const int value, const std::string& label) const {
+  object.addUserInt(label, value);
 }
 
-template<class T>
-void PATObjectValueEmbedder<T>::embedValue(T& object,
-    const bool value, const std::string& label) const
-{
-    object.addUserFloat(label, value);
+template <class T>
+void PATObjectValueEmbedder<T>::embedValue(T& object, const bool value, const std::string& label) const {
+  object.addUserFloat(label, value);
 }
 
-template<class T>
-void PATObjectValueEmbedder<T>::embedValue(T& object,
-    const double value, const std::string& label) const
-{
-    object.addUserFloat(label, value);
+template <class T>
+void PATObjectValueEmbedder<T>::embedValue(T& object, const double value, const std::string& label) const {
+  object.addUserFloat(label, value);
 }
 
-template<class T>
-void PATObjectValueEmbedder<T>::embedValue(T& object,
-    const float value, const std::string& label) const
-{
-    object.addUserFloat(label, value);
+template <class T>
+void PATObjectValueEmbedder<T>::embedValue(T& object, const float value, const std::string& label) const {
+  object.addUserFloat(label, value);
 }
 
-template<class T>
-template<typename V>
+template <class T>
+template <typename V>
 void PATObjectValueEmbedder<T>::retrieveValues(std::vector<V>& toFill,
-    const std::vector<edm::EDGetTokenT<V> >& tokens, const edm::Event& iEvent) const
-{
+                                               const std::vector<edm::EDGetTokenT<V> >& tokens,
+                                               const edm::Event& iEvent) const {
   toFill.clear();
 
-  for(auto& t : tokens)
-  {
+  for (auto& t : tokens) {
     edm::Handle<V> h;
     iEvent.getByToken(t, h);
     toFill.push_back(*h);
   }
 }
 
-template<class T>
-template<typename V>
+template <class T>
+template <typename V>
 void PATObjectValueEmbedder<T>::embedAll(std::vector<T>& objects,
-    const std::vector<V>& values, const std::vector<std::string>& labels) const
-{
+                                         const std::vector<V>& values,
+                                         const std::vector<std::string>& labels) const {
   for (auto& obj : objects)
     for (size_t i = 0; i < values.size(); ++i)
       embedValue(obj, values.at(i), labels.at(i));

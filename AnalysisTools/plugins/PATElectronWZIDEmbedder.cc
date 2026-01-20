@@ -29,27 +29,26 @@ typedef edm::View<Electron> ElectronView;
 using reco::Vertex;
 typedef edm::View<Vertex> VertexView;
 
-class PATElectronWZIDEmbedder : public edm::stream::EDProducer<>
-{
-  public:
-    PATElectronWZIDEmbedder(const edm::ParameterSet& iConfig);
-    virtual ~PATElectronWZIDEmbedder(){}
+class PATElectronWZIDEmbedder : public edm::stream::EDProducer<> {
+public:
+  PATElectronWZIDEmbedder(const edm::ParameterSet& iConfig);
+  virtual ~PATElectronWZIDEmbedder() {}
 
-  private:
-    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+private:
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-    const edm::EDGetTokenT<ElectronView> srcToken_;
-    const edm::EDGetTokenT<VertexView> vertexToken_;
-    std::vector<std::string> pogIDNames_;
+  const edm::EDGetTokenT<ElectronView> srcToken_;
+  const edm::EDGetTokenT<VertexView> vertexToken_;
+  std::vector<std::string> pogIDNames_;
 };
 
-PATElectronWZIDEmbedder::PATElectronWZIDEmbedder(const edm::ParameterSet& iConfig):
-  srcToken_(consumes<ElectronView>(iConfig.getParameter<edm::InputTag>("src"))),
-  vertexToken_(consumes<VertexView>(iConfig.getParameter<edm::InputTag>("vertexSrc"))),
-  pogIDNames_(iConfig.getUntrackedParameter<std::vector<std::string>>("pogIDs",
-        std::vector<std::string>({"IsCBVIDTight", "IsCBVIDMedium",
-      "IsCBVIDLoose", "IsCBVIDVeto", "IsCBVIDHLTSafe"})))
-{
+PATElectronWZIDEmbedder::PATElectronWZIDEmbedder(const edm::ParameterSet& iConfig)
+    : srcToken_(consumes<ElectronView>(iConfig.getParameter<edm::InputTag>("src"))),
+      vertexToken_(consumes<VertexView>(iConfig.getParameter<edm::InputTag>("vertexSrc"))),
+      pogIDNames_(iConfig.getUntrackedParameter<std::vector<std::string>>(
+          "pogIDs",
+          std::vector<std::string>(
+              {"IsCBVIDTight", "IsCBVIDMedium", "IsCBVIDLoose", "IsCBVIDVeto", "IsCBVIDHLTSafe"}))) {
   produces<ElectronCollection>();
 }
 
@@ -64,8 +63,7 @@ void PATElectronWZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup&
 
   std::unique_ptr<ElectronCollection> out(new ElectronCollection());
 
-  for (size_t i = 0; i < in->size(); ++i)
-  {
+  for (size_t i = 0; i < in->size(); ++i) {
     out->push_back(in->at(i));
     Electron& electron = out->back();
 
@@ -74,7 +72,7 @@ void PATElectronWZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup&
     double dPhiIn = std::abs(electron.deltaPhiSuperClusterTrackAtVtx());
     double sigmaIEtaIEta = electron.sigmaIetaIeta();
     double hOverE = electron.hcalOverEcal();
-    double oneOverEMinusOneOverP = abs((1.-electron.eSuperClusterOverP())*1./electron.ecalEnergy());
+    double oneOverEMinusOneOverP = abs((1. - electron.eSuperClusterOverP()) * 1. / electron.ecalEnergy());
     double ecalPFClusterIso = electron.ecalPFClusterIso();
     double hcalPFClusterIso = electron.hcalPFClusterIso();
     double trackIso = electron.dr03TkSumPt();
@@ -95,11 +93,11 @@ void PATElectronWZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup&
         passLoose = false;
       if (!(oneOverEMinusOneOverP < 0.01))
         passLoose = false;
-      if (!(ecalPFClusterIso/pt < 0.45))
+      if (!(ecalPFClusterIso / pt < 0.45))
         passLoose = false;
-      if (!(hcalPFClusterIso/pt < 0.25))
+      if (!(hcalPFClusterIso / pt < 0.25))
         passLoose = false;
-      if (!(trackIso/pt < 0.2))
+      if (!(trackIso / pt < 0.2))
         passLoose = false;
       if (!(missingHits <= 2))
         passLoose = false;
@@ -109,8 +107,7 @@ void PATElectronWZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup&
         passLoose = false;
       if (!passConversionVeto)
         passLoose = false;
-    }
-    else if (electron.isEE()) {
+    } else if (electron.isEE()) {
       if (!(dEtaIn < 0.01))
         passLoose = false;
       if (!(dPhiIn < 0.08))
@@ -121,11 +118,11 @@ void PATElectronWZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup&
         passLoose = false;
       if (!(oneOverEMinusOneOverP < 0.01))
         passLoose = false;
-      if (!(ecalPFClusterIso/pt < 0.45))
+      if (!(ecalPFClusterIso / pt < 0.45))
         passLoose = false;
-      if (!(hcalPFClusterIso/pt < 0.25))
+      if (!(hcalPFClusterIso / pt < 0.25))
         passLoose = false;
-      if (!(trackIso/pt < 0.2))
+      if (!(trackIso / pt < 0.2))
         passLoose = false;
       if (!(missingHits <= 1))
         passLoose = false;
@@ -135,17 +132,17 @@ void PATElectronWZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup&
         passLoose = false;
       if (!passConversionVeto)
         passLoose = false;
-    }
-    else
+    } else
       passLoose = false;
 
     electron.addUserInt("IsWWLoose", passLoose);
-    for (auto& id : pogIDNames_){
-        if (!electron.hasUserFloat(id.c_str())) continue;
-        bool passesDXY = electron.isEB() ? dxy < 0.05 : dxy < 0.1;
-        bool passesDZ = electron.isEB() ? dz < 0.1 : dz < 0.2;
-        bool passesAll = electron.userFloat(id.c_str()) && passesDXY && passesDZ;
-        electron.addUserFloat(id+"wIP", passesAll);
+    for (auto& id : pogIDNames_) {
+      if (!electron.hasUserFloat(id.c_str()))
+        continue;
+      bool passesDXY = electron.isEB() ? dxy < 0.05 : dxy < 0.1;
+      bool passesDZ = electron.isEB() ? dz < 0.1 : dz < 0.2;
+      bool passesAll = electron.userFloat(id.c_str()) && passesDXY && passesDZ;
+      electron.addUserFloat(id + "wIP", passesAll);
     }
   }
 

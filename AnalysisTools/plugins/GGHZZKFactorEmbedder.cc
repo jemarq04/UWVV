@@ -10,7 +10,6 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-
 // system includes
 #include <memory>
 #include <vector>
@@ -36,16 +35,13 @@
 
 typedef pat::CompositeCandidate CCand;
 
-
-template<class T12, class T34>
-class GGHZZKFactorEmbedder : public edm::stream::EDProducer<>
-{
-
- public:
+template <class T12, class T34>
+class GGHZZKFactorEmbedder : public edm::stream::EDProducer<> {
+public:
   explicit GGHZZKFactorEmbedder(const edm::ParameterSet& iConfig);
   virtual ~GGHZZKFactorEmbedder() {};
 
- private:
+private:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   const edm::EDGetTokenT<edm::View<CCand> > srcToken;
@@ -58,59 +54,49 @@ class GGHZZKFactorEmbedder : public edm::stream::EDProducer<>
   float getGenMass(const CCand& cand) const;
 };
 
-
-template<class T12, class T34>
-GGHZZKFactorEmbedder<T12,T34>::GGHZZKFactorEmbedder(const edm::ParameterSet& iConfig) :
-  srcToken(consumes<edm::View<CCand> >(iConfig.getParameter<edm::InputTag>("src"))),
-  file(new TFile(iConfig.getParameter<std::string>("fileName").c_str())),
-  splines(getSplines())
-{
-  if(file->IsZombie())
-    throw cms::Exception("InvalidFile")
-      << "Scale factor file "<< iConfig.getParameter<std::string>("fileName")
-      << " does not exist!" << std::endl;
+template <class T12, class T34>
+GGHZZKFactorEmbedder<T12, T34>::GGHZZKFactorEmbedder(const edm::ParameterSet& iConfig)
+    : srcToken(consumes<edm::View<CCand> >(iConfig.getParameter<edm::InputTag>("src"))),
+      file(new TFile(iConfig.getParameter<std::string>("fileName").c_str())),
+      splines(getSplines()) {
+  if (file->IsZombie())
+    throw cms::Exception("InvalidFile") << "Scale factor file " << iConfig.getParameter<std::string>("fileName")
+                                        << " does not exist!" << std::endl;
 
   produces<std::vector<CCand> >();
 }
 
-
-template<class T12, class T34>
-void GGHZZKFactorEmbedder<T12,T34>::produce(edm::Event& iEvent,
-                                            const edm::EventSetup& iSetup)
-{
+template <class T12, class T34>
+void GGHZZKFactorEmbedder<T12, T34>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<CCand> > in;
   std::unique_ptr<std::vector<CCand> > out(new std::vector<CCand>);
 
   iEvent.getByToken(srcToken, in);
 
-  for(size_t i = 0; i < in->size(); ++i)
-    {
-      out->push_back(in->at(i));
+  for (size_t i = 0; i < in->size(); ++i) {
+    out->push_back(in->at(i));
 
-      CCand& cand = out->back(); // for convenience
+    CCand& cand = out->back();  // for convenience
 
-      float mGen = getGenMass(cand);
+    float mGen = getGenMass(cand);
 
-      for(auto& iSpl : splines)
-        {
-          float kFactor = 1.;
-          if(mGen > 0.)
-            kFactor = iSpl.second->Eval(mGen);
+    for (auto& iSpl : splines) {
+      float kFactor = 1.;
+      if (mGen > 0.)
+        kFactor = iSpl.second->Eval(mGen);
 
-          cand.addUserFloat(iSpl.first, kFactor);
-        }
+      cand.addUserFloat(iSpl.first, kFactor);
     }
+  }
 
   iEvent.put(std::move(out));
 }
 
-
-template<class T12, class T34>
-std::map<std::string, TSpline3*> GGHZZKFactorEmbedder<T12,T34>::getSplines() const
-{
+template <class T12, class T34>
+std::map<std::string, TSpline3*> GGHZZKFactorEmbedder<T12, T34>::getSplines() const {
   std::map<std::string, TSpline3*> out;
 
-  if(file->IsZombie() || !file->IsOpen())
+  if (file->IsZombie() || !file->IsOpen())
     return out;
 
   out["kFactor"] = (TSpline3*)file->Get("sp_kfactor_Nominal");
@@ -126,49 +112,38 @@ std::map<std::string, TSpline3*> GGHZZKFactorEmbedder<T12,T34>::getSplines() con
   return out;
 }
 
-
-template<class T12, class T34>
-float GGHZZKFactorEmbedder<T12,T34>::getGenMass(const CCand& cand) const
-{
-  if(cand.numberOfDaughters() < 2 ||
-     cand.daughter(0)->numberOfDaughters() < 2 ||
-     cand.daughter(1)->numberOfDaughters() < 2)
+template <class T12, class T34>
+float GGHZZKFactorEmbedder<T12, T34>::getGenMass(const CCand& cand) const {
+  if (cand.numberOfDaughters() < 2 || cand.daughter(0)->numberOfDaughters() < 2 ||
+      cand.daughter(1)->numberOfDaughters() < 2)
     return -1.;
 
-  math::XYZTLorentzVector genP4(0.,0.,0.,0.);
-  for(size_t iZ = 0; iZ < cand.numberOfDaughters(); ++iZ)
-    {
-      for(size_t iLep = 0;
-          iLep < cand.daughter(iZ)->numberOfDaughters();
-          ++iLep)
-        {
-          reco::GenParticleRef gen;
-          const reco::Candidate* uncasted = cand.daughter(iZ)->daughter(iLep);
-          if(iZ == 0)
-            {
-              const T12* p = static_cast<const T12*>(uncasted->masterClone().get());
-              gen = p->genParticleRef();
-            }
-          else
-            {
-              const T34* p = static_cast<const T34*>(uncasted->masterClone().get());
-              gen = p->genParticleRef();
-            }
+  math::XYZTLorentzVector genP4(0., 0., 0., 0.);
+  for (size_t iZ = 0; iZ < cand.numberOfDaughters(); ++iZ) {
+    for (size_t iLep = 0; iLep < cand.daughter(iZ)->numberOfDaughters(); ++iLep) {
+      reco::GenParticleRef gen;
+      const reco::Candidate* uncasted = cand.daughter(iZ)->daughter(iLep);
+      if (iZ == 0) {
+        const T12* p = static_cast<const T12*>(uncasted->masterClone().get());
+        gen = p->genParticleRef();
+      } else {
+        const T34* p = static_cast<const T34*>(uncasted->masterClone().get());
+        gen = p->genParticleRef();
+      }
 
-          if(gen.isNull())
-            return -1.;
+      if (gen.isNull())
+        return -1.;
 
-          genP4 += gen->p4();
-        }
+      genP4 += gen->p4();
     }
+  }
 
   return genP4.mass();
 }
 
-
-typedef GGHZZKFactorEmbedder<pat::Electron,pat::Electron> GGHZZKFactorEmbedderEEEE;
-typedef GGHZZKFactorEmbedder<pat::Electron,pat::Muon> GGHZZKFactorEmbedderEEMuMu;
-typedef GGHZZKFactorEmbedder<pat::Muon,pat::Muon> GGHZZKFactorEmbedderMuMuMuMu;
+typedef GGHZZKFactorEmbedder<pat::Electron, pat::Electron> GGHZZKFactorEmbedderEEEE;
+typedef GGHZZKFactorEmbedder<pat::Electron, pat::Muon> GGHZZKFactorEmbedderEEMuMu;
+typedef GGHZZKFactorEmbedder<pat::Muon, pat::Muon> GGHZZKFactorEmbedderMuMuMuMu;
 
 DEFINE_FWK_MODULE(GGHZZKFactorEmbedderEEEE);
 DEFINE_FWK_MODULE(GGHZZKFactorEmbedderEEMuMu);

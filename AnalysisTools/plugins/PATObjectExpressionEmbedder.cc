@@ -9,7 +9,6 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-
 // system includes
 #include <memory>
 #include <vector>
@@ -31,11 +30,8 @@
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/Utilities/interface/transform.h"
 
-
-template<class T>
-class PATObjectExpressionEmbedder : public edm::stream::EDProducer<>
-{
-
+template <class T>
+class PATObjectExpressionEmbedder : public edm::stream::EDProducer<> {
 public:
   explicit PATObjectExpressionEmbedder(const edm::ParameterSet& iConfig);
   virtual ~PATObjectExpressionEmbedder() {};
@@ -46,52 +42,42 @@ private:
 
   const edm::EDGetTokenT<edm::View<T> > srcToken_;
   const std::vector<std::string> labels_;
-  const std::vector<StringObjectFunction<T,true> > functions_;
+  const std::vector<StringObjectFunction<T, true> > functions_;
 };
 
-
-template<class T>
-PATObjectExpressionEmbedder<T>::PATObjectExpressionEmbedder(const edm::ParameterSet& iConfig) :
-  srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
-  labels_(iConfig.getUntrackedParameter<std::vector<std::string> >("labels")),
-  functions_(edm::vector_transform(iConfig.getUntrackedParameter<std::vector<std::string> >("functions"),
-                                   [this](const std::string& expr){return StringObjectFunction<T,true>(expr);}))
-{
-  if(labels_.size() != functions_.size())
-    throw cms::Exception("InvalidParams")
-      << "Must have exactly one label for each expression.";
+template <class T>
+PATObjectExpressionEmbedder<T>::PATObjectExpressionEmbedder(const edm::ParameterSet& iConfig)
+    : srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
+      labels_(iConfig.getUntrackedParameter<std::vector<std::string> >("labels")),
+      functions_(
+          edm::vector_transform(iConfig.getUntrackedParameter<std::vector<std::string> >("functions"),
+                                [this](const std::string& expr) { return StringObjectFunction<T, true>(expr); })) {
+  if (labels_.size() != functions_.size())
+    throw cms::Exception("InvalidParams") << "Must have exactly one label for each expression.";
 
   produces<std::vector<T> >();
 }
 
-
-template<class T>
-void PATObjectExpressionEmbedder<T>::produce(edm::Event& iEvent,
-                                             const edm::EventSetup& iSetup)
-{
+template <class T>
+void PATObjectExpressionEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::unique_ptr<std::vector<T> > out = std::make_unique<std::vector<T> >();
   edm::Handle<edm::View<T> > in;
   iEvent.getByToken(srcToken_, in);
 
-  for(size_t i = 0; i < in->size(); ++i)
-    {
-      out->push_back(in->at(i));
+  for (size_t i = 0; i < in->size(); ++i) {
+    out->push_back(in->at(i));
 
-      for(size_t j = 0; j < labels_.size(); ++j)
-        embedValue(out->back(), functions_.at(j)(out->back()), labels_.at(j));
-    }
+    for (size_t j = 0; j < labels_.size(); ++j)
+      embedValue(out->back(), functions_.at(j)(out->back()), labels_.at(j));
+  }
 
   iEvent.put(std::move(out));
 }
 
-template<class T>
-void PATObjectExpressionEmbedder<T>::embedValue(T& object,
-                                                float value,
-                                                const std::string& label) const
-{
+template <class T>
+void PATObjectExpressionEmbedder<T>::embedValue(T& object, float value, const std::string& label) const {
   object.addUserFloat(label, value);
 }
-
 
 typedef PATObjectExpressionEmbedder<pat::Electron> PATElectronExpressionEmbedder;
 typedef PATObjectExpressionEmbedder<pat::Muon> PATMuonExpressionEmbedder;

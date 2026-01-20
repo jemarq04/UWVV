@@ -9,10 +9,9 @@
 //                                                                          //
 //////////////////////////////////////////////////////////////////////////////
 
-
-#include<memory>
-#include<string>
-#include<vector>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -32,63 +31,55 @@ typedef pat::Jet Jet;
 typedef std::vector<Jet> VJet;
 typedef edm::View<Jet> JetView;
 
-
-class PATJetEnergyScaleShifter : public edm::stream::EDProducer<>
-{
- public:
+class PATJetEnergyScaleShifter : public edm::stream::EDProducer<> {
+public:
   explicit PATJetEnergyScaleShifter(const edm::ParameterSet& pset);
-  virtual ~PATJetEnergyScaleShifter() {;}
+  virtual ~PATJetEnergyScaleShifter() { ; }
 
- private:
+private:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   edm::EDGetTokenT<JetView> srcToken;
   edm::ConsumesCollector cc;
-  edm::ESGetToken<JetCorrectorParametersCollection,JetCorrectionsRecord> jecToken;
+  edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> jecToken;
 };
 
-
-PATJetEnergyScaleShifter::PATJetEnergyScaleShifter(const edm::ParameterSet& pset) :
-  srcToken(consumes<JetView>(pset.getParameter<edm::InputTag>("src"))),
-  cc(consumesCollector()),
-  jecToken(cc.esConsumes(edm::ESInputTag("","AK4PFchs")))
-{
+PATJetEnergyScaleShifter::PATJetEnergyScaleShifter(const edm::ParameterSet& pset)
+    : srcToken(consumes<JetView>(pset.getParameter<edm::InputTag>("src"))),
+      cc(consumesCollector()),
+      jecToken(cc.esConsumes(edm::ESInputTag("", "AK4PFchs"))) {
   produces<VJet>("jesUp");
   produces<VJet>("jesDown");
 }
 
-
-void PATJetEnergyScaleShifter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void PATJetEnergyScaleShifter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<JetView> in;
   iEvent.getByToken(srcToken, in);
 
   edm::ESHandle<JetCorrectorParametersCollection> jecParams;
   jecParams = iSetup.get<JetCorrectionsRecord>().getHandle(jecToken);
-  const JetCorrectorParameters & param = (*jecParams)["Uncertainty"];
+  const JetCorrectorParameters& param = (*jecParams)["Uncertainty"];
   JetCorrectionUncertainty jecUnc(param);
 
   std::unique_ptr<VJet> outUp(new VJet());
   std::unique_ptr<VJet> outDn(new VJet());
 
-  for(size_t i = 0; i < in->size(); ++i)
-  {
+  for (size_t i = 0; i < in->size(); ++i) {
     const Jet& jet = in->at(i);
-    outUp->push_back(jet); // copies, transfers ownership
+    outUp->push_back(jet);  // copies, transfers ownership
     outDn->push_back(jet);
 
     jecUnc.setJetEta(jet.eta());
     jecUnc.setJetPt(jet.pt());
     float unc = jecUnc.getUncertainty(true);
 
-    outUp->back().setP4(math::XYZTLorentzVector((1.+unc) * jet.p4()));
-    outDn->back().setP4(math::XYZTLorentzVector((1.-unc) * jet.p4()));
+    outUp->back().setP4(math::XYZTLorentzVector((1. + unc) * jet.p4()));
+    outDn->back().setP4(math::XYZTLorentzVector((1. - unc) * jet.p4()));
   }
 
   iEvent.put(std::move(outUp), "jesUp");
   iEvent.put(std::move(outDn), "jesDown");
 }
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATJetEnergyScaleShifter);
