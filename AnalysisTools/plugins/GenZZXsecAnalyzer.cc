@@ -69,7 +69,7 @@ void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
     int absPdgId = std::abs(it->pdgId());
 
     // only consider leptons passing this condition
-    if (absPdgId != 11 && absPdgId != 13 && !it->fromHardProcessFinalState())
+    if ((absPdgId != 11 && absPdgId != 13) || !it->fromHardProcessFinalState())
       continue;
 
     // check if lepton came from Z
