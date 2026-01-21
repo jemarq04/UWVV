@@ -190,7 +190,7 @@ void GenZZDressedXsecAnalyzer::analyzeZZLeptons(const GenParticleCollection &lep
 
   sumWeightsOnShell_[channel] += weight;
 
-  double maxLepPt = 0.0;
+  double leppt[4] = {0.0};
   for (size_t i = 0; i < 4; i++) {
     // eta cut
     if (std::abs(leptons[i].eta()) > 2.5)
@@ -201,15 +201,14 @@ void GenZZDressedXsecAnalyzer::analyzeZZLeptons(const GenParticleCollection &lep
       if (leptons[i].pdgId() * leptons[j].pdgId() < 0 && (leptons[i].p4() + leptons[j].p4()).M() < 4.0)
         return;
 
-    // pt cut - check that all are above 10 GeV
-    double lepPt = leptons[i].pt();
-    if (lepPt > maxLepPt)
-      maxLepPt = lepPt;
-    if (lepPt < 10.0)
-      return;
+    leppt[i] = leptons[i].pt();
   }
-  // pt cut - check that at least one pt was above 20 GeV
-  if (maxLepPt < 20.0)
+  // pt cut - check that at least one pt is above 20 GeV with at least one other above 10
+  bool ptcheck1 = leppt[0] > 20 && (leppt[1] > 10 || leppt[2] > 10 || leppt[3] > 10);
+  bool ptcheck2 = leppt[1] > 20 && (leppt[0] > 10 || leppt[2] > 10 || leppt[3] > 10);
+  bool ptcheck3 = leppt[2] > 20 && (leppt[0] > 10 || leppt[1] > 10 || leppt[3] > 10);
+  bool ptcheck4 = leppt[3] > 20 && (leppt[0] > 10 || leppt[1] > 10 || leppt[2] > 10);
+  if (!ptcheck1 && !ptcheck2 && !ptcheck3 && !ptcheck4)
     return;
 
   sumWeightsFiducial_[channel] += weight;
