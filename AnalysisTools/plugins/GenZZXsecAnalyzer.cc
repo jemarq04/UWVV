@@ -162,6 +162,8 @@ void GenZZXsecAnalyzer::analyzeZZLeptons(const GenParticleCollection &leptons, d
         return;
 
     leppt[i] = leptons[i].pt();
+    if (leppt[i] < 5)
+      return;
   }
   // pt cut - check that at least one pt is above 20 GeV with at least one other above 10
   bool ptcheck1 = leppt[0] > 20 && (leppt[1] > 10 || leppt[2] > 10 || leppt[3] > 10);
