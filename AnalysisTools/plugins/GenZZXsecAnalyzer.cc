@@ -158,7 +158,7 @@ void GenZZXsecAnalyzer::analyzeZZLeptons(const GenParticleCollection &leptons, d
 
     // QCD veto
     for (size_t j = i + 1; j < 4; j++)
-      if (leptons[i].pdgId() * leptons[j].pdgId() < 0 && (leptons[i].p4() + leptons[j].p4()).M() < 4.0)
+      if (leptons[i].pdgId() == -leptons[j].pdgId() && (leptons[i].p4() + leptons[j].p4()).M() < 4.0)
         return;
 
     leppt[i] = leptons[i].pt();
@@ -206,11 +206,23 @@ void GenZZXsecAnalyzer::endJob() {
     std::cout << "On Shell " << channel << " " << label_ << ": " << scale_ * sumWeightsOnShell_[i] / numEventsTotal_;
     std::cout << " fb (" << scale_ * sumWeightsOnShell_[i] << "/" << numEventsTotal_ << ")" << std::endl;
 
+  }
+  std::cout << "---------" << std::endl;
+
+  for (size_t i = 0; i < 3; i++) {
+    std::string channel;
+    if (i == 0)
+      channel = "eemm";
+    else if (i == 1)
+      channel = "mmmm";
+    else if (i == 2)
+      channel = "eeee";
+
     std::cout << "Fiducial " << channel << " " << label_ << ": " << scale_ * sumWeightsFiducial_[i] / numEventsTotal_;
     std::cout << " fb (" << scale_ * sumWeightsFiducial_[i] << "/" << numEventsTotal_ << ")" << std::endl;
-
-    std::cout << "---------" << std::endl;
   }
+  std::cout << "---------" << std::endl;
+
   std::cout << std::endl;
 }
 
