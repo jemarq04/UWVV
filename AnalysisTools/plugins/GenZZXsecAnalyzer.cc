@@ -205,7 +205,6 @@ void GenZZXsecAnalyzer::endJob() {
 
     std::cout << "On Shell " << channel << " " << label_ << ": " << scale_ * sumWeightsOnShell_[i] / numEventsTotal_;
     std::cout << " fb (" << scale_ * sumWeightsOnShell_[i] << "/" << numEventsTotal_ << ")" << std::endl;
-
   }
   std::cout << "---------" << std::endl;
 
