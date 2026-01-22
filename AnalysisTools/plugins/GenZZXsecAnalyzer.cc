@@ -162,15 +162,10 @@ void GenZZXsecAnalyzer::analyzeZZLeptons(const GenParticleCollection &leptons, d
         return;
 
     leppt[i] = leptons[i].pt();
-    if (leppt[i] < 5)
-      return;
   }
   // pt cut - check that at least one pt is above 20 GeV with at least one other above 10
-  bool ptcheck1 = leppt[0] > 20 && (leppt[1] > 10 || leppt[2] > 10 || leppt[3] > 10);
-  bool ptcheck2 = leppt[1] > 20 && (leppt[0] > 10 || leppt[2] > 10 || leppt[3] > 10);
-  bool ptcheck3 = leppt[2] > 20 && (leppt[0] > 10 || leppt[1] > 10 || leppt[3] > 10);
-  bool ptcheck4 = leppt[3] > 20 && (leppt[0] > 10 || leppt[1] > 10 || leppt[2] > 10);
-  if (!ptcheck1 && !ptcheck2 && !ptcheck3 && !ptcheck4)
+  std::sort(leppt, leppt + sizeof(leppt) / sizeof(leppt[0]), std::greater<double>());
+  if (leppt[0] < 20 || leppt[1] < 10 || leppt[2] < 5 || leppt[3] < 5)
     return;
 
   sumWeightsFiducial_[channel] += weight;
