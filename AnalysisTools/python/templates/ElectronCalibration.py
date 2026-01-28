@@ -63,7 +63,7 @@ class ElectronCalibration(AnalysisFlowBase):
             elif self.year == "2023" and self.calibEra23 == "postBPix":
                 yearstring += "BPix"
             elif self.year == "2025":
-                yearstring = "2024"
+                yearstring = "2025"
             scaleFile = getCorrectionFile("EGM", yearstring, "electronSS_EtDependent.json.gz")
 
             # Electron corrections
