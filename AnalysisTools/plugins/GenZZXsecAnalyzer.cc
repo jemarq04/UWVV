@@ -90,7 +90,7 @@ void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
   zzleptons.push_back(leptons[0]);
   size_t z1lepidx = 0;
   for (size_t i = 1; i < nLeptons; i++) {
-    if (leptons[0].mother(0) == leptons[i].mother(0)){
+    if (leptons[0].mother(0) == leptons[i].mother(0)) {
       z1lepidx = i;
       zzleptons.push_back(leptons[i]);
       break;
@@ -105,7 +105,7 @@ void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
       continue;
     zzleptons.push_back(leptons[i]);
   }
-  if (zzleptons[2].mother(0) != zzleptons[3].mother(0)){
+  if (zzleptons[2].mother(0) != zzleptons[3].mother(0)) {
     std::cout << "ERROR: the z2 leptons don't come from the same Z!" << std::endl;
     return;
   }
