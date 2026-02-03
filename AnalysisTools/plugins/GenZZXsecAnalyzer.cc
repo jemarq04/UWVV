@@ -62,7 +62,7 @@ void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
   iEvent.getByToken(genToken_, genEvent);
 
   numEventsTotal_++;
-  sumWeightsTotal_ += genEvent->weight();
+  sumWeightsTotal_ += scale_ * genEvent->weight();
 
   GenParticleCollection leptons;
   for (GenParticleView::const_iterator it = genparticles->begin(); it != genparticles->end(); it++) {
@@ -124,7 +124,7 @@ void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
       return;
     }
   }
-  analyzeZZLeptons(zzleptons, genEvent->weight());
+  analyzeZZLeptons(zzleptons, scale_ * genEvent->weight());
 }
 
 void GenZZXsecAnalyzer::analyzeZZLeptons(const GenParticleCollection &leptons, double weight) {
@@ -184,11 +184,10 @@ void GenZZXsecAnalyzer::endJob() {
   std::cout << "=== Gen ZZ Xsec Analyzer ===" << std::endl;
 
   std::cout << "---------" << std::endl;
-  std::cout << "Total         " << label_ << ": " << scale_ * sumWeightsTotal_ / numEventsTotal_;
-  std::cout << " pb (" << scale_ * sumWeightsTotal_ << "/" << numEventsTotal_ << ")" << std::endl;
+  std::cout << "Total         " << label_ << ": " << sumWeightsTotal_ / numEventsTotal_;
+  std::cout << " pb (" << sumWeightsTotal_ << "/" << numEventsTotal_ << ")" << std::endl;
   std::cout << "---------" << std::endl;
 
-  scale_ *= 1000;
   for (size_t i = 0; i < 3; i++) {
     std::string channel;
     if (i == 0)
@@ -198,8 +197,8 @@ void GenZZXsecAnalyzer::endJob() {
     else if (i == 2)
       channel = "eeee";
 
-    std::cout << "On Shell " << channel << " " << label_ << ": " << scale_ * sumWeightsOnShell_[i] / numEventsTotal_;
-    std::cout << " fb (" << scale_ * sumWeightsOnShell_[i] << "/" << numEventsTotal_ << ")" << std::endl;
+    std::cout << "On Shell " << channel << " " << label_ << ": " << 1000 * sumWeightsOnShell_[i] / numEventsTotal_;
+    std::cout << " fb (" << 1000 * sumWeightsOnShell_[i] << "/" << numEventsTotal_ << ")" << std::endl;
   }
   std::cout << "---------" << std::endl;
 
@@ -212,8 +211,8 @@ void GenZZXsecAnalyzer::endJob() {
     else if (i == 2)
       channel = "eeee";
 
-    std::cout << "Fiducial " << channel << " " << label_ << ": " << scale_ * sumWeightsFiducial_[i] / numEventsTotal_;
-    std::cout << " fb (" << scale_ * sumWeightsFiducial_[i] << "/" << numEventsTotal_ << ")" << std::endl;
+    std::cout << "Fiducial " << channel << " " << label_ << ": " << 1000 * sumWeightsFiducial_[i] / numEventsTotal_;
+    std::cout << " fb (" << 1000 * sumWeightsFiducial_[i] << "/" << numEventsTotal_ << ")" << std::endl;
   }
   std::cout << "---------" << std::endl;
 
