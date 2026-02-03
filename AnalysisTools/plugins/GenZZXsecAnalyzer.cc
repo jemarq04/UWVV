@@ -89,15 +89,8 @@ void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
   GenParticleCollection zzleptons;
   zzleptons.push_back(leptons[0]);
   size_t z1lepidx = 0;
-  double accuracy = 1e-5;
-  auto l1zp4 = leptons[0].mother(0)->p4();
   for (size_t i = 1; i < nLeptons; i++) {
-    auto l2zp4 = leptons[i].mother(0)->p4();
-    double dPt = std::abs(l1zp4.pt() - l2zp4.pt());
-    double dEta = std::abs(l1zp4.eta() - l2zp4.eta());
-    double dPhi = std::abs(l1zp4.phi() - l2zp4.phi());
-    double dM = std::abs(l1zp4.M() - l2zp4.M());
-    if (dPt < accuracy && dEta < accuracy && dPhi < accuracy && dM < accuracy) {
+    if (leptons[0].mother(0) == leptons[i].mother(0)){
       z1lepidx = i;
       zzleptons.push_back(leptons[i]);
       break;
@@ -112,17 +105,9 @@ void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
       continue;
     zzleptons.push_back(leptons[i]);
   }
-  {
-    auto l3zp4 = zzleptons[2].mother(0)->p4();
-    auto l4zp4 = zzleptons[3].mother(0)->p4();
-    double dPt = std::abs(l3zp4.pt() - l4zp4.pt());
-    double dEta = std::abs(l3zp4.eta() - l4zp4.eta());
-    double dPhi = std::abs(l3zp4.phi() - l4zp4.phi());
-    double dM = std::abs(l3zp4.M() - l4zp4.M());
-    if (dPt > accuracy || dEta > accuracy || dPhi > accuracy || dM > accuracy) {
-      std::cout << "ERROR: the z2 leptons don't come from the same Z!" << std::endl;
-      return;
-    }
+  if (zzleptons[2].mother(0) != zzleptons[3].mother(0)){
+    std::cout << "ERROR: the z2 leptons don't come from the same Z!" << std::endl;
+    return;
   }
   analyzeZZLeptons(zzleptons, scale_ * genEvent->weight());
 }
