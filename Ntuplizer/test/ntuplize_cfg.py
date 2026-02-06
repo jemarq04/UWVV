@@ -293,7 +293,7 @@ elif options.isMC:
             gt = "140X_mcRun3_2023_realistic_v9"
         else:
             gt = "140X_mcRun3_2023_realistic_postBPix_v3"
-    elif options.year == "2024":
+    elif options.year == "2024" or options.year == "2025":
         gt = "150X_mcRun3_2024_realistic_v2"
 else:
     if options.year == "2022":
