@@ -90,7 +90,7 @@ class JetBaseFlow(AnalysisFlowBase):
                 jesConfig = "Summer24Prompt24_V2"
                 jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
             elif self.year == "2025":
-                jesConfig = "Winter25Prompt25_V2"
+                jesConfig = "Winter25Prompt25_V3"
                 jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
 
             scaleFile = getCorrectionFile("JME", yearstring, "jet_jerc.json.gz")
