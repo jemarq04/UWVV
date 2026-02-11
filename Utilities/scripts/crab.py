@@ -202,6 +202,8 @@ else:
     # config.Data.unitsPerJob = getUnitsPerJob(primaryDS)
 config.Data.splitting = "FileBased"
 config.Data.unitsPerJob = int(localSettings["unitsPerJob"])
+if localSettings["unitsPerJob"] != "1":
+    config.Data.maxJobRuntimeMin = 2050
 
 config.Data.totalUnits = -1
 
