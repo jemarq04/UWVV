@@ -246,6 +246,8 @@ class JetBaseFlow(AnalysisFlowBase):
             extraSelection = (
                 " && (abs(eta) < 2.5 || abs(eta) > 3.0 || pt > 50)"  # asserts pt>50 in 2.5 < abs(eta) < 3.0 range
             )
+            if self.year in ["2022", "2023"]:
+                extraSelection += " && (abs(eta) < 3 || pt > 50)"
             selectionString += extraSelection
             selectionString2 += extraSelection
 
