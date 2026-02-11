@@ -132,14 +132,12 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     double jerCorr = 1.0;
 
     double gaus = 0.0;
-    if (eta < 2.5 || eta > 3.0) {
-      if (genpt > 0.0)
-        jerCorr = std::max(0.0, 1.0 + (scale - 1.0) * (pt - genpt) / pt);
-      else {
-        gaus = rand.Gaus(0.0, reso);
-        double varp = std::max(scale * scale - 1.0, 0.0);
-        jerCorr = std::max(0.0, 1.0 + gaus * std::sqrt(varp));
-      }
+    if (genpt > 0.0)
+      jerCorr = std::max(0.0, 1.0 + (scale - 1.0) * (pt - genpt) / pt);
+    else if (eta < 2.5 || eta > 3.0) {
+      gaus = rand.Gaus(0.0, reso);
+      double varp = std::max(scale * scale - 1.0, 0.0);
+      jerCorr = std::max(0.0, 1.0 + gaus * std::sqrt(varp));
     }
 
     scaleJetP4(out->back(), jerCorr);
