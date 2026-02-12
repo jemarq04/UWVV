@@ -55,6 +55,7 @@ process.xsec = cms.EDAnalyzer(
     "GenZZXsecAnalyzer",
     src=cms.InputTag("prunedGenParticles"),
     scale=cms.double(options.scale),
+    verbose=cms.bool(True),
 )
 process.p += process.xsec
 
@@ -63,6 +64,7 @@ process.dressedxsec = cms.EDAnalyzer(
     src=cms.InputTag("prunedGenParticles"),
     label=cms.string("dressed"),
     scale=cms.double(options.scale),
+    verbose=cms.bool(True),
 )
 process.p += process.dressedxsec
 

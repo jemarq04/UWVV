@@ -46,13 +46,15 @@ private:
   double sumWeightsFiducial_[3];
   std::string label_;
   double scale_;
+  bool verbose_;
 };
 
 GenZZDressedXsecAnalyzer::GenZZDressedXsecAnalyzer(const edm::ParameterSet &iConfig)
     : srcToken_(consumes<GenParticleView>(iConfig.getParameter<edm::InputTag>("src"))),
       genToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
       label_(iConfig.exists("label") ? iConfig.getParameter<std::string>("label") : "xsec"),
-      scale_(iConfig.exists("scale") ? iConfig.getParameter<double>("scale") : 1.0) {}
+      scale_(iConfig.exists("scale") ? iConfig.getParameter<double>("scale") : 1.0),
+      verbose_(iConfig.exists("verbose") ? iConfig.getParameter<bool>("verbose") : false) {}
 
 void GenZZDressedXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::Handle<GenParticleView> genparticles;
@@ -178,6 +180,10 @@ void GenZZDressedXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::Even
   // add best ZZ candidate leptons to final collection
   for (int idx : bestLeptonsIdx)
     zzleptons.push_back(dressedleptons[idx]);
+
+  if (verbose_)
+    for (size_t i = 0; i < zzleptons.size(); i += 2)
+      std::cout << "dhist000 " << (zzleptons[i].p4() + zzleptons[i + 1].p4()).M() << std::endl;
 
   analyzeZZLeptons(zzleptons, scale_ * genEvent->weight(), channel);
 }

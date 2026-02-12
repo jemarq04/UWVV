@@ -46,13 +46,15 @@ private:
   double sumWeightsFiducial_[3];
   std::string label_;
   double scale_;
+  bool verbose_;
 };
 
 GenZZXsecAnalyzer::GenZZXsecAnalyzer(const edm::ParameterSet &iConfig)
     : srcToken_(consumes<GenParticleView>(iConfig.getParameter<edm::InputTag>("src"))),
       genToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
       label_(iConfig.exists("label") ? iConfig.getParameter<std::string>("label") : "xsec"),
-      scale_(iConfig.exists("scale") ? iConfig.getParameter<double>("scale") : 1.0) {}
+      scale_(iConfig.exists("scale") ? iConfig.getParameter<double>("scale") : 1.0),
+      verbose_(iConfig.exists("verbose") ? iConfig.getParameter<bool>("verbose") : false) {}
 
 void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::Handle<GenParticleView> genparticles;
@@ -65,6 +67,7 @@ void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
   sumWeightsTotal_ += scale_ * genEvent->weight();
 
   GenParticleCollection leptons;
+  int nElectrons = 0, nMuons = 0;
   for (GenParticleView::const_iterator it = genparticles->begin(); it != genparticles->end(); it++) {
     int absPdgId = std::abs(it->pdgId());
 
@@ -72,9 +75,31 @@ void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
     if ((absPdgId != 11 && absPdgId != 13))  // || !it->fromHardProcessFinalState())
       continue;
 
+    if (absPdgId == 11)
+      nElectrons++;
+    else
+      nMuons++;
+
     // check if lepton came from Z
     if (it->numberOfMothers() > 0 && std::abs(it->mother(0)->pdgId()) == 23)
       leptons.push_back(*it);
+  }
+
+  if (verbose_) {
+    for (size_t i = 0; i < leptons.size(); i++) {
+      if (i % 2 == 0) {
+        std::cout << "hist000 " << leptons[i].mother(0)->p4().M() << std::endl;
+        if (nElectrons == 2) {
+          //std::cout << "hist004 " << leptons[i].mother(0)->p4().M() << std::endl;
+        } else if (nElectrons == 4) {
+          //std::cout << "hist005 " << leptons[i].mother(0)->p4().M() << std::endl;
+        }
+      }
+      //std::cout << "hist001 " << leptons[i].fromHardProcessFinalState() << std::endl;
+      //std::cout << "hist002 " << leptons[i].isPromptFinalState() << std::endl;
+      //std::cout << "hist003 " << (leptons[i].status() == 1) << std::endl;
+    }
+    std::cout << "hist006 " << scale_ * genEvent->weight() << std::endl;
   }
 
   size_t nLeptons = leptons.size();
@@ -134,6 +159,10 @@ void GenZZXsecAnalyzer::analyzeZZLeptons(const GenParticleCollection &leptons, d
     return;
 
   sumWeightsOnShell_[channel] += weight;
+  if (verbose_) {
+    std::cout << "hist007 " << z1mass << std::endl;
+    std::cout << "hist007 " << z2mass << std::endl;
+  }
 
   double leppt[4] = {0.0};
   for (size_t i = 0; i < 4; i++) {
