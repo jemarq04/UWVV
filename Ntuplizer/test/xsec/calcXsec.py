@@ -23,21 +23,35 @@ class GenZZXsecAnalyzer(Module):
         self.sumWeightsOnShell = [0.0, 0.0, 0.0]
         self.sumWeightsFiducial = [0.0, 0.0, 0.0]
 
+        # Fiducial cuts
+        self.z1MinMass = 60
+        self.z1MaxMass = 120
+        self.z2MinMass = 60
+        self.z2MaxMass = 120
+
+        self.lepEtaMax = 2.5
+        self.lepLeadingPtMin = 20
+        self.lepSubleadingPtMin = 10
+        self.lepPtMin = 5
+
+        self.ossfMinMass = 4
+
     def selectionOnShell(self, zCands):
-        #return 40 < zCands[0].mass < 120 and 4 < zCands[1].mass < 120
-        return all(60 < part.mass < 120 for part in zCands)
+        z1Pass = self.z1MinMass < zCands[0].mass < self.z1MaxMass
+        z2Pass = self.z2MinMass < zCands[1].mass < self.z2MaxMass
+        return z1Pass and z2Pass
 
     def selectionFiducial(self, leptons):
-        if any(abs(lep.eta) > 2.5 or lep.pt < 5 for lep in leptons):
+        if any(abs(lep.eta) > self.lepEtaMax or lep.pt < self.lepPtMin for lep in leptons):
             return False
 
         for i in range(len(leptons)):
             for j in range(i + 1, len(leptons)):
-                if leptons[i].pdgId == -leptons[j].pdgId and (leptons[i].p4() + leptons[j].p4()).M() < 4:
+                if leptons[i].pdgId == -leptons[j].pdgId and (leptons[i].p4() + leptons[j].p4()).M() < self.ossfMinMass:
                     return False
 
         leppt = sorted([lep.pt for lep in leptons], reverse=True)
-        if leppt[0] < 20 or leppt[1] < 10:
+        if leppt[0] < self.lepLeadingPtMin or leppt[1] < self.lepSubleadingPtMin:
             return False
 
         return True
