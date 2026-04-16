@@ -96,7 +96,7 @@ class GenZZXsecAnalyzer(Module):
         def printXsec(label, sumWeights, unit="pb", scale=1.0):
             scale *= 1.0 if unit == "pb" else 1000.0
             sumWeights *= scale
-            #denom = self.numEventsTotal
+            # denom = self.numEventsTotal
             denom = self.sumWeightsTotal
 
             print(f"{label:14} xsec: {sumWeights/denom:.3f} {unit} ({sumWeights:.3f}/{denom:.3f})")
@@ -107,18 +107,18 @@ class GenZZXsecAnalyzer(Module):
 
         print(separator)
         for i, chan in enumerate(channels):
-            printXsec(f"On Shell {chan}", self.sumWeightsOnShell[i], "fb", self.scale) 
+            printXsec(f"On Shell {chan}", self.sumWeightsOnShell[i], "fb", self.scale)
 
         print(separator)
         for i, chan in enumerate(channels):
-            printXsec(f"Fiducial {chan}", self.sumWeightsFiducial[i], "fb", self.scale) 
+            printXsec(f"Fiducial {chan}", self.sumWeightsFiducial[i], "fb", self.scale)
 
         print(separator)
         print()
 
     def analyze(self, event):
         weight = event.genWeight
-        #weight = event.Generator_weight
+        # weight = event.Generator_weight
 
         self.numEventsTotal += 1
         self.sumWeightsTotal += weight
@@ -144,12 +144,12 @@ class GenZZXsecAnalyzer(Module):
         if len(leptons) < 4:
             return False
         elif len(leptons) > 4:
-            print(f"WARNING: Over 4 final state leptons!")
+            print("WARNING: Over 4 final state leptons!")
             return False
 
         leptons = sorted(leptons, key=lambda part: part.genPartIdxMother)
-        zCands = [genparticles[idx] for idx in list(set([lep.genPartIdxMother for lep in leptons]))]
-        #if len(zCands) != 2: print("WARNING: More than two Z bosons:", len(zCands))
+        zCands = [genparticles[idx] for idx in list({lep.genPartIdxMother for lep in leptons})]
+        # if len(zCands) != 2: print("WARNING: More than two Z bosons:", len(zCands))
         # zCands = [genparticles[leptons[i].genPartIdxMother] for i in [0, 2]]
         num_electrons = sum(1 for lep in leptons if abs(lep.pdgId) == 11)
         num_electrons_to_channel = {
@@ -202,7 +202,6 @@ def main():
             ],
             "scale": 0.00319,
         },
-
         "qqZZ_run3": {
             "files": [
                 # "root://cmsxrootd.fnal.gov//store/mc/Run3Summer22NanoAODv12/ZZto4L_TuneCP5_13p6TeV_powheg-pythia8/NANOAODSIM/130X_mcRun3_2022_realistic_v5-v2/2520000/56a9348d-c4ae-4f88-8ba3-502e7dfca8ad.root",
