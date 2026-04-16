@@ -59,33 +59,13 @@ class GenZZXsecAnalyzer(Module):
     def beginJob(self, histFile=None, histDirName=None):
         Module.beginJob(self, histFile, histDirName)
 
+        self.addObject(ROOT.TH1F("h_genWeight", "Generator Weight", 100, 0, 0))
         self.addObject(ROOT.TH1F("h_numZs", "Number of Z Bosons", 10, 0, 10))
 
-        self.addObject(ROOT.TH1F("h_genWeight", "Generator Weight", 100, 0, 0))
-        self.addObject(
-            ROOT.TH1F(
-                "h_ZMass",
-                "Z Candidate Mass",
-                16,
-                array("d", [0, 2, 4, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]),
-            )
-        )
-        self.addObject(
-            ROOT.TH1F(
-                "h_ZMass_2e2m",
-                "Z Candidate Mass",
-                16,
-                array("d", [0, 2, 4, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]),
-            )
-        )
-        self.addObject(
-            ROOT.TH1F(
-                "h_ZMass_4l",
-                "Z Candidate Mass",
-                16,
-                array("d", [0, 2, 4, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]),
-            )
-        )
+        zMassBins = array("d", [0, 2, 4, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120])
+        self.addObject(ROOT.TH1F("h_ZMass", "Z Candidate Mass", 16, zMassBins))
+        self.addObject(ROOT.TH1F("h_ZMass_2e2m", "Z Candidate Mass", 16, zMassBins))
+        self.addObject(ROOT.TH1F("h_ZMass_4l", "Z Candidate Mass", 16, zMassBins))
 
     def endJob(self):
         Module.endJob(self)
