@@ -129,8 +129,7 @@ class GenZZXsecAnalyzer(Module):
 
         leptons = sorted(leptons, key=lambda part: part.genPartIdxMother)
         zCands = [genparticles[idx] for idx in list({lep.genPartIdxMother for lep in leptons})]
-        # if len(zCands) != 2: print("WARNING: More than two Z bosons:", len(zCands))
-        # zCands = [genparticles[leptons[i].genPartIdxMother] for i in [0, 2]]
+        if len(zCands) != 2: print("WARNING: More than two Z bosons:", len(zCands))
         num_electrons = sum(1 for lep in leptons if abs(lep.pdgId) == 11)
         num_electrons_to_channel = {
             2: 0,
