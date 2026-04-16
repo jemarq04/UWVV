@@ -11,11 +11,13 @@ from PhysicsTools.NanoAODTools.postprocessing.framework.postprocessor import Pos
 
 class GenZZXsecAnalyzer(Module):
     def __init__(self, scale=1.0, useStatusFlags=False, total_units_in_pb=True):
+        # Class customization
         self.writeHistFile = True
         self.scale = scale
         self.useStatusFlags = useStatusFlags
         self.total_units_in_pb = total_units_in_pb
 
+        # Sum weights
         self.numEventsTotal = 0
         self.sumWeightsTotal = 0.0
         self.sumWeightsOnShell = [0.0, 0.0, 0.0]
@@ -26,7 +28,7 @@ class GenZZXsecAnalyzer(Module):
         return all(60 < part.mass < 120 for part in zCands)
 
     def selectionFiducial(self, leptons):
-        if any(lep.eta > 2.5 or lep.pt < 5 for lep in leptons):
+        if any(abs(lep.eta) > 2.5 or lep.pt < 5 for lep in leptons):
             return False
 
         for i in range(len(leptons)):
@@ -34,7 +36,7 @@ class GenZZXsecAnalyzer(Module):
                 if leptons[i].pdgId == -leptons[j].pdgId and (leptons[i].p4() + leptons[j].p4()).M() < 4:
                     return False
 
-        leppt = sorted([lep.pt for lep in leptons])
+        leppt = sorted([lep.pt for lep in leptons], reverse=True)
         if leppt[0] < 20 or leppt[1] < 10:
             return False
 
@@ -186,6 +188,7 @@ def main():
             ],
             "scale": 0.00319,
         },
+
         "qqZZ_run3": {
             "files": [
                 # "root://cmsxrootd.fnal.gov//store/mc/Run3Summer22NanoAODv12/ZZto4L_TuneCP5_13p6TeV_powheg-pythia8/NANOAODSIM/130X_mcRun3_2022_realistic_v5-v2/2520000/56a9348d-c4ae-4f88-8ba3-502e7dfca8ad.root",
