@@ -123,15 +123,29 @@ class GenZZXsecAnalyzer(Module):
                 and abs(genparticles[part.genPartIdxMother].pdgId) == 23
             ]
 
+        # Check number of leptons
         if len(leptons) < 4:
+            # print(f"Less than four leptons found")
             return False
         elif len(leptons) > 4:
             print("WARNING: Over 4 final state leptons!")
             return False
 
+        # Sort leptons by mother particle and get Z particles
         leptons = sorted(leptons, key=lambda part: part.genPartIdxMother)
         zCands = [genparticles[idx] for idx in list({lep.genPartIdxMother for lep in leptons})]
-        if len(zCands) != 2: print("WARNING: More than two Z bosons:", len(zCands))
+
+        # Check number of Zs
+        if len(zCands) != 2:
+            print("WARNING: More than two Z bosons:", len(zCands))
+            return False
+
+        # Sort Zs and leptons by best Z
+        if abs(zCands[1].mass-91.1876) < abs(zCands[0].mass-91.1876):
+            zCands.reverse()
+            leptons.reverse()
+
+        # Determine channel
         num_electrons = sum(1 for lep in leptons if abs(lep.pdgId) == 11)
         num_electrons_to_channel = {
             2: 0,
