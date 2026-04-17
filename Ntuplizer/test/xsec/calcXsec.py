@@ -135,7 +135,8 @@ class GenZZXsecAnalyzer(Module):
 
         self.numEventsTotal += 1
         self.sumWeightsTotal += weight
-        self.h_genWeight.Fill(weight)
+        if weight != 1.0:
+            self.h_genWeight.Fill(weight)
 
         # Define collections
         genparticles = Collection(event, "GenPart")
