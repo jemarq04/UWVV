@@ -112,7 +112,7 @@ class GenZZXsecAnalyzer(Module):
             leptons = [
                 part
                 for part in genparticles
-                if abs(part.pdgId) in [11, 13] and part.status == 1 and part.statusFlags & (1 << 8)
+                if abs(part.pdgId) in [11, 13] and part.statusflag("isHardProcess")
             ]
         else:
             leptons = [
