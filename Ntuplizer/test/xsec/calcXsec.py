@@ -2,6 +2,8 @@
 
 import argparse
 from array import array
+import itertools
+import math
 
 import ROOT
 from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection
@@ -35,6 +37,35 @@ class GenZZXsecAnalyzer(Module):
         self.lepPtMin = 5
 
         self.ossfMinMass = 4
+
+    def getZZLeptons(self, leptons):
+        zzleptons = []
+
+        min_dMZ = 1e10
+        max_z2LepPt = 0
+        for zzCand in itertools.combinations(leptons, 4):
+            if math.prod([lep.pdgId for lep in zzCand]) < 0:
+                continue
+
+            num_electrons = sum(1 for lep in zzCand if abs(lep.pdgId) == 11)
+            if num_electrons % 2 != 0:
+                continue
+
+            zzCand_sorted = sorted(zzCand, key=lambda lep: abs(lep.pdgId))
+
+            dMZ1 = abs((zzCand_sorted[0].p4() + zzCand_sorted[1].p4()).M() - 91.1876)
+            dMZ2 = abs((zzCand_sorted[2].p4() + zzCand_sorted[3].p4()).M() - 91.1876)
+            if dMZ2 < dMZ1:
+                zzCand_sorted.reverse()
+                dMZ1, dMZ2 = dMZ2, dMZ1
+            z2LepPt = zzCand_sorted[2].pt + zzCand_sorted[3].pt
+
+            if dMZ1 < min_dMZ or (dMZ1 == min_dMZ and z2LepPt > max_z2LepPt):
+                # zCands = [zzCand_sorted[0].p4() + zzCand_sorted[1].p4(), zzCand_sorted[2].p4() + zzCand_sorted[3].p4()]
+                zzleptons = list(zzCand_sorted)
+                min_dMZ = dMZ1
+                max_z2LepPt = z2LepPt
+        return zzleptons
 
     def selectionOnShell(self, zCands):
         z1Pass = self.z1MinMass < zCands[0].mass < self.z1MaxMass
