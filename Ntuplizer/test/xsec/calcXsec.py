@@ -67,6 +67,8 @@ class GenZZXsecAnalyzer(Module):
         self.addObject(ROOT.TH1F("h_ZMass_2e2m", "Z Candidate Mass", 16, zMassBins))
         self.addObject(ROOT.TH1F("h_ZMass_4l", "Z Candidate Mass", 16, zMassBins))
 
+        self.addObject(ROOT.TH1F("h_LepPt", "Lepton Pt", 20, 0, 200))
+
     def endJob(self):
         Module.endJob(self)
 
@@ -138,13 +140,15 @@ class GenZZXsecAnalyzer(Module):
         }
         channel = num_electrons_to_channel[num_electrons]
 
-        # Fill Z mass histograms
+        # Fill histograms
         for cand in zCands:
             self.h_ZMass.Fill(cand.mass)
             if num_electrons == 2:
                 self.h_ZMass_2e2m.Fill(cand.mass)
             else:
                 self.h_ZMass_4l.Fill(cand.mass)
+        for lep in leptons:
+            self.h_LepPt.Fill(lep.pt)
 
         # Apply on-shell cut
         if not self.selectionOnShell(zCands):
