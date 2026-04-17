@@ -141,9 +141,7 @@ class GenZZXsecAnalyzer(Module):
         genparticles = Collection(event, "GenPart")
         if self.useStatusFlags:
             leptons = [
-                part
-                for part in genparticles
-                if abs(part.pdgId) in [11, 13] and part.statusflag("isHardProcess")
+                part for part in genparticles if abs(part.pdgId) in [11, 13] and part.statusflag("isHardProcess")
             ]
         else:
             leptons = [
@@ -172,7 +170,7 @@ class GenZZXsecAnalyzer(Module):
             return False
 
         # Sort Zs and leptons by best Z
-        if abs(zCands[1].mass-91.1876) < abs(zCands[0].mass-91.1876):
+        if abs(zCands[1].mass - 91.1876) < abs(zCands[0].mass - 91.1876):
             zCands.reverse()
             leptons.reverse()
 
