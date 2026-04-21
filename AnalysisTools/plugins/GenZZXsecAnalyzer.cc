@@ -35,12 +35,12 @@ private:
 
   enum Channel { c_eemm, c_mmmm, c_eeee };
 
-  void analyzeZZLeptons(const GenParticleCollection &leptons, double weight);
+  bool selectionOnShell(const GenParticleCollection &leptons);
+  bool selectionFiducial(const GenParticleCollection &leptons);
 
   edm::EDGetTokenT<GenParticleView> srcToken_;
   edm::EDGetTokenT<GenEventInfoProduct> genToken_;
 
-  int numEventsTotal_;
   double sumWeightsTotal_;
   double sumWeightsOnShell_[3];
   double sumWeightsFiducial_[3];
@@ -63,43 +63,27 @@ void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
   edm::Handle<GenEventInfoProduct> genEvent;
   iEvent.getByToken(genToken_, genEvent);
 
-  numEventsTotal_++;
-  sumWeightsTotal_ += scale_ * genEvent->weight();
+  double weight = genEvent->weight();
+  sumWeightsTotal_ += weight;
 
-  GenParticleCollection leptons;
   int nElectrons = 0, nMuons = 0;
+  GenParticleCollection leptons;
   for (GenParticleView::const_iterator it = genparticles->begin(); it != genparticles->end(); it++) {
     int absPdgId = std::abs(it->pdgId());
 
     // only consider leptons passing this condition
-    if ((absPdgId != 11 && absPdgId != 13))  // || !it->fromHardProcessFinalState())
+    if ((absPdgId != 11 && absPdgId != 13) || !it->isHardProcess())
       continue;
 
+    // check if lepton came from Z
+    if (it->numberOfMothers() == 0 || std::abs(it->mother(0)->pdgId()) != 23)
+      continue;
+
+    leptons.push_back(*it);
     if (absPdgId == 11)
       nElectrons++;
     else
       nMuons++;
-
-    // check if lepton came from Z
-    if (it->numberOfMothers() > 0 && std::abs(it->mother(0)->pdgId()) == 23)
-      leptons.push_back(*it);
-  }
-
-  if (verbose_) {
-    for (size_t i = 0; i < leptons.size(); i++) {
-      if (i % 2 == 0) {
-        std::cout << "hist000 " << leptons[i].mother(0)->p4().M() << std::endl;
-        if (nElectrons == 2) {
-          //std::cout << "hist004 " << leptons[i].mother(0)->p4().M() << std::endl;
-        } else if (nElectrons == 4) {
-          //std::cout << "hist005 " << leptons[i].mother(0)->p4().M() << std::endl;
-        }
-      }
-      //std::cout << "hist001 " << leptons[i].fromHardProcessFinalState() << std::endl;
-      //std::cout << "hist002 " << leptons[i].isPromptFinalState() << std::endl;
-      //std::cout << "hist003 " << (leptons[i].status() == 1) << std::endl;
-    }
-    std::cout << "hist006 " << scale_ * genEvent->weight() << std::endl;
   }
 
   size_t nLeptons = leptons.size();
@@ -109,84 +93,86 @@ void GenZZXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
     std::cout << "ERROR: Number of true FS leptons differ from expected: " << nLeptons << std::endl;
     return;
   }
-
-  //properly order leptons
-  GenParticleCollection zzleptons;
-  zzleptons.push_back(leptons[0]);
-  size_t z1lepidx = 0;
-  for (size_t i = 1; i < nLeptons; i++) {
-    if (leptons[0].mother(0) == leptons[i].mother(0)) {
-      z1lepidx = i;
-      zzleptons.push_back(leptons[i]);
-      break;
-    }
-  }
-  if (z1lepidx == 0) {
-    std::cout << "ERROR: could not find two leptons from the same Z!" << std::endl;
+  if (nElectrons % 2 != 0) {
+    std::cout << "ERROR: Odd number of electrons/muons! (" << nElectrons << "e, " << nMuons << "m)" << std::endl;
     return;
   }
-  for (size_t i = 1; i < nLeptons; i++) {
-    if (i == z1lepidx)
-      continue;
-    zzleptons.push_back(leptons[i]);
-  }
-  if (zzleptons[2].mother(0) != zzleptons[3].mother(0)) {
-    std::cout << "ERROR: the z2 leptons don't come from the same Z!" << std::endl;
-    return;
-  }
-  analyzeZZLeptons(zzleptons, scale_ * genEvent->weight());
-}
 
-void GenZZXsecAnalyzer::analyzeZZLeptons(const GenParticleCollection &leptons, double weight) {
-  int nElectrons = 0, nMuons = 0;
-  for (const auto &lepton : leptons) {
-    if (std::abs(lepton.pdgId()) == 11)
-      nElectrons++;
-    else
-      nMuons++;
-  }
   Channel channel;
   if (nElectrons == 4)
     channel = c_eeee;
-  else if (nMuons == 4)
+  else if (nElectrons == 0)
     channel = c_mmmm;
   else
     channel = c_eemm;
 
-  double z1mass = (leptons[0].p4() + leptons[1].p4()).M();
-  double z2mass = (leptons[2].p4() + leptons[3].p4()).M();
-  if (z1mass < 60 || z1mass > 120 || z2mass < 60 || z2mass > 120)
+  if (!selectionOnShell(leptons))
     return;
-
   sumWeightsOnShell_[channel] += weight;
-  if (verbose_) {
-    std::cout << "hist007 " << z1mass << std::endl;
-    std::cout << "hist007 " << z2mass << std::endl;
-  }
 
+  if (!selectionFiducial(leptons))
+    return;
+  sumWeightsFiducial_[channel] += weight;
+}
+
+bool GenZZXsecAnalyzer::selectionOnShell(const GenParticleCollection &leptons) {
+  double best_mZ1 = -1;
+  double best_mZ2 = -1;
+
+  double min_dMZ1 = 1e10, max_z2LepPt = 0;
+  std::vector<size_t> idx = {0, 1, 2, 3};
+  do {
+    // Ensure OSSF pairs
+    if (leptons[idx[0]].pdgId() != -leptons[idx[1]].pdgId())
+      continue;
+    if (leptons[idx[2]].pdgId() != -leptons[idx[3]].pdgId())
+      continue;
+
+    double mZ1 = (leptons[idx[0]].p4() + leptons[idx[1]].p4()).M();
+    double mZ2 = (leptons[idx[2]].p4() + leptons[idx[3]].p4()).M();
+    double dMZ1 = std::abs(mZ1 - 91.1876);
+    double dMZ2 = std::abs(mZ2 - 91.1876);
+    if (dMZ2 < dMZ1)
+      continue;  // will be found in another permutation
+    double z2LepPt = leptons[idx[2]].pt() + leptons[idx[3]].pt();
+
+    if (dMZ1 < min_dMZ1 || (dMZ1 == min_dMZ1 && z2LepPt > max_z2LepPt)) {
+      min_dMZ1 = dMZ1;
+      max_z2LepPt = z2LepPt;
+      best_mZ1 = mZ1;
+      best_mZ2 = mZ2;
+    }
+
+  } while (std::next_permutation(idx.begin(), idx.end()));
+
+  bool z1pass = best_mZ1 > 60 && best_mZ1 < 120;
+  bool z2pass = best_mZ2 > 60 && best_mZ2 < 120;
+  return z1pass && z2pass;
+}
+
+bool GenZZXsecAnalyzer::selectionFiducial(const GenParticleCollection &leptons) {
   double leppt[4] = {0.0};
   for (size_t i = 0; i < 4; i++) {
     // eta cut
-    if (std::abs(leptons[i].eta()) > 2.5)
-      return;
+    if (std::abs(leptons[i].eta()) > 2.5 || leptons[i].pt() < 5)
+      return false;
 
     // QCD veto
     for (size_t j = i + 1; j < 4; j++)
       if (leptons[i].pdgId() == -leptons[j].pdgId() && (leptons[i].p4() + leptons[j].p4()).M() < 4.0)
-        return;
+        return false;
 
     leppt[i] = leptons[i].pt();
   }
   // pt cut - check that at least one pt is above 20 GeV with at least one other above 10
   std::sort(leppt, leppt + sizeof(leppt) / sizeof(leppt[0]), std::greater<double>());
-  if (leppt[0] < 20 || leppt[1] < 10 || leppt[2] < 5 || leppt[3] < 5)
-    return;
+  if (leppt[0] < 20 || leppt[1] < 10)
+    return false;
 
-  sumWeightsFiducial_[channel] += weight;
+  return true;
 }
 
 void GenZZXsecAnalyzer::beginJob() {
-  numEventsTotal_ = 0;
   sumWeightsTotal_ = 0.0;
   for (size_t i = 0; i < 3; i++) {
     sumWeightsOnShell_[i] = 0.0;
@@ -198,8 +184,8 @@ void GenZZXsecAnalyzer::endJob() {
   std::cout << "=== Gen ZZ Xsec Analyzer ===" << std::endl;
 
   std::cout << "---------" << std::endl;
-  std::cout << "Total         " << label_ << ": " << sumWeightsTotal_ / numEventsTotal_;
-  std::cout << " pb (" << sumWeightsTotal_ << "/" << numEventsTotal_ << ")" << std::endl;
+  std::cout << "Total         " << label_ << ": " << scale_ * sumWeightsTotal_ / sumWeightsTotal_;
+  std::cout << " pb (" << scale_ * sumWeightsTotal_ << "/" << sumWeightsTotal_ << ")" << std::endl;
   std::cout << "---------" << std::endl;
 
   for (size_t i = 0; i < 3; i++) {
@@ -211,8 +197,9 @@ void GenZZXsecAnalyzer::endJob() {
     else if (i == 2)
       channel = "eeee";
 
-    std::cout << "On Shell " << channel << " " << label_ << ": " << 1000 * sumWeightsOnShell_[i] / numEventsTotal_;
-    std::cout << " fb (" << 1000 * sumWeightsOnShell_[i] << "/" << numEventsTotal_ << ")" << std::endl;
+    std::cout << "On Shell " << channel << " " << label_ << ": "
+              << 1000 * scale_ * sumWeightsOnShell_[i] / sumWeightsTotal_;
+    std::cout << " fb (" << 1000 * scale_ * sumWeightsOnShell_[i] << "/" << sumWeightsTotal_ << ")" << std::endl;
   }
   std::cout << "---------" << std::endl;
 
@@ -225,8 +212,9 @@ void GenZZXsecAnalyzer::endJob() {
     else if (i == 2)
       channel = "eeee";
 
-    std::cout << "Fiducial " << channel << " " << label_ << ": " << 1000 * sumWeightsFiducial_[i] / numEventsTotal_;
-    std::cout << " fb (" << 1000 * sumWeightsFiducial_[i] << "/" << numEventsTotal_ << ")" << std::endl;
+    std::cout << "Fiducial " << channel << " " << label_ << ": "
+              << 1000 * scale_ * sumWeightsFiducial_[i] / sumWeightsTotal_;
+    std::cout << " fb (" << 1000 * scale_ * sumWeightsFiducial_[i] << "/" << sumWeightsTotal_ << ")" << std::endl;
   }
   std::cout << "---------" << std::endl;
 
