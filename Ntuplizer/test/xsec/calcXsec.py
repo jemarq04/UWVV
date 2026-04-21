@@ -3,7 +3,6 @@
 import argparse
 from array import array
 import itertools
-import math
 
 import ROOT
 from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection
@@ -57,7 +56,7 @@ class GenZZXsecAnalyzer(Module):
             dMZ1 = abs((zzCand[0].p4() + zzCand[1].p4()).M() - 91.1876)
             dMZ2 = abs((zzCand[2].p4() + zzCand[3].p4()).M() - 91.1876)
             if dMZ2 < dMZ1:
-                continue # get it on next permutation
+                continue  # get it on next permutation
             z2LepPt = zzCand[2].pt + zzCand[3].pt
 
             if dMZ1 < min_dMZ or (dMZ1 == min_dMZ and z2LepPt > max_z2LepPt):
