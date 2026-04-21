@@ -12,12 +12,16 @@ from PhysicsTools.NanoAODTools.postprocessing.framework.postprocessor import Pos
 
 
 class GenZZXsecAnalyzer(Module):
-    def __init__(self, scale=1.0, useStatusFlags=False, total_units_in_pb=True):
+    def __init__(self, scale=1.0, useStatusFlags=False, total_units_in_pb=True, bestZ=False):
         # Class customization
         self.writeHistFile = True
         self.scale = scale
         self.useStatusFlags = useStatusFlags
         self.total_units_in_pb = total_units_in_pb
+        self.bestZ = bestZ
+
+        self.best_mZ1 = -1
+        self.best_mZ2 = -1
 
         # Sum weights
         self.numEventsTotal = 0
@@ -43,33 +47,29 @@ class GenZZXsecAnalyzer(Module):
 
         min_dMZ = 1e10
         max_z2LepPt = 0
-        for zzCand in itertools.combinations(leptons, 4):
-            if math.prod([lep.pdgId for lep in zzCand]) < 0:
+        for zzCand in itertools.permutations(leptons, 4):
+            # ensure OSSF pairs
+            if zzCand[0].pdgId != -zzCand[1].pdgId:
+                continue
+            if zzCand[2].pdgId != -zzCand[3].pdgId:
                 continue
 
-            num_electrons = sum(1 for lep in zzCand if abs(lep.pdgId) == 11)
-            if num_electrons % 2 != 0:
-                continue
-
-            zzCand_sorted = sorted(zzCand, key=lambda lep: abs(lep.pdgId))
-
-            dMZ1 = abs((zzCand_sorted[0].p4() + zzCand_sorted[1].p4()).M() - 91.1876)
-            dMZ2 = abs((zzCand_sorted[2].p4() + zzCand_sorted[3].p4()).M() - 91.1876)
+            dMZ1 = abs((zzCand[0].p4() + zzCand[1].p4()).M() - 91.1876)
+            dMZ2 = abs((zzCand[2].p4() + zzCand[3].p4()).M() - 91.1876)
             if dMZ2 < dMZ1:
-                zzCand_sorted.reverse()
-                dMZ1, dMZ2 = dMZ2, dMZ1
-            z2LepPt = zzCand_sorted[2].pt + zzCand_sorted[3].pt
+                continue # get it on next permutation
+            z2LepPt = zzCand[2].pt + zzCand[3].pt
 
             if dMZ1 < min_dMZ or (dMZ1 == min_dMZ and z2LepPt > max_z2LepPt):
-                # zCands = [zzCand_sorted[0].p4() + zzCand_sorted[1].p4(), zzCand_sorted[2].p4() + zzCand_sorted[3].p4()]
-                zzleptons = list(zzCand_sorted)
+                # zCands = [zzCand[0].p4() + zzCand[1].p4(), zzCand[2].p4() + zzCand[3].p4()]
+                zzleptons = list(zzCand)
                 min_dMZ = dMZ1
                 max_z2LepPt = z2LepPt
         return zzleptons
 
-    def selectionOnShell(self, zCands):
-        z1Pass = self.z1MinMass < zCands[0].mass < self.z1MaxMass
-        z2Pass = self.z2MinMass < zCands[1].mass < self.z2MaxMass
+    def selectionOnShell(self):
+        z1Pass = self.z1MinMass < self.best_mZ1 < self.z1MaxMass
+        z2Pass = self.z2MinMass < self.best_mZ2 < self.z2MaxMass
         return z1Pass and z2Pass
 
     def selectionFiducial(self, leptons):
@@ -94,9 +94,13 @@ class GenZZXsecAnalyzer(Module):
         self.addObject(ROOT.TH1F("h_numZs", "Number of Z Bosons", 10, 0, 10))
 
         zMassBins = array("d", [0, 2, 4, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120])
+        self.addObject(ROOT.TH1F("h_ZZMass", "ZZ Mass", 20, 0, 1000))
         self.addObject(ROOT.TH1F("h_ZMass", "Z Candidate Mass", 16, zMassBins))
         self.addObject(ROOT.TH1F("h_ZMass_2e2m", "Z Candidate Mass", 16, zMassBins))
         self.addObject(ROOT.TH1F("h_ZMass_4l", "Z Candidate Mass", 16, zMassBins))
+        self.addObject(ROOT.TH1F("h_ZMass_alt", "Z Candidate Mass", 16, zMassBins))
+        self.addObject(ROOT.TH1F("h_ZMass_2e2m_alt", "Z Candidate Mass", 16, zMassBins))
+        self.addObject(ROOT.TH1F("h_ZMass_4l_alt", "Z Candidate Mass", 16, zMassBins))
 
         self.addObject(ROOT.TH1F("h_LepPt", "Lepton Pt", 20, 0, 200))
 
@@ -184,18 +188,36 @@ class GenZZXsecAnalyzer(Module):
         }
         channel = num_electrons_to_channel[num_electrons]
 
+        # Get best Z masses
+        if self.bestZ:
+            zzleptons = self.getZZLeptons(leptons)
+            self.best_mZ1 = (zzleptons[0].p4() + zzleptons[1].p4()).M()
+            self.best_mZ2 = (zzleptons[2].p4() + zzleptons[3].p4()).M()
+        else:
+            self.best_mZ1 = zCands[0].mass
+            self.best_mZ2 = zCands[1].mass
+
         # Fill histograms
+        self.h_ZZMass.Fill((zCands[0].p4() + zCands[1].p4()).M())
         for cand in zCands:
-            self.h_ZMass.Fill(cand.mass)
+            self.h_ZMass.Fill(cand.mass, weight)
             if num_electrons == 2:
-                self.h_ZMass_2e2m.Fill(cand.mass)
+                self.h_ZMass_2e2m.Fill(cand.mass, weight)
             else:
-                self.h_ZMass_4l.Fill(cand.mass)
+                self.h_ZMass_4l.Fill(cand.mass, weight)
+        self.h_ZMass_alt.Fill(self.best_mZ1, weight)
+        self.h_ZMass_alt.Fill(self.best_mZ2, weight)
+        if num_electrons == 2:
+            self.h_ZMass_2e2m_alt.Fill(self.best_mZ1, weight)
+            self.h_ZMass_2e2m_alt.Fill(self.best_mZ2, weight)
+        else:
+            self.h_ZMass_4l_alt.Fill(self.best_mZ1, weight)
+            self.h_ZMass_4l_alt.Fill(self.best_mZ2, weight)
         for lep in leptons:
-            self.h_LepPt.Fill(lep.pt)
+            self.h_LepPt.Fill(lep.pt, weight)
 
         # Apply on-shell cut
-        if not self.selectionOnShell(zCands):
+        if not self.selectionOnShell():
             return False
         self.sumWeightsOnShell[channel] += weight
 
@@ -242,6 +264,7 @@ def main():
     parser.add_argument("-s", "--sample", choices=sample_map.keys(), required=True, help="sample to calculate")
     parser.add_argument("--maxEvents", type=int, default=10_000, help="maximum number of entries")
     parser.add_argument("--statusFlags", action="store_true", help="identify final state leptons with status flags")
+    parser.add_argument("--bestZ", action="store_true", help="determine Z masses from best lepton combination")
     args = parser.parse_args()
 
     if args.maxEvents < 0:
@@ -249,6 +272,7 @@ def main():
 
     mod_args = {
         "useStatusFlags": args.statusFlags,
+        "bestZ": args.bestZ,
     }
 
     p = PostProcessor(
