@@ -258,6 +258,18 @@ def main():
             ],
             "scale": 1.390,
         },
+        "ggZZ4e_run3": {
+            "files": [
+                "root://cmsxrootd.fnal.gov//store/mc/Run3Summer22NanoAODv12/GluGlutoContinto2Zto4E_TuneCP5_13p6TeV_mcfm-pythia8/NANOAODSIM/130X_mcRun3_2022_realistic_v5-v2/40000/022e811d-bf70-4fa4-88e8-d08ab0169961.root",
+            ],
+            "scale": 0.00305851,
+        },
+        "ggZZ2e2m_run3": {
+            "files": [
+                "root://cmsxrootd.fnal.gov//store/mc/Run3Summer22NanoAODv12/GluGlutoContinto2Zto2E2Mu_TuneCP5_13p6TeV_mcfm701-pythia8/NANOAODSIM/130X_mcRun3_2022_realistic_v5-v1/60000/d91c6914-8af6-40ba-bbf3-b3d8cee82620.root",
+            ],
+            "scale": 0.00624157,
+        },
     }
 
     parser = argparse.ArgumentParser()
