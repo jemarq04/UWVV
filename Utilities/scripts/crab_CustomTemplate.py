@@ -158,6 +158,9 @@ else:
     elif year == "2024":
         # 2024 JSON
         jsonFileName = "Cert_Collisions2024_378981_386951_Golden.json"
+    elif year == "2025":
+        # 2025 JSON
+        jsonFileName = "Cert_Collisions2025_391658_398903_Golden.json"
     else:
         print("What kind of JSON are you running for?")
         exit()
