@@ -260,7 +260,7 @@ def main():
     parser.add_argument(
         "--dressed",
         action="store_true",
-        help="identify final state leptons with status flags and dress with nearby photons",
+        help="identify final state leptons with status flags and dress with nearby photons (WIP)",
     )
     args = parser.parse_args()
 
