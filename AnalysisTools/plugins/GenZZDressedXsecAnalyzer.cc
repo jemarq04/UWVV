@@ -85,7 +85,7 @@ void GenZZDressedXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::Even
         lepton.setP4(lepton.p4() + photon.p4());
 
   GenParticleCollection zzleptons = getZZLeptons(leptons);
-  if (zzleptons.size() == 0){
+  if (zzleptons.size() == 0) {
     std::cout << "ERROR: no ZZ leptons???" << std::endl;
     return;
   }
@@ -111,17 +111,20 @@ void GenZZDressedXsecAnalyzer::analyze(const edm::Event &iEvent, const edm::Even
   sumWeightsFiducial_[channel] += weight;
 }
 
-GenParticleCollection GenZZDressedXsecAnalyzer::getZZLeptons(const GenParticleCollection & leptons){
+GenParticleCollection GenZZDressedXsecAnalyzer::getZZLeptons(const GenParticleCollection &leptons) {
   GenParticleCollection zzleptons;
 
   double min_dMZ1 = 1e10, max_z2LepPt = 0;
-  for (size_t i=0; i<leptons.size(); i++){
-    for (size_t j=0; j<leptons.size(); j++){
-      if (j==i) continue;
-      for (size_t k=0; k<leptons.size(); k++){
-        if (k==j || k==i) continue;
-        for (size_t l=0; l<leptons.size(); l++){
-          if (l==k || l==j || l==i) continue;
+  for (size_t i = 0; i < leptons.size(); i++) {
+    for (size_t j = 0; j < leptons.size(); j++) {
+      if (j == i)
+        continue;
+      for (size_t k = 0; k < leptons.size(); k++) {
+        if (k == j || k == i)
+          continue;
+        for (size_t l = 0; l < leptons.size(); l++) {
+          if (l == k || l == j || l == i)
+            continue;
 
           // Ensure OSSF pairs
           if (leptons[i].pdgId() != -leptons[j].pdgId())
