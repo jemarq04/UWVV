@@ -108,7 +108,7 @@ class GenZZXsecAnalyzer(Module):
             # denom = self.numEventsTotal
             denom = self.sumWeightsTotal
 
-            print(f"{label:14} xsec: {sumWeights/denom:.3f} {unit} ({sumWeights:.3f}/{denom:.3f})")
+            print(f"{label:14} xsec: {sumWeights / denom:.3f} {unit} ({sumWeights:.3f}/{denom:.3f})")
 
         print(separator)
         unit = "pb" if self.total_units_in_pb else "fb"
