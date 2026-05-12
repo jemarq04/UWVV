@@ -6,7 +6,6 @@ repos:
       - id: check-case-conflict
       - id: check-docstring-first
       - id: check-executables-have-shebangs
-      - id: check-illegal-windows-names
       - id: check-json
       - id: check-merge-conflict
       - id: check-shebang-scripts-are-executable
@@ -22,6 +21,8 @@ repos:
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes"]
+      - id: ruff-format
+        args: ["--check"]
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v18.1.6
     hooks:
