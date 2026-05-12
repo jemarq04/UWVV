@@ -1,7 +1,4 @@
 ---
-Language: Json
-DisableFormat: true
----
 Language: Cpp
 BasedOnStyle: Google
 ColumnLimit: 120
