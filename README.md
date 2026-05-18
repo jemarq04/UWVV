@@ -26,8 +26,8 @@ To use this framework, you must be in a fresh CMSSW environment. Instructions ar
 
 ```bash
 #Create your CMSSW environment
-cmsrel CMSSW_14_2_0
-cd CMSSW_14_2_0/src
+cmsrel CMSSW_15_0_14
+cd CMSSW_15_0_14/src
 
 #Initialize
 cmsenv
