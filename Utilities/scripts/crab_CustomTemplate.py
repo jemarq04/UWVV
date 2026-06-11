@@ -60,13 +60,6 @@ elif year == "2023":
         postBPix = 1 if "postBPix" in conditions else 0
     print("postBPix: %s" % postBPix)
 
-dataPeriod = ""
-if not isMC:
-    dataPeriod = conditions.split("Run%s" % year)[1][0]
-    if year == "2023":
-        dataPeriod += "v" + conditions.split("_v")[1][0]
-    print("dataPeriod:", dataPeriod)
-
 
 def getUnitsPerJob(ds):
     if isMC == 0:
@@ -141,7 +134,6 @@ if isMC:
         config.General.requestName += "postBPix"
         configParams.append("postBPix=%i" % postBPix)
 else:
-    configParams.append("dataPeriod=%s" % dataPeriod)
     # Since a PD will have several eras, add conditions to name to differentiate
     config.General.requestName = "_".join([campaign_name, primaryDS, conditions])
     # if "Run2016" in conditions:

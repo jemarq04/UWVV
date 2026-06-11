@@ -114,8 +114,7 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   bool includePhi = !(config_.find("Summer22") != std::string::npos ||
                       (config_.find("Summer23") != std::string::npos &&
-                       jesName_.find("BPix") == std::string::npos));   //true starting 2023BPix
-  bool includeRun = !(config_.find("Summer22") != std::string::npos);  //true starting 2023
+                       jesName_.find("BPix") == std::string::npos));  //true starting 2023BPix
 
   for (size_t i = 0; i < in->size(); ++i) {
     const Jet& jet = in->at(i);
@@ -127,13 +126,10 @@ void PATJetCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 ? scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho, jet.phi()})
                 : scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho});
     else {
-      if (includeRun)
-        jes = includePhi ? scaleFile_->compound().at(jesName_)->evaluate(
-                               {jet.jetArea(), jet.eta(), jet.pt(), *rho, jet.phi(), (double)iEvent.run()})
-                         : scaleFile_->compound().at(jesName_)->evaluate(
-                               {jet.jetArea(), jet.eta(), jet.pt(), *rho, (double)iEvent.run()});
-      else
-        jes = scaleFile_->compound().at(jesName_)->evaluate({jet.jetArea(), jet.eta(), jet.pt(), *rho});
+      jes = includePhi ? scaleFile_->compound().at(jesName_)->evaluate(
+                             {jet.jetArea(), jet.eta(), jet.pt(), *rho, jet.phi(), (double)iEvent.run()})
+                       : scaleFile_->compound().at(jesName_)->evaluate(
+                             {jet.jetArea(), jet.eta(), jet.pt(), *rho, (double)iEvent.run()});
     }
     out->push_back(jet);
     scaleJetP4(out->back(), jes * getRawFactor(jet));

@@ -93,13 +93,6 @@ options.register(
     "0: rereco, 1: prompt",
 )
 options.register(
-    "dataPeriod",
-    "",
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.string,
-    "period for data, given as a character with optional version (e.g. A, Cv3, ...)",
-)
-options.register(
     "eCalib",
     1,
     VarParsing.VarParsing.multiplicity.singleton,
@@ -208,16 +201,6 @@ if options.isMC:
     if options.isPrompt:
         print("ERROR: option mismatch. isPrompt is for data.")
         exit(1)
-elif options.year == "2022":  # data period only needed for 2022 jet corrections
-    if not options.dataPeriod:
-        print("ERROR: for 2022 jet corrections, the data period must be provided (e.g. A, B, C, ...)")
-        exit(1)
-    vals = options.dataPeriod.split("v")
-    if not vals[0].isalpha() or (len(vals) == 2 and not vals[1].isdigit()):
-        print("ERROR: Invalid data period '%s'" % options.dataPeriod)
-        print("Must be a single character with optional version (e.g. A, Cv3, ...)")
-        exit(1)
-    options.dataPeriod = options.dataPeriod.title()
 
 # Override inputs if input file list provided
 if options.inputFileList:
@@ -507,7 +490,6 @@ flowOpts = {
     "year": options.year,
     "calibEra22": "%sEE" % ("post" if options.postEE else "pre"),
     "calibEra23": "%sBPix" % ("post" if options.postBPix else "pre"),
-    "dataPeriod": options.dataPeriod,
     "electronsUL": bool(options.electronsUL),
 }
 

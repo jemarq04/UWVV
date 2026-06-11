@@ -56,7 +56,7 @@ private:
   std::unique_ptr<correction::CorrectionSet> scaleFile_;
   const bool systematics_;
 
-  std::string jerName_, jersfName_;
+  std::string jerName_, jersfName_, jersfUncName_;
 };
 
 PATJetSmearing::PATJetSmearing(const edm::ParameterSet& iConfig)
@@ -82,6 +82,7 @@ PATJetSmearing::PATJetSmearing(const edm::ParameterSet& iConfig)
 
   jerName_ = config_ + "_MC_PtResolution_" + algo_;
   jersfName_ = config_ + "_MC_ScaleFactor_" + algo_;
+  jersfUncName_ = config_ + "_MC_SFUncertainty_" + algo_;
   auto it = scaleFile_->begin();
   for (; it != scaleFile_->end(); it++)
     if (it->first == jerName_)
@@ -128,7 +129,7 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     float genpt = (gen != nullptr) ? gen->pt() : -1.0;
 
     double reso = scaleFile_->at(jerName_)->evaluate({eta, pt, *rho});
-    double scale = scaleFile_->at(jersfName_)->evaluate({eta, pt, "nom"});
+    double scale = scaleFile_->at(jersfName_)->evaluate({eta, pt});
     double jerCorr = 1.0;
 
     double gaus = 0.0;
@@ -145,8 +146,9 @@ void PATJetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
     if (systematics_) {
       // JER Uncertainty
-      double scaleUp = scaleFile_->at(jersfName_)->evaluate({eta, pt, "up"});
-      double scaleDn = scaleFile_->at(jersfName_)->evaluate({eta, pt, "down"});
+      double scaleUnc = scaleFile_->at(jersfUncName_)->evaluate({eta, pt});
+      double scaleUp = scale * (1 + scaleUnc);
+      double scaleDn = scale * (1 - scaleUnc);
       double jerCorrUp = 1.0;
       double jerCorrDn = 1.0;
 

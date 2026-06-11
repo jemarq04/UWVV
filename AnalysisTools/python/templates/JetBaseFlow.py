@@ -16,8 +16,6 @@ class JetBaseFlow(AnalysisFlowBase):
             self.calibEra22 = kwargs.pop("calibEra22", "preEE")
         if not hasattr(self, "calibEra23"):
             self.calibEra23 = kwargs.pop("calibEra23", "preBPix")
-        if not hasattr(self, "dataPeriod"):
-            self.dataPeriod = kwargs.pop("dataPeriod", "C")
         super(JetBaseFlow, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
@@ -65,33 +63,22 @@ class JetBaseFlow(AnalysisFlowBase):
             yearstring = self.year
             jesConfig = jerConfig = ""
             if self.year == "2022":
-                dataPeriod = "_Run"
-                if self.dataPeriod.split("v")[0] in ["C", "D"]:
-                    dataPeriod += "CD"
-                else:
-                    dataPeriod += self.dataPeriod.split("v")[0]
                 yearstring += "" if self.calibEra22 == "preEE" else "EE"
-                jesConfig = "Summer22%s_22Sep2023%s_V3" % (
-                    "" if self.calibEra22 == "preEE" else "EE",
-                    "" if self.isMC else dataPeriod,
-                )
-                jerConfig = "Summer22%s_22Sep2023_JRV1" % ("" if self.calibEra22 == "preEE" else "EE")
+                jesConfig = "Summer22%s_22Sep2023_V4" % ("" if self.calibEra22 == "preEE" else "EE")
+                jerConfig = "Summer22%s_22Sep2023_JRV2" % ("" if self.calibEra22 == "preEE" else "EE")
             elif self.year == "2023":
                 yearstring += "" if self.calibEra23 == "preBPix" else "BPix"
-                jesConfig = "Summer23%sPrompt23_V%s" % (
-                    "" if self.calibEra23 == "preBPix" else "BPix",
-                    "2" if self.calibEra23 == "preBPix" else "3",
-                )
-                jerConfig = "Summer23%sPrompt23_%s_JRV1" % (
+                jesConfig = "Summer23%sPrompt23_V4" % ("" if self.calibEra23 == "preBPix" else "BPix")
+                jerConfig = "Summer23%sPrompt23_%s_JRV2" % (
                     "" if self.calibEra23 == "preBPix" else "BPix",
                     "RunCv1234" if self.calibEra23 == "preBPix" else "RunD",
                 )
             elif self.year == "2024":
-                jesConfig = "Summer24Prompt24_V2"
-                jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
+                jesConfig = "Summer24Prompt24_V3"
+                jerConfig = "Summer24Prompt24_JRV1"
             elif self.year == "2025":
                 jesConfig = "Winter25Prompt25_V3"
-                jerConfig = "Summer23BPixPrompt23_RunD_JRV1"
+                jerConfig = "Summer24Prompt25_JRV1"
 
             scaleFile = getCorrectionFile("JME", yearstring, "jet_jerc.json.gz")
             vetoFile = getCorrectionFile("JME", yearstring, "jetvetomaps.json.gz")
