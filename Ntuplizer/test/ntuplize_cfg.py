@@ -339,6 +339,14 @@ extraFinalObjectBranches = {
 #############################################################################
 FlowSteps = []
 
+# MC Splitting
+if options.year in ["2024", "2025"]:
+    # 2024 MC is currently used for 2024, 2025, and eventually 2026
+    # needs to be split -> taking simple approach for now
+    from UWVV.AnalysisTools.templates.MCSplitting import MCSplitting
+
+    FlowSteps.append(MCSplitting)
+
 # Vertex cleaning
 if not state_wz:
     from UWVV.AnalysisTools.templates.VertexCleaning import VertexCleaning
