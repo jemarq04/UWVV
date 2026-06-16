@@ -7,12 +7,14 @@ class MCSplitting(AnalysisFlowBase):
     def __init__(self, *args, **kwargs):
         if not hasattr(self, "year"):
             self.year = kwargs.pop("year", "2024")
+        if not hasattr(self, "isMC"):
+            self.isMC = kwargs.pop("isMC", True)
         super(MCSplitting, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(MCSplitting, self).makeAnalysisStep(stepName, **inputs)
 
-        if stepName == "preselection":
+        if stepName == "preselection" and self.isMC:
             years = ["2024", "2025"]
 
             evtSplitter = cms.EDFilter(
