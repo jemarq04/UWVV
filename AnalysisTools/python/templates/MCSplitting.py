@@ -9,18 +9,18 @@ class MCSplitting(AnalysisFlowBase):
             self.year = kwargs.pop("year", "2024")
         if not hasattr(self, "isMC"):
             self.isMC = kwargs.pop("isMC", True)
+        if not hasattr(self, "yearsWithSameMC"):
+            self.yearsWithSameMC = kwargs.pop("yearsWithSameMC", ["2024", "2025"])
         super(MCSplitting, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
         step = super(MCSplitting, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == "preselection" and self.isMC:
-            years = ["2024", "2025"]
-
             evtSplitter = cms.EDFilter(
                 "NEventFilter",
-                numGroups=cms.int32(len(years)),
-                group=cms.int32(years.index(self.year)),
+                numGroups=cms.int32(len(self.yearsWithSameMC)),
+                group=cms.int32(self.yearsWithSameMC.index(self.year)),
             )
             step.addModule("mcEventSplitter", evtSplitter)
 

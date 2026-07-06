@@ -35,6 +35,7 @@ genLepChoices = {
 }
 yearDefault = "2022"
 yearChoices = ["2022", "2023", "2024", "2025"]
+yearsWithSameMC = ["2024", "2025"]
 outputFileDefault = "ntuple.root"
 
 # Parsing command-line arguments
@@ -340,7 +341,7 @@ extraFinalObjectBranches = {
 FlowSteps = []
 
 # MC Splitting
-if options.isMC and options.year in ["2024", "2025"]:
+if options.isMC and options.year in yearsWithSameMC:
     # 2024 MC is currently used for 2024, 2025, and eventually 2026
     # needs to be split -> taking simple approach for now
     from UWVV.AnalysisTools.templates.MCSplitting import MCSplitting
@@ -499,6 +500,7 @@ flowOpts = {
     "calibEra22": "%sEE" % ("post" if options.postEE else "pre"),
     "calibEra23": "%sBPix" % ("post" if options.postBPix else "pre"),
     "electronsUL": bool(options.electronsUL),
+    "yearsWithSameMC": yearsWithSameMC,
 }
 
 # Turn all these into a single flow class
