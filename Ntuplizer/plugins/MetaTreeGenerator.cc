@@ -51,7 +51,12 @@ private:
   unsigned runBranch;
   unsigned lumiBranch;
   unsigned neventsBranch;
+  unsigned ntotalevents;
   float summedWeightsBranch;
+  bool isMC;
+  int yearIndex;
+  std::string year;
+  std::vector<std::string> yearsWithSameMC;
 };
 
 MetaTreeGenerator::MetaTreeGenerator(const edm::ParameterSet& config)
@@ -61,11 +66,25 @@ MetaTreeGenerator::MetaTreeGenerator(const edm::ParameterSet& config)
       runBranch(0),
       lumiBranch(0),
       neventsBranch(0),
-      summedWeightsBranch(0.) {
+      ntotalevents(0),
+      summedWeightsBranch(0.),
+      isMC(config.getParameter<bool>("isMC")),
+      year(config.getParameter<std::string>("year")),
+      yearsWithSameMC(config.getParameter<std::vector<std::string> >("yearsWithSameMC")) {
   usesResource("TFileService");
   edm::Service<TFileService> FS;
   auto dir = FS->mkdir("datasetName");
   dir.make<TObjString>(datasetName.c_str());
+
+  yearIndex = -1;
+  if (isMC) {
+    for (size_t i = 0; i < yearsWithSameMC.size(); i++) {
+      if (year == yearsWithSameMC[i]) {
+        yearIndex = i;
+        break;
+      }
+    }
+  }
 }
 
 TTree* const MetaTreeGenerator::makeTree() {
@@ -85,6 +104,7 @@ void MetaTreeGenerator::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, 
   runBranch = iLumi.run();
   lumiBranch = iLumi.luminosityBlock();
   neventsBranch = 0;
+  ntotalevents = 0;
   summedWeightsBranch = 0.;
 }
 
@@ -95,8 +115,11 @@ void MetaTreeGenerator::endLuminosityBlock(const edm::LuminosityBlock& iLumi, co
 void MetaTreeGenerator::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   evtInfo.setEvent(event);
 
-  ++neventsBranch;
-  summedWeightsBranch += (evtInfo.genEventInfo().isValid() ? evtInfo.genEventInfo()->weight() : 0.);
+  ntotalevents++;
+  if (yearIndex < 0 || (ntotalevents % yearsWithSameMC.size() == (size_t)yearIndex)) {
+    ++neventsBranch;
+    summedWeightsBranch += (evtInfo.genEventInfo().isValid() ? evtInfo.genEventInfo()->weight() : 0.);
+  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

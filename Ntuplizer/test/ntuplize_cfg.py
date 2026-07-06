@@ -516,6 +516,9 @@ process.metaInfo = cms.EDAnalyzer(
     "MetaTreeGenerator",
     eventParams=makeEventParams(flow.finalTags()),
     datasetName=cms.string(options.datasetName),
+    isMC=cms.bool(bool(options.isMC)),
+    year=cms.string(options.year),
+    yearsWithSameMC=cms.vstring(yearsWithSameMC),
 )
 process.metaTreePath = cms.Path(process.metaInfo)
 process.schedule.append(process.metaTreePath)
