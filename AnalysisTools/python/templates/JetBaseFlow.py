@@ -77,15 +77,12 @@ class JetBaseFlow(AnalysisFlowBase):
                 jesConfig = "Summer24Prompt24_V3"
                 jerConfig = "Summer24Prompt24_JRV1"
             elif self.year == "2025":
-                jesConfig = "Winter25Prompt25_V3"
+                jesConfig = "Summer24Prompt25_V1"
                 jerConfig = "Summer24Prompt25_JRV1"
 
             scaleFile = getCorrectionFile("JME", yearstring, "jet_jerc.json.gz")
             vetoFile = getCorrectionFile("JME", yearstring, "jetvetomaps.json.gz")
             idFile = getCorrectionFile("JME", yearstring, "jetid.json.gz")
-
-            if self.year == "2025":  # TODO: Temporary fix for missing jetid JSON for 2025
-                idFile = getCorrectionFile("JME", "2024", "jetid.json.gz")
 
             # Jet energy corrections + uncertainties (JES)
             jetCorrector = cms.EDProducer(
