@@ -18,7 +18,6 @@ class ZZID(AnalysisFlowBase):
         step = super(ZZID, self).makeAnalysisStep(stepName, **inputs)
 
         if stepName == "embedding":
-            # TODO: update MVA for 2023-2025 when available
             eIDEmbedder = cms.EDProducer(
                 "PATElectronZZIDEmbedder",
                 src=step.getObjTag("e"),
