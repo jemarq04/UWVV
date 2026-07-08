@@ -37,7 +37,7 @@ for pog in "${POGs[@]}"; do
         echo "central file not found: $centralfile"
         continue
       fi
-      if ! diff $f $centralfile >& /dev/null; then
+      if ! diff $f $centralfile >&/dev/null; then
         echo
         echo ${f/$outdir\//} is out-of-date.
         read -p "Update the file? (y/n): " choice
