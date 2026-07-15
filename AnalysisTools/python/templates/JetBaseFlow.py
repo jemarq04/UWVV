@@ -69,16 +69,16 @@ class JetBaseFlow(AnalysisFlowBase):
             elif self.year == "2023":
                 yearstring += "" if self.calibEra23 == "preBPix" else "BPix"
                 jesConfig = "Summer23%sPrompt23_V4" % ("" if self.calibEra23 == "preBPix" else "BPix")
-                jerConfig = "Summer23%sPrompt23_%s_JRV2" % (
+                jerConfig = "Summer23%sPrompt23_%s_JRV3" % (
                     "" if self.calibEra23 == "preBPix" else "BPix",
                     "RunCv1234" if self.calibEra23 == "preBPix" else "RunD",
                 )
             elif self.year == "2024":
-                jesConfig = "Summer24Prompt24_V3"
-                jerConfig = "Summer24Prompt24_JRV1"
+                jesConfig = "Summer24Prompt24_V4"
+                jerConfig = "Summer24Prompt24_JRV2"
             elif self.year == "2025":
-                jesConfig = "Summer24Prompt25_V1"
-                jerConfig = "Summer24Prompt25_JRV1"
+                jesConfig = "Summer24Prompt25_V2"
+                jerConfig = "Summer24Prompt25_JRV2"
 
             scaleFile = getCorrectionFile("JME", yearstring, "jet_jerc.json.gz")
             vetoFile = getCorrectionFile("JME", yearstring, "jetvetomaps.json.gz")
