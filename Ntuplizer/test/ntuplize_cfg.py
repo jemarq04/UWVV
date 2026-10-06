@@ -115,6 +115,13 @@ options.register(
     "use 2018UL MVA for electron ID 0: off, 1: on",
 )
 options.register(
+    "noSipCut",
+    0,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.bool,
+    "disable SIP cut on leptons (0: false, 1: true)",
+)
+options.register(
     "genInfo",
     0,
     VarParsing.VarParsing.multiplicity.singleton,
@@ -501,6 +508,7 @@ flowOpts = {
     "calibEra23": "%sBPix" % ("post" if options.postBPix else "pre"),
     "electronsUL": bool(options.electronsUL),
     "yearsWithSameMC": yearsWithSameMC,
+    "sipCut": 9999 if options.noSipCut else 4.0,
 }
 
 # Turn all these into a single flow class

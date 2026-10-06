@@ -11,6 +11,8 @@ class ZZID(AnalysisFlowBase):
             self.debug = kwargs.pop("debug", False)
         if not hasattr(self, "electronsUL"):
             self.electronsUL = kwargs.pop("electronsUL", False)
+        if not hasattr(self, "sipCut"):
+            self.sipCut = kwargs.pop("sipCut", 4.0)
 
         super(ZZID, self).__init__(*args, **kwargs)
 
@@ -28,6 +30,7 @@ class ZZID(AnalysisFlowBase):
                 ),
                 ptCut=cms.double(7.0),
                 etaCut=cms.double(2.5),
+                sipCut=cms.double(self.sipCut),
             )
             step.addModule("eZZIDEmbedder", eIDEmbedder, "e")
 
@@ -38,6 +41,7 @@ class ZZID(AnalysisFlowBase):
                 setup=cms.int32(int(self.year)),
                 ptCut=cms.double(5.0),
                 etaCut=cms.double(2.4),
+                sipCut=cms.double(self.sipCut),
                 idLabel=cms.string(self.getZZIDLabel()),
             )
             step.addModule("mZZIDEmbedder", mIDEmbedder, "m")
