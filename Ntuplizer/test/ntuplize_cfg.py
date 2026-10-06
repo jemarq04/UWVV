@@ -1,5 +1,5 @@
 #############################################################################
-#    Module imports                                                         #
+#    Module imports                                                       #
 #############################################################################
 
 # System modules
@@ -19,7 +19,7 @@ from UWVV.Ntuplizer.makeBranchSet import makeBranchSet, makeGenBranchSet
 from UWVV.Ntuplizer.eventParams import makeEventParams, makeGenEventParams
 
 #############################################################################
-#    Configuring command-line options                                       #
+#    Configuring command-line options                                     #
 #############################################################################
 
 # Defining constants
@@ -182,7 +182,7 @@ options.register(
 options.parseArguments()
 
 #############################################################################
-#    Error checking and process configuration                               #
+#    Error checking and process configuration                             #
 #############################################################################
 if options.year not in yearChoices:
     print("ERROR: Invalid year %s" % options.year)
@@ -236,7 +236,7 @@ for var in ["electronsUL", "debug"]:
 
 
 #############################################################################
-#    Prepare CMSSW workflow                                                 #
+#    Prepare CMSSW workflow                                               #
 #############################################################################
 
 # Initializing process
@@ -335,8 +335,8 @@ extraFinalObjectBranches = {
 }
 
 #############################################################################
-#    Make the analysis flow. It is assembled from a list of classes, each   #
-#    of which adds related steps to the sequence.                           #
+#    Make the analysis flow. It is assembled from a list of classes, each #
+#    of which adds related steps to the sequence.                         #
 #############################################################################
 FlowSteps = []
 
@@ -508,7 +508,7 @@ FlowClass = createFlow(*FlowSteps)
 flow = FlowClass("flow", process, initialstate_chans=channels, **flowOpts)
 
 #############################################################################
-#    Make the tree generators.                                              #
+#    Make the tree generators.                                            #
 #############################################################################
 
 # Meta info tree
