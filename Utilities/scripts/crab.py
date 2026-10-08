@@ -146,7 +146,7 @@ configParams = [
     "postEE=%i" % postEE,
     "postBPix=%i" % postBPix,
 ]
-for optvar in ["electronsUL"]:
+for optvar in ["electronsUL", "noSipCut"]:
     if optvar in localSettings:
         configParams.append(f"{optvar}={localSettings[optvar]}")
 
