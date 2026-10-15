@@ -115,8 +115,6 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
         rho = scaleFile_->at(smearConfig_)->evaluate({"smear", ele_pt, ele_r9, ele_eta});
         rho_up = scaleFile_->at(smearConfig_)->evaluate({"smear_up", ele_pt, ele_r9, ele_eta});
         rho_dn = scaleFile_->at(smearConfig_)->evaluate({"smear_down", ele_pt, ele_r9, ele_eta});
-        scale_up = scaleFile_->at(smearConfig_)->evaluate({"scale_up", ele_pt, ele_r9, ele_eta});
-        scale_dn = scaleFile_->at(smearConfig_)->evaluate({"scale_down", ele_pt, ele_r9, ele_eta});
 
         TRandom3 rand;
         rand.SetSeed(hasSeed_ ? seed_ : std::abs(static_cast<int>(std::sin(ele.phi()) * 100000)));
@@ -125,6 +123,9 @@ void PATElectronCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iS
         smear = 1 + rho * rand_num;
         smear_up = 1 + rho_up * rand_num;
         smear_dn = 1 + rho_dn * rand_num;
+
+        scale_up = scaleFile_->at(smearConfig_)->evaluate({"scale_up", smear * ele_pt, ele_r9, ele_eta});
+        scale_dn = scaleFile_->at(smearConfig_)->evaluate({"scale_down", smear * ele_pt, ele_r9, ele_eta});
       } else {
         scale = scaleFile_->compound()
                     .at(scaleConfig_)
