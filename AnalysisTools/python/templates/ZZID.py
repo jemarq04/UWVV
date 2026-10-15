@@ -37,12 +37,11 @@ class ZZID(AnalysisFlowBase):
             mIDEmbedder = cms.EDProducer(
                 "PATMuonZZIDEmbedder",
                 src=step.getObjTag("m"),
+                idLabel=cms.string(self.getZZIDLabel()),
                 vtxSrc=step.getObjTag("v"),
-                setup=cms.int32(int(self.year)),
                 ptCut=cms.double(5.0),
                 etaCut=cms.double(2.4),
                 sipCut=cms.double(self.sipCut),
-                idLabel=cms.string(self.getZZIDLabel()),
             )
             step.addModule("mZZIDEmbedder", mIDEmbedder, "m")
 
