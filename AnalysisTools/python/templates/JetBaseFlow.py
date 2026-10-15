@@ -74,10 +74,10 @@ class JetBaseFlow(AnalysisFlowBase):
                     "RunCv1234" if self.calibEra23 == "preBPix" else "RunD",
                 )
             elif self.year == "2024":
-                jesConfig = "Summer24Prompt24_V4"
+                jesConfig = "Summer24Prompt24_V5"
                 jerConfig = "Summer24Prompt24_JRV2"
             elif self.year == "2025":
-                jesConfig = "Summer24Prompt25_V2"
+                jesConfig = "Summer24Prompt25_V3"
                 jerConfig = "Summer24Prompt25_JRV2"
 
             scaleFile = getCorrectionFile("JME", yearstring, "jet_jerc.json.gz")
