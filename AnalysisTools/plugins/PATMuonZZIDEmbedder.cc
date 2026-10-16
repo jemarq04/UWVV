@@ -43,7 +43,7 @@ private:
   bool passVertex(const Muon& mu) const;
   bool passType(const Muon& mu) const;
 
-  edm::EDGetTokenT<MuonView> muonCollectionToken_;
+  edm::EDGetTokenT<MuonView> srcToken_;
   const std::string idLabel_;                                   // label for the decision userfloat
   const edm::EDGetTokenT<reco::VertexCollection> vtxSrcToken_;  // primary vertex (for veto PV and SIP cuts)
 
@@ -58,8 +58,8 @@ private:
 };
 
 PATMuonZZIDEmbedder::PATMuonZZIDEmbedder(const edm::ParameterSet& iConfig)
-    : muonCollectionToken_(consumes<MuonView>(iConfig.exists("src") ? iConfig.getParameter<edm::InputTag>("src")
-                                                                    : edm::InputTag("slimmedMuons"))),
+    : srcToken_(consumes<MuonView>(iConfig.exists("src") ? iConfig.getParameter<edm::InputTag>("src")
+                                                         : edm::InputTag("slimmedMuons"))),
       idLabel_(iConfig.exists("idLabel") ? iConfig.getParameter<std::string>("idLabel") : std::string("HZZ4lIDPass")),
       vtxSrcToken_(consumes<reco::VertexCollection>(iConfig.exists("vtxSrc")
                                                         ? iConfig.getParameter<edm::InputTag>("vtxSrc")
@@ -74,7 +74,7 @@ PATMuonZZIDEmbedder::PATMuonZZIDEmbedder(const edm::ParameterSet& iConfig)
 
 void PATMuonZZIDEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<MuonView> muonsIn;
-  iEvent.getByToken(muonCollectionToken_, muonsIn);
+  iEvent.getByToken(srcToken_, muonsIn);
 
   std::unique_ptr<MuonCollection> out = std::make_unique<MuonCollection>();
 
