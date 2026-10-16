@@ -44,7 +44,6 @@ private:
   bool passKinematics(const Electron& ele) const;
   bool passVertex(const Electron& ele) const;
   bool passBDT(const Electron& ele) const;
-  bool passMissingHits(const Electron& ele) const;
 
   edm::EDGetTokenT<ElectronView> srcToken_;
   const std::string idLabel_;  // label for the decision userfloat
