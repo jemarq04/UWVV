@@ -36,7 +36,7 @@ eventBranches = cms.PSet(
 )
 ecalBadCalibFilterBranches = cms.PSet(
     bools=cms.PSet(
-        ReFlag_ecalBadCalibFilter=cms.string(
+        ReFlag_ecalBadCalibFilterPass=cms.string(
             '? hasUserFloat("ReFlag_ecalBadCalibFilter") ? userFloat("ReFlag_ecalBadCalibFilter") : 0'
         ),
     ),
