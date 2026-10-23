@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Run_3_recommendations
+# https://cms-jme-jmar.docs.cern.ch/recommendations/met/noise_filters/#run-3
 metFilters = cms.PSet(
     trigNames=cms.vstring(
         "Flag_goodVertices",
@@ -25,7 +25,6 @@ metFilters = cms.PSet(
     checkPrescale=cms.bool(False),
 )
 
-# https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Run_3_recommendations
 metFiltersSIM = cms.PSet(
     trigNames=cms.vstring(
         "Flag_goodVertices",
