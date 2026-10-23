@@ -355,6 +355,16 @@ if options.isMC and options.year in yearsWithSameMC:
 
     FlowSteps.append(MCSplitting)
 
+# Rerun ECAL bad-calibration filter for 2022-2023
+if options.year in ["2022", "2023"]:
+    from UWVV.Ntuplizer.templates.eventBranches import ecalBadCalibFilterBranches
+
+    extraInitialStateBranches.append(ecalBadCalibFilterBranches)
+
+    from UWVV.AnalysisTools.templates.ECALBadCalibFilter import ECALBadCalibFilter
+
+    FlowSteps.append(ECALBadCalibFilter)
+
 # Vertex cleaning
 if not state_wz:
     from UWVV.AnalysisTools.templates.VertexCleaning import VertexCleaning

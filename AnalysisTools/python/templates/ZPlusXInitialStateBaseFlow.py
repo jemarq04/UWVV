@@ -8,6 +8,8 @@ class ZPlusXInitialStateBaseFlow(ZPlusXBaseFlow):
     def __init__(self, *args, **kwargs):
         if not hasattr(self, "isMC"):
             self.isMC = kwargs.pop("isMC", True)
+        if not hasattr(self, "year"):
+            self.year = kwargs.pop("year", "2022")
         super(ZPlusXInitialStateBaseFlow, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
@@ -32,8 +34,8 @@ class ZPlusXInitialStateBaseFlow(ZPlusXBaseFlow):
                 step.addModule(chan + "Producer", mod, chan)
 
         if stepName == "initialStateEmbedding":
-            # Add modules to embed alternate lepton pair (e.g. e1+m1) info.
             for chan in parseChannels("zl"):
+                # Add modules to embed alternate lepton pair (e.g. e1+m1) info.
                 mod = cms.EDProducer(
                     "AlternateDaughterInfoEmbedder",
                     src=step.getObjTag(chan),
@@ -41,6 +43,15 @@ class ZPlusXInitialStateBaseFlow(ZPlusXBaseFlow):
                     fsrLabel=cms.string(""),  # "fsr"),
                 )
                 step.addModule(chan + "AlternatePairs", mod, chan)
+
+                if self.year in ["2022", "2023"]:
+                    mod = cms.EDProducer(
+                        "PATCompositeCandidateValueEmbedder",
+                        src=step.getObjTag(chan),
+                        boolSrc=cms.VInputTag("ecalBadCalibReducedMINIAODFilter"),
+                        boolLabels=cms.vstring("ReFlag_ecalBadCalibFilter"),
+                    )
+                    step.addModule(chan + "ReFlagECALBadCalibFilter", mod, chan)
 
                 # Add modules to embed jet collection in the initial state object
                 if self.isMC:

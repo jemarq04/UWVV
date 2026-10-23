@@ -34,6 +34,13 @@ eventBranches = cms.PSet(
         evt=cms.string("evt"),
     ),
 )
+ecalBadCalibFilterBranches = cms.PSet(
+    bools=cms.PSet(
+        ReFlag_ecalBadCalibFilter=cms.string(
+            '? hasUserFloat("ReFlag_ecalBadCalibFilter") ? userFloat("ReFlag_ecalBadCalibFilter") : 0'
+        ),
+    ),
+)
 L1ECALPrefiringBranches = cms.PSet(
     floats=cms.PSet(
         L1prefiringWeight=cms.string("L1prefiringWeight"),

@@ -8,6 +8,8 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
     def __init__(self, *args, **kwargs):
         if not hasattr(self, "isMC"):
             self.isMC = kwargs.pop("isMC", True)
+        if not hasattr(self, "year"):
+            self.year = kwargs.pop("year", "2022")
         super(ZZInitialStateBaseFlow, self).__init__(*args, **kwargs)
 
     def makeAnalysisStep(self, stepName, **inputs):
@@ -52,6 +54,15 @@ class ZZInitialStateBaseFlow(ZPlusXBaseFlow):
                         names=cms.vstring(*mapObjects(chan)),
                     )
                     step.addModule(chan + "AlternateZZPairMass", mod, chan)
+
+                if self.year in ["2022", "2023"]:
+                    mod = cms.EDProducer(
+                        "PATCompositeCandidateValueEmbedder",
+                        src=step.getObjTag(chan),
+                        boolSrc=cms.VInputTag("ecalBadCalibReducedMINIAODFilter"),
+                        boolLabels=cms.vstring("ReFlag_ecalBadCalibFilter"),
+                    )
+                    step.addModule(chan + "ReFlagECALBadCalibFilter", mod, chan)
 
                 # Add modules to embed jet collection in the initial state object
                 if self.isMC:
