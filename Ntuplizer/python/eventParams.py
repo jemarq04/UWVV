@@ -63,7 +63,6 @@ def makeEventParams(flowOutputs, channel="", **newParams):
 
     extraCollections = {}
     for obj, tags in extras.items():
-        tags = {n: cms.InputTag(t) for n, t in tags.items()}
         if tags:
             extraCollections[obj + "Extra"] = cms.PSet(**tags)
 
