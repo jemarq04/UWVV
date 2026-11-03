@@ -122,6 +122,13 @@ options.register(
     "disable SIP cut on leptons (0: false, 1: true)",
 )
 options.register(
+    "noSplitting",
+    0,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.bool,
+    "disable MC splitting for 2024MC (0: false, 1: true)",
+)
+options.register(
     "genInfo",
     0,
     VarParsing.VarParsing.multiplicity.singleton,
@@ -348,7 +355,7 @@ extraFinalObjectBranches = {
 FlowSteps = []
 
 # MC Splitting
-if options.isMC and options.year in yearsWithSameMC:
+if not options.noSplitting and options.isMC and options.year in yearsWithSameMC:
     # 2024 MC is currently used for 2024, 2025, and eventually 2026
     # needs to be split -> taking simple approach for now
     from UWVV.AnalysisTools.templates.MCSplitting import MCSplitting
@@ -536,7 +543,7 @@ process.metaInfo = cms.EDAnalyzer(
     datasetName=cms.string(options.datasetName),
     isMC=cms.bool(bool(options.isMC)),
     year=cms.string(options.year),
-    yearsWithSameMC=cms.vstring(yearsWithSameMC),
+    yearsWithSameMC=cms.vstring(["9999"] if options.noSplitting else yearsWithSameMC),
 )
 process.metaTreePath = cms.Path(process.metaInfo)
 process.schedule.append(process.metaTreePath)
