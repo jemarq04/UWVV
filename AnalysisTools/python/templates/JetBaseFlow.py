@@ -79,6 +79,9 @@ class JetBaseFlow(AnalysisFlowBase):
             elif self.year == "2025":
                 jesConfig = "Summer24Prompt25_V3"
                 jerConfig = "Summer24Prompt25_JRV2"
+            elif self.year == "2026":
+                jesConfig = "Summer24Prompt26_V1"
+                jerConfig = "Summer24Prompt26_JRV1"
 
             scaleFile = getCorrectionFile("JME", yearstring, "jet_jerc.json.gz")
             vetoFile = getCorrectionFile("JME", yearstring, "jetvetomaps.json.gz")

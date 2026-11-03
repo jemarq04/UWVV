@@ -188,6 +188,7 @@ def getCorrectionFile(pog, era, correction):
         "2023BPix": "Run3-23DSep23-Summer23BPix-NanoAODv12",
         "2024": "Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15",
         "2025": "Run3-25Prompt-Summer24-NanoAODv15",
+        "2026": "Run3-26Prompt-Summer24-NanoAODv15",
     }
 
     corr_path = path.join(UWVV_BASE_PATH, "data", "XPOG")
