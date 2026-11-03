@@ -244,7 +244,7 @@ elif options.year == "2023":
 
 if not options.isMC:
     print("isPrompt: %i" % options.isPrompt)
-for var in ["electronsUL", "noSipCut", "debug"]:
+for var in ["electronsUL", "noSipCut", "noSplitting", "debug"]:
     if getattr(options, var):
         print("%s flag on" % var)
 

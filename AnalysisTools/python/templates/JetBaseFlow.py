@@ -34,7 +34,7 @@ class JetBaseFlow(AnalysisFlowBase):
                     intVals=cms.vint32(7),
                     intLabels=cms.vstring("fullId"),
                 )
-            elif self.year in ["2024", "2025"]:
+            else:
                 puppiLabel, _ = setupPuppiForPackedPF(self.process)
                 self.process.load("RecoJets.JetProducers.PileupJetID_cfi")
                 self.process.pileupJetIdUpdated = self.process.pileupJetIdPuppi.clone(
