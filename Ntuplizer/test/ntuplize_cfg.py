@@ -34,8 +34,8 @@ genLepChoices = {
     "dressedPromptFS": "isPromptFinalState()",
 }
 yearDefault = "2022"
-yearChoices = ["2022", "2023", "2024", "2025"]
-yearsWithSameMC = ["2024", "2025"]
+yearChoices = ["2022", "2023", "2024", "2025", "2026"]
+yearsWithSameMC = ["2024", "2025"] # TODO: eventually add 2026 here? considering alt solution
 outputFileDefault = "ntuple.root"
 
 # Parsing command-line arguments
@@ -278,6 +278,7 @@ state_wz = "wz" in options.channels
 # 2023: https://docs.google.com/presentation/d/1TjPem5jX0fzqvTGl271_nQFoVBabsrdrO0i8Qo1uD5E/edit?usp=sharing
 # 2024: https://docs.google.com/presentation/d/1EHxQcWzw8IxPgCn8hm1prwSP-EktFtiuaEzH8WkQNVY/edit?usp=sharing
 # 2025: https://docs.google.com/presentation/d/1H_WuzeAGkW3xZvo3oN4qGZWfw2eBuUzMhPLeShYAQoU/edit?usp=sharing
+# 2026: https://docs.google.com/presentation/d/1J-5IZ_zxELvBFhsVnlSChxWjOJB4jabXkCIalqA5GIk/edit?usp=sharing
 if options.globalTag:
     gt = options.globalTag
 elif options.isMC:
@@ -291,7 +292,7 @@ elif options.isMC:
             gt = "140X_mcRun3_2023_realistic_v9"
         else:
             gt = "140X_mcRun3_2023_realistic_postBPix_v3"
-    elif options.year == "2024" or options.year == "2025":
+    elif options.year in ["2024", "2025", "2026"]:
         gt = "150X_mcRun3_2024_realistic_v2"
 else:
     if options.year == "2022":
@@ -314,6 +315,11 @@ else:
             gt = ""
         else:
             gt = "150X_dataRun3_Prompt_v1"
+    elif options.year == "2026":
+        if not options.isPrompt:
+            gt = ""
+        else:
+            gt = "161X_dataRun3_Prompt_v1"
 
 print("globalTag: %s" % gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
