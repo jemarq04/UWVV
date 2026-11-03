@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-for year in 2022 2023 2024 2025 2026; do
+years=${1:-2022 2023 2024 2025 2026}
+for year in $years; do
   for f in inputs/testing/${year}*.dat; do
     [[ ! -f $f ]] && break
     echo $f
