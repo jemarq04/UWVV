@@ -35,7 +35,7 @@ genLepChoices = {
 }
 yearDefault = "2022"
 yearChoices = ["2022", "2023", "2024", "2025", "2026"]
-yearsWithSameMC = ["2024", "2025"] # TODO: eventually add 2026 here? considering alt solution
+yearsWithSameMC = ["2024", "2025"]  # TODO: eventually add 2026 here? considering alt solution
 outputFileDefault = "ntuple.root"
 
 # Parsing command-line arguments
